@@ -1,0 +1,77 @@
+# Copyright 2023 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-ns
+
+#######################################
+#
+#  GenAI (Vertex LLM)
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-llm-vertex-service
+  namespace: ai-ns
+  labels:
+    app: genai-llm-vertex
+spec:
+  selector:
+    app: genai-llm-vertex
+  ports:
+    - name: genai-llm-vertex-port
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-llm-vertex
+  namespace: ai-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-llm-vertex
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: genai-llm-vertex
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+      - name: genai-llm-vertex
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/genai-llm-vertex"
+        ports:
+          - containerPort: 8080
+        env:
+          - name: GCP_PROJECT_ID
+            value: "${GCP_PROJECT_ID}"
+          - name: MODEL_TYPE
+            value: "${MODEL_TYPE}"

@@ -1,0 +1,360 @@
+# Copyright 2023 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: game-event-ns
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ai-ns
+
+#######################################
+#
+#  Event Ingest
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    Service.kubernetes.io/topology-aware-hints: auto
+  name: event-ingest-service
+  namespace: game-event-ns
+  labels:
+    app: event-ingest
+spec:
+  selector:
+    app: event-ingest
+  ports:
+    - name: event-ingest-port
+      protocol: TCP
+      port: 80
+      targetPort: 7777
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-ingest
+  namespace: game-event-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-ingest
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: event-ingest
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+      - name: event-ingest
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/event_ingest:latest"
+        env:
+          - name: ML_AGENT_URL
+            value: "ml-serving-service.game-event-ns.svc"
+        ports:
+          - containerPort: 7777
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 2Gi
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - event-ingest
+              topologyKey: "kubernetes.io/hostname"
+
+#######################################
+#
+#  ML Serving (Propensity to buy model)
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    Service.kubernetes.io/topology-aware-hints: auto
+  name: ml-serving-service
+  namespace: game-event-ns
+  labels:
+    app: ml-serving
+spec:
+  selector:
+    app: ml-serving
+  ports:
+    - name: grpc
+      port: 8500
+      targetPort: 8500
+    - name: tcp
+      port: 80
+      targetPort: 8501
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-serving
+  namespace: game-event-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-serving
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: ml-serving
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+        - name: ml-serving
+          image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/${MODEL_SERVING_IMAGE_NAME}:latest"
+          ports:
+            - containerPort: 8500
+            - containerPort: 8501
+          args:
+            - "--model_name=${MODEL_NAME}"
+          resources:
+            limits:
+              cpu: 1
+              memory: 2Gi
+            requests:
+              cpu: 250m
+              memory: 2Gi
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - event-ingest
+              topologyKey: "kubernetes.io/hostname"
+
+#######################################
+#
+#  AdServer
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    Service.kubernetes.io/topology-aware-hints: auto
+  name: ad-server-service
+  namespace: game-event-ns
+  labels:
+    app: ad-server
+spec:
+  selector:
+    app: ad-server
+  ports:
+    - name: ad-server-port
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer 
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ad-server
+  namespace: game-event-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ad-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ad-server
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+      - name: ad-server
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/adserving:latest"
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 2Gi 
+
+#######################################
+#
+#  GenAI (Stable Diffusion)
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-sd-service
+  namespace: ai-ns
+  labels:
+    app: genai-sd
+spec:
+  selector:
+    app: genai-sd
+  ports:
+    - name: genai-sd-port
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-sd
+  namespace: ai-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-sd
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: genai-sd
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+        cloud.google.com/gke-accelerator: "nvidia-tesla-t4"
+      containers:
+      - name: genai-sd
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/genai_stable_diffusion"
+        ports:
+          - containerPort: 8080
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            ephemeral-storage: 30Gi
+          requests:
+            cpu: "8"
+            memory: "8Gi"
+
+#######################################
+#
+#  GenAI (Vertex LLM)
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genai-llm-vertex-service
+  namespace: ai-ns
+  labels:
+    app: genai-llm-vertex
+spec:
+  selector:
+    app: genai-llm-vertex
+  ports:
+    - name: genai-llm-vertex-port
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-llm-vertex
+  namespace: ai-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genai-llm-vertex
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: genai-llm-vertex
+    spec:
+      serviceAccountName: udp-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+      - name: genai-llm-vertex
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/genai-llm-vertex"
+        ports:
+          - containerPort: 8080
