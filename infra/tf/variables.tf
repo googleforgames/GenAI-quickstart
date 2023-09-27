@@ -20,14 +20,23 @@ variable "prefix" {
   description = "Short uniue name for environment"
 }
 
+# GCP Project ID
 variable "project_id" {
   type        = string
   description = "GCP Project Name"
 }
 
+# GCP Project Number
 variable "project_number" {
   type        = string
   description = "GCP Project Number"
+}
+
+# GCP Region
+variable "region" {
+  type        = string
+  default     = "default"
+  description = "GCP Project Region"
 }
 
 # VPC Variables
@@ -35,6 +44,13 @@ variable "vpc_name" {
   type        = string
   default     = "default"
   description = "VPC Name"
+}
+
+# GKE Cluster Name
+variable "gke_cluster_name" {
+  type        = string
+  default     = "default"
+  description = "GKE Cluster Name"
 }
 
 variable "locations" {

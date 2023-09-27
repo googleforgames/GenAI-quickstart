@@ -16,8 +16,12 @@
 # to to enter in their GCP project ID.
 # Uncomment this if you want to preset your GCP Project ID.
 
-project_id = YOUR_GCP_PROJECT_ID
+project_id = "YOUR_GCP_PROJECT_ID"
 
-project_number = YOUR_GCP_PROJECT_NUMBER
+project_number = "YOUR_GCP_PROJECT_NUMBER"
 
-vpc_name = YOUR_VPC_NAME
+region = "YOUR_GCP_REGION"
+
+vpc_name = "YOUR_VPC_NAME"
+
+gke_cluster_name = "YOUR_GKE_CLUSTER_NAME"

@@ -70,25 +70,25 @@ module "genai" {
 
   # GKE Cluster Configs
   gke_config = {
-    "unified-data-us-central1" = {
-      region       = "us-central1",
+  (var.gke_cluster_name) = {
+      region       = var.region,
       machine_type = "e2-standard-4",
     }
   }
 
   # Spanner Config
   spanner_config = {
-    instance_name    = "unified-data-instance",
-    db_name          = "unified-data",
+    instance_name    = "genai-instance",
+    db_name          = "genai-db",
     location         = "nam9",
     processing_units = 100,
   }
 
   # BigQuery
   bigquery_config = {
-    dataset     = "unified_data",
+    dataset     = "genai_data",
     location    = "${var.locations.bq}",
-    description = "Unified Data",
+    description = "GenAI Data",
     tables = {
       "game_telemetry" = {
         name = "game_telemetry",
@@ -102,7 +102,7 @@ module "genai" {
   # Pipeline
   pipeline = {
     artifact_registry = {
-      location        = "us-central1",
+      location        = var.region,
       repository_name = "genai-repo",
       description     = "Docker repo for GenAI Assets",
       format          = "DOCKER",
