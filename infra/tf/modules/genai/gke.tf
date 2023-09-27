@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-resource "google_artifact_registry_repository" "udp-repo" {
-  project       = var.project_id
-  location      = var.pipeline.artifact_registry.location
-  repository_id = var.pipeline.artifact_registry.repository_name
-  description   = var.pipeline.artifact_registry.description
-  format        = var.pipeline.artifact_registry.format
+resource "google_container_cluster" "genai-cluster" {
+  for_each = var.gke_config
+  project  = var.project_id
+  name     = each.key
+  location = each.value.region
+  network  = var.vpc_name
+
+  # See issue: https://github.com/hashicorp/terraform-provider-google/issues/10782
+  ip_allocation_policy {}
+
+  # Enabling Autopilot for this cluster
+  enable_autopilot = true
 }

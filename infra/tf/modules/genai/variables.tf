@@ -68,7 +68,7 @@ variable "bigquery_config" {
     description = string,
     tables      = map(any),
   })
-  description = "BigQuery Dataset for Unified Data"
+  description = "BigQuery Dataset for GenAI Quickstart"
 }
 
 # PubSub Variables
@@ -87,6 +87,6 @@ variable "pipeline" {
       format          = string
     })
   })
-  description = "Configuraion for UDP automation pipeline"
+  description = "Configuraion for pipeline"
 }
 

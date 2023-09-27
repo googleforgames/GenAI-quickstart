@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module "udp" {
-  source = "./modules/udp"
+module "genai" {
+  source = "./modules/genai"
   services = [
     "cloudbuild.googleapis.com",
     "compute.googleapis.com",
@@ -103,8 +103,8 @@ module "udp" {
   pipeline = {
     artifact_registry = {
       location        = "us-central1",
-      repository_name = "udp-repo",
-      description     = "Docker repo for UDP Assets",
+      repository_name = "genai-repo",
+      description     = "Docker repo for GenAI Assets",
       format          = "DOCKER",
     }
   }

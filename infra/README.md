@@ -1,10 +1,10 @@
 # Starting Infrastructure
 
-This document goes over some assumed prerequisites on starting the Unified Data Framework, as well as the steps to setup the initial infrastructure.
+This README provides the steps required to setup the initial infrastructure.
 
 ## Pre-requisites
 
-The Unified Data Framework assumes assumes default VPC settings and firewall rules. In the case that that those are not in place, you can view the following commands below to configure the starting point.
+This project assumes assumes default VPC settings and firewall rules. In the case that that those are not in place, you can view the following commands below to configure the starting point.
 
 **VPC**
 
@@ -34,7 +34,7 @@ gcloud compute firewall-rules create default-allow-icmp \
   --source-ranges 0.0.0.0/0
 ```
 
-## [KCC] Getting started- WIP
+## [KCC] Getting started - WIP
 
 **Pre-requisites**
 
@@ -47,7 +47,7 @@ In order to get started with deployment of KCC you will need to have a cluster c
 After setup, be sure to take note of the Google Cloud service account name that will be used on behalf of our `kcc` cluster bind to workload identity to provision our infrastructure.
 
 ```sh
-export GSA=YOU_SERVICE_ACCOUNT_NAME
+export GSA=YOUR_SERVICE_ACCOUNT_NAME
 ```
 
 This setup leverages [`kpt`](https://kpt.dev) and [`skaffold`](https://skaffold.dev/) to orchestrate our infrastructure utilizing the kubernetes resource model (KRM). With this we can extend the bare bones to operate on top of other tools for a more automated CI/CD and GitOps approch, such as Config-Sync, ArgoCD, and Cloud Deploy. 
