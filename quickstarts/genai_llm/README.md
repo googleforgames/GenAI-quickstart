@@ -23,6 +23,12 @@ If all of that looks good, then you can move on to the next step.
 
 Before you can deploy the services within this quickstart, you will need to provision the GCP resources such as your Kubernetes cluster, services accounts, artifact registry, databases, etc. To provision your GCP resource, follow the [README](../../infra/README.md) located within the [infra](../../infra/) directory.
 
+If using GKE Autopilot, then be sure setup Workload Identity so that your cluster has permissions to access the specified Google Cloud services. You can setup workload identity by running this script: 
+
+```sh
+$PROJECT_ROOT/src/enable_workload_identity.sh
+```
+
 ### Step 2 - Build the services
 
 Run the following script that triggers the Google Cloud Build process that will build the service container and place it within Google Artifact Registry. 

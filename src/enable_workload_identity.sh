@@ -20,17 +20,17 @@
 
 
 # Get GKE Cluster Credentials
-gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region us-central1 --project $GCP_PROJECT_ID
+gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region $GCP_REGION --project $GCP_PROJECT_ID
 
 
 # Create Service Account
-gcloud iam service-accounts create udp-sa \
+gcloud iam service-accounts create gke-sa \
     --project=$GCP_PROJECT_ID
 
 
 # Add Role(s) to Service Account
 gcloud projects add-iam-policy-binding $GCP_PROJECT_ID \
-    --member "serviceAccount:udp-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
+    --member "serviceAccount:gke-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com" \
     --role "roles/editor"
 
 
@@ -46,21 +46,21 @@ kubectl create namespace game-event-ns
 
 
 # Create service account in namespace
-kubectl create serviceaccount udp-k8s-sa \
+kubectl create serviceaccount gke-k8s-sa \
     --namespace game-event-ns
 
 
 # Allow the Kubernetes service account to impersonate the IAM service account 
 # by adding an IAM policy binding between the two service accounts.
-gcloud iam service-accounts add-iam-policy-binding udp-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com \
+gcloud iam service-accounts add-iam-policy-binding gke-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com \
     --role roles/iam.workloadIdentityUser \
-    --member "serviceAccount:$GCP_PROJECT_ID.svc.id.goog[game-event-ns/udp-k8s-sa]"
+    --member "serviceAccount:$GCP_PROJECT_ID.svc.id.goog[game-event-ns/gke-k8s-sa]"
 
 
 # Annotate the Kubernetes service account with the email address of the IAM service account
-kubectl annotate serviceaccount udp-k8s-sa \
+kubectl annotate serviceaccount gke-k8s-sa \
     --namespace game-event-ns \
-    iam.gke.io/gcp-service-account=udp-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account=gke-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com
 
 
 ################################
@@ -75,18 +75,18 @@ kubectl create namespace ai-ns
 
 
 # Create service account in namespace
-kubectl create serviceaccount udp-k8s-sa \
+kubectl create serviceaccount gke-k8s-sa \
     --namespace ai-ns
 
 
 # Allow the Kubernetes service account to impersonate the IAM service account 
 # by adding an IAM policy binding between the two service accounts.
-gcloud iam service-accounts add-iam-policy-binding udp-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com \
+gcloud iam service-accounts add-iam-policy-binding gke-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com \
     --role roles/iam.workloadIdentityUser \
-    --member "serviceAccount:$GCP_PROJECT_ID.svc.id.goog[ai-ns/udp-k8s-sa]"
+    --member "serviceAccount:$GCP_PROJECT_ID.svc.id.goog[ai-ns/gke-k8s-sa]"
 
 
 # Annotate the Kubernetes service account with the email address of the IAM service account
-kubectl annotate serviceaccount udp-k8s-sa \
+kubectl annotate serviceaccount gke-k8s-sa \
     --namespace ai-ns \
-    iam.gke.io/gcp-service-account=udp-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account=gke-sa@$GCP_PROJECT_ID.iam.gserviceaccount.com

@@ -62,7 +62,7 @@ spec:
       labels:
         app: genai-llm-vertex
     spec:
-      serviceAccountName: udp-k8s-sa
+      serviceAccountName: gke-k8s-sa
       nodeSelector:
         iam.gke.io/gke-metadata-server-enabled: "true"
       containers:
