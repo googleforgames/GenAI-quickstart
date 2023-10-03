@@ -1,0 +1,27 @@
+apiVersion: binaryauthorization.cnrm.cloud.google.com/v1beta1
+kind: BinaryAuthorizationPolicy
+metadata:
+  name: binaryauthorization.googleapis.com
+  namespace: config-control
+  annotations:
+    cnrm.cloud.google.com/blueprint: 'kpt-fn'
+spec:
+  projectRef:
+    external: projects/your-project-id # kpt-set: projects/${project-id}
+  admissionWhitelistPatterns:
+    - namePattern: "your-repo*" # kpt-set: ${image-repo}*
+  defaultAdmissionRule:
+    enforcementMode: "ENFORCED_BLOCK_AND_AUDIT_LOG"
+    evaluationMode: "ALWAYS_DENY"
+  globalPolicyEvaluationMode: ENABLE
+---
+apiVersion: serviceusage.cnrm.cloud.google.com/v1beta1
+kind: Service
+metadata:
+  name: binaryauthorization.googleapis.com
+  namespace: config-control
+  annotations:
+    cnrm.cloud.google.com/blueprint: 'kpt-fn'
+spec:
+  projectRef:
+    external: projects/your-project-id # kpt-set: projects/${project-id}

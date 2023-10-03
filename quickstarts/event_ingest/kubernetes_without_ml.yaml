@@ -1,0 +1,95 @@
+# Copyright 2023 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: game-event-ns
+
+#######################################
+#
+#  Event Ingest
+#
+#######################################
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    Service.kubernetes.io/topology-aware-hints: auto
+  name: event-ingest-service
+  namespace: game-event-ns
+  labels:
+    app: event-ingest
+spec:
+  selector:
+    app: event-ingest
+  ports:
+    - name: event-ingest-port
+      protocol: TCP
+      port: 80
+      targetPort: 7777
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-ingest
+  namespace: game-event-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-ingest
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: event-ingest
+    spec:
+      serviceAccountName: gke-k8s-sa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+      - name: event-ingest
+        image: "${ARTIFACT_REPO_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${ARTIFACT_REPO_NAME}/event_ingest:latest"
+        env:
+          - name: ML_AGENT_URL
+            value: ""
+        ports:
+          - containerPort: 7777
+        resources:
+          limits:
+            cpu: 1
+            memory: 2Gi
+          requests:
+            cpu: 250m
+            memory: 2Gi
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - event-ingest
+              topologyKey: "kubernetes.io/hostname"
