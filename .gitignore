@@ -1,4 +1,4 @@
-# Environments
+### Environments ###
 .env
 .venv
 env/
@@ -6,6 +6,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+.cache
 
 ### Terraform ###
 # Local .terraform directories
@@ -45,16 +47,20 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+### Skaffold ###
 # Skaffold build logs
 **/build-*.json
 **/[Ss]kaffold.env
 
+### VSCode ###
 # VSCode settings directory
 .vscode
 
-# macOS
+### macOS ###
 .DS_Store
 
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -65,6 +71,7 @@ __pycache__/
 # pyenv
 .python-version
 
+### Binaries ###
 # Binaries for programs and plugins
 *.exe
 *.exe~
