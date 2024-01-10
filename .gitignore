@@ -1,6 +1,66 @@
+### Environments ###
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
 .cache
 
+### Terraform ###
+# Local .terraform directories
+**/.terraform/*
+**.terraform.*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data, such as
+# password, private keys, and other secrets. These should not be part of version
+# control as they are data points which are potentially sensitive and subject
+# to change depending on the environment.
+*.tfvars
+*.tfvars.json
+!terraform.example.tfvars
+
+# Ignore override files as they are usually used to override resources locally and so
+# are not checked in
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include override files you do wish to add to version control using negated pattern
+# !example_override.tf
+
+# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
+# example: *tfplan*
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+### Skaffold ###
+# Skaffold build logs
+**/build-*.json
+**/[Ss]kaffold.env
+
+### VSCode ###
+# VSCode settings directory
+.vscode
+
+### macOS ###
+.DS_Store
+
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -11,6 +71,7 @@ __pycache__/
 # pyenv
 .python-version
 
+### Binaries ###
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -29,4 +90,3 @@ go.work
 
 # C extensions
 *.so
-
