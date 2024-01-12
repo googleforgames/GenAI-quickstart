@@ -12,8 +12,8 @@ If you’re using this project, please ★Star this repository to show your inte
 
 | Folder                        | Description                   |
 |-------------------------------|-------------------------------|
-| [infra](./infra)              | Infrastructure deployment scripts based on Terraform |
-| [quickstarts](./quickstarts)  | Individual quickstarts that can be tested and deployed based on your use case |
+| [terraform](./terraform)      | Infrastructure deployment scripts based on Terraform |
+| [examples](./examples)        | Individual quickstarts that can be tested and deployed based on your use case |
 | [src](./src)                  | Core source code that is used as part of our quickstarts |
 
 ## Architecture 
