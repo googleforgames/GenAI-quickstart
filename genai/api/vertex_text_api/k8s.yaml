@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: sa-gke-aiplatform@your-unique-project-id.iam.gserviceaccount.com
+  name: k8s-sa-aiplatform
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vertex-text-api
+  labels:
+    name: vertex-text-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 40%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: vertex-text-api
+  template:
+    metadata:
+      labels:
+        name: vertex-text-api
+        version: stable
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "genai-instrumentation"
+    spec:
+      serviceAccountName: k8s-sa-aiplatform
+      restartPolicy: Always
+      containers:
+      - image: vertex-text-api
+        name: vertex-text-api
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        env:
+        - name: ENV
+          value: dev
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: vertex-text-api
+  name: vertex-text-api
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    name: vertex-text-api
+  sessionAffinity: None
+  type: ClusterIP
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: vertex-text-api
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: vertex-text-api
+#   minReplicas: 5
+#   maxReplicas: 30
+#   targetCPUUtilizationPercentage: 50

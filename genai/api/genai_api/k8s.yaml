@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genai-api
+  labels:
+    name: genai-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 40%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: genai-api
+  template:
+    metadata:
+      labels:
+        name: genai-api
+        version: stable
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "genai-instrumentation"
+    spec:
+      restartPolicy: Always
+      containers:
+      - image: genai-api
+        name: genai-api
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        env:
+        - name: ENV
+          value: dev
+        # TODO: Update prior to deployment
+        - name: GENAI_GEMINI_ENDPOINT
+          value: http://vertex-gemini-api.genai.svc
+        - name: GENAI_TEXT_ENDPOINT
+          value: http://vertex-text-api.genai.svc
+        - name: GENAI_CHAT_ENDPOINT
+          value: http://vertex-chat-api.genai.svc
+        - name: GENAI_CODE_ENDPOINT
+          value: http://vertex-code-api.genai.svc
+        - name: GENAI_IMAGE_ENDPOINT
+          value: http://vertex-image-api.genai.svc
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: genai-api
+  name: genai-api
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    name: genai-api
+  sessionAffinity: None
+  type: LoadBalancer
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: genai-api
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: genai-api
+#   minReplicas: 5
+#   maxReplicas: 30
+#   targetCPUUtilizationPercentage: 50
