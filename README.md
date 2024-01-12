@@ -36,9 +36,9 @@ The following steps below will walk you through the setup guide for *GenAI Quick
 ### 1) Clone this git repository
 
 ```
-git clone git@github.com:zaratsian/GenAI-quickstart-dev.git
+git clone https://github.com/googleforgames/GenAI-quickstart.git
 
-cd GenAI-quickstart-dev
+cd GenAI-quickstart
 ```
 
 ### 2) Set ENV variable
