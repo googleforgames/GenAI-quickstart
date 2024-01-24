@@ -12,8 +12,8 @@ If you’re using this project, please ★Star this repository to show your inte
 
 | Folder                        | Description                   |
 |-------------------------------|-------------------------------|
-| [infra](./infra)              | Infrastructure deployment scripts based on Terraform |
-| [quickstarts](./quickstarts)  | Individual quickstarts that can be tested and deployed based on your use case |
+| [terraform](./terraform)      | Infrastructure deployment scripts based on Terraform |
+| [examples](./examples)        | Individual quickstarts that can be tested and deployed based on your use case |
 | [src](./src)                  | Core source code that is used as part of our quickstarts |
 
 ## Architecture 
@@ -36,9 +36,9 @@ The following steps below will walk you through the setup guide for *GenAI Quick
 ### 1) Clone this git repository
 
 ```
-git clone git@github.com:zaratsian/GenAI-quickstart-dev.git
+git clone https://github.com/googleforgames/GenAI-quickstart.git
 
-cd GenAI-quickstart-dev
+cd GenAI-quickstart
 ```
 
 ### 2) Set ENV variable

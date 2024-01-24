@@ -1,0 +1,38 @@
+# apiVersion: opentelemetry.io/v1alpha1
+# kind: Instrumentation
+# metadata:
+#   name: game2ml-instrumentation
+#   namespace: game-event-ns
+# spec:
+#   exporter:
+#     endpoint: http://otel-collector:4317
+#   propagators:
+#     - tracecontext
+#     - baggage
+#     - b3
+#   sampler:
+#     type: parentbased_traceidratio
+#     argument: "0.25"
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: genai-instrumentation
+spec:
+  exporter:
+    endpoint: http://otel-collector.genai.svc:4317
+  propagators:
+    - tracecontext
+    - baggage
+    - b3
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+  python:
+    env:
+    - name: OTEL_METRICS_EXPORTER
+      value: none
+      # Required if endpoint is set to 4317.
+      # Python autoinstrumentation uses http/proto by default
+      # so data must be sent to 4318 instead of 4317.
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://otel-collector.genai.svc:4318
