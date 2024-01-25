@@ -202,9 +202,3 @@ and follow the authentication flow.
 The entire repo can be cloned and used as-is, or in many cases you may choose to fork this repo and keep the code base that is most useful and relevant for your use case. If you'd like to contribute, then more info can be found witin our [contributing guide](./CONTRIBUTING.md).
 
 
----
-
-## Licence
-
-Apache 2.0
-
