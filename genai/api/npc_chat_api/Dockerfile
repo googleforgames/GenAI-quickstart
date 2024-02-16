@@ -19,10 +19,11 @@ WORKDIR /app
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
-COPY src /app/
-
-# Install production dependencies.
+# Install production dependencies. (Copy requirements early to cache this layer.)
+COPY src/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src /app/
 
 # TODO: Use ConfigMap instead
 COPY config /app/config

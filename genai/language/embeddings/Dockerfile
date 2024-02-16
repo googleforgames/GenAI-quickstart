@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     http:#www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,11 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-uvicorn==0.23.2
-fastapi==0.104.0
-pydantic==2.4.2
-google-cloud-aiplatform==1.40.0
-google-cloud-spanner==3.42.0
-requests==2.31.0
-openai==1.12.0
-jinja2==3.1.3
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Allow statements and log messages to immediately appear in the Knative logs
+ENV PYTHONUNBUFFERED True
+
+COPY src /app/
+
+# Install production dependencies.
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 8080
+
+# Start the application with Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
