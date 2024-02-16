@@ -25,9 +25,26 @@ deploy:
 apiVersion: skaffold/v3
 kind: Config
 metadata:
+  name: common-k8s-sa-aiplatform
+manifests:
+  rawYaml:
+  - ./k8s-sa-aiplatform.yaml
+deploy:
+  kubectl:
+    flags:
+      global:
+      - --namespace=genai
+requires:
+- configs: ["common-k8s-cfg"]
+  path: skaffold.yaml
+---
+apiVersion: skaffold/v3
+kind: Config
+metadata:
   name: common-otel-cfg
 manifests:
   rawYaml:
+  - ./opentelemetry/k8s-sa-telemetry.yaml
   - ./opentelemetry/otel-collector.yaml
   - ./opentelemetry/genai-inst.yaml
 deploy:
@@ -37,4 +54,12 @@ deploy:
       - --namespace=genai
 requires:
 - configs: ["common-k8s-cfg"]
+  path: skaffold.yaml
+---
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: common
+requires:
+- configs: ["common-k8s-cfg","common-k8s-sa-aiplatform","common-otel-cfg"]
   path: skaffold.yaml
