@@ -123,10 +123,10 @@ Switch to the `genai` directory
 cd $CUR_DIR/genai
 ```
 
-Set kubernetes manifests for GenAI workloads to use your unique project id
+Set common kubernetes manifests for GenAI workloads to use your unique project id
 
 ```
-find . -type f -name "*.yaml" -exec sed -i "s:your-unique-project-id:$PROJECT_ID:g" {} +
+find common -type f -name "*.yaml" -exec sed -i "s:your-unique-project-id:$PROJECT_ID:g" {} +
 ```
 
 Build and run GenAI workloads with **Skaffold**

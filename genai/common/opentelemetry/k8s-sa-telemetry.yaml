@@ -1,0 +1,7 @@
+# ServiceAccount kept separately to allow for .gitignore of modified project
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    iam.gke.io/gcp-service-account: sa-gke-telemetry@your-unique-project-id.iam.gserviceaccount.com
+  name: k8s-sa-telemetry
