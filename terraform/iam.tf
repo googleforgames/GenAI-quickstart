@@ -71,6 +71,7 @@ module "member_roles_gke_aiplatform" {
   project_roles = [
     "roles/aiplatform.user",
     "roles/storage.objectUser",
+    "roles/spanner.databaseUser",
   ]
 }
 
