@@ -20,7 +20,8 @@ from fastapi.responses import StreamingResponse, JSONResponse
 import io
 import json
 import requests
-
+from typing import List
+from vertexai.language_models import ChatMessage
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -51,7 +52,7 @@ tags_metadata = [
 
 
 app = FastAPI(
-    docs_url='/genai_docs', 
+    docs_url='/genai_docs',
     redoc_url=None,
     title="GenAI Quickstart APIs",
     description="Core APIs for the GenAI Quickstart for Gaming",
@@ -64,7 +65,7 @@ app = FastAPI(
 )
 
 
-GENAI_GEMINI_ENDPOINT= os.environ['GENAI_GEMINI_ENDPOINT'] 
+GENAI_GEMINI_ENDPOINT= os.environ['GENAI_GEMINI_ENDPOINT']
 GENAI_TEXT_ENDPOINT  = os.environ['GENAI_TEXT_ENDPOINT']
 GENAI_CHAT_ENDPOINT  = os.environ['GENAI_CHAT_ENDPOINT']
 GENAI_CODE_ENDPOINT  = os.environ['GENAI_CODE_ENDPOINT']
@@ -102,6 +103,7 @@ class Payload_Vertex_Gemini(BaseModel):
 class Payload_Chat(BaseModel):
     prompt: str
     context: str | None = ''
+    message_history: List[ChatMessage] | None = []
     max_output_tokens: int | None = 1024
     temperature: float | None = 0.2
     top_p: float | None = 0.8
@@ -223,7 +225,7 @@ def genai_gemini(payload: Payload_Vertex_Gemini):
 def genai_text(payload: Payload_Text):
     try:
         request_payload = {
-            'prompt': payload.prompt, 
+            'prompt': payload.prompt,
             'max_output_tokens': payload.max_output_tokens,
             'temperature': payload.temperature,
             'top_p': payload.top_p,
@@ -246,6 +248,7 @@ def genai_chat(payload: Payload_Chat):
         request_payload = {
             'prompt': payload.prompt,
             'context': payload.context,
+            'message_history': payload.message_history,
             'max_output_tokens': payload.max_output_tokens,
             'temperature': payload.temperature,
             'top_p': payload.top_p,
@@ -266,7 +269,7 @@ def genai_chat(payload: Payload_Chat):
 def genai_code(payload: Payload_Code):
     try:
         request_payload = {
-            'prompt': payload.prompt, 
+            'prompt': payload.prompt,
             'max_output_tokens': payload.max_output_tokens,
             'temperature': payload.temperature,
             'top_p': payload.top_p,
@@ -287,7 +290,7 @@ def genai_code(payload: Payload_Code):
 def genai_image(payload: Payload_Image):
     try:
         request_payload = {
-            'prompt': payload.prompt, 
+            'prompt': payload.prompt,
             'number_of_images': payload.number_of_images,
             'seed': payload.seed,
         }

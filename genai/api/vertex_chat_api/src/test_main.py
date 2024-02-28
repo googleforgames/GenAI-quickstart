@@ -40,6 +40,7 @@ def test_genai(mock_post):
     payload = {
         "prompt": "test prompt",
         "context": "my test context",
+        "messages": [{"author": "me", "content": "my content"}],
         "max_output_tokens": 1024,
         "temperature": 0.2,
         "top_p": 0.8,

@@ -23,7 +23,7 @@ client = TestClient(app)
 
 @mock.patch('requests.post')
 def test_genai_text(mock_post):
-    
+
     # Define a mock response content as a JSON string
     expected_response = {'mocked_key': 'mocked_value'}
     mock_response_content = json.dumps(expected_response).encode()
@@ -56,7 +56,7 @@ def test_genai_text(mock_post):
 
 @mock.patch('requests.post')
 def test_genai_chat(mock_post):
-    
+
     # Define a mock response content as a JSON string
     expected_response = {'mocked_key': 'mocked_value'}
     mock_response_content = json.dumps(expected_response).encode()
@@ -73,6 +73,7 @@ def test_genai_chat(mock_post):
     payload = {
         "prompt": "test prompt",
         "context": "my context",
+        "message_history": [{"author": "me", "content": "my content"}],
         "max_output_tokens": 1024,
         "temperature": 0.2,
         "top_p": 0.8,
@@ -90,7 +91,7 @@ def test_genai_chat(mock_post):
 
 @mock.patch('requests.post')
 def test_genai_code(mock_post):
-    
+
     # Define a mock response content as a JSON string
     expected_response = {'mocked_key': 'mocked_value'}
     mock_response_content = json.dumps(expected_response).encode()
@@ -123,7 +124,7 @@ def test_genai_code(mock_post):
 
 @mock.patch('requests.post')
 def test_genai_image(mock_post):
-    
+
     # Define a mock response content as a JSON string
     expected_response = {'mocked_key': 'mocked_value'}
     mock_response_content = json.dumps(expected_response).encode()
