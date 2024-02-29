@@ -17,12 +17,12 @@ def npcs_from_world(world, genai, db):
 
 class NPC(object):
     _FIRST_HAND = """
-You know the following:
+- You know the following:
 {first_hand}
 """
     _SECOND_HAND = """
 
-You trust the following things you've heard:
+- You trust the following things you've heard:
 {second_hand}
 """
 
@@ -36,7 +36,7 @@ You trust the following things you've heard:
         # TODO: Are these global? Per NPC?
         self._knowledge_distance = 0.3
         self._knowledge_limit = 3
-        self._chat_window = 6 # must be even, need last response to be ours at least for chat-bison
+        self._chat_window = 20 # must be even, need last response to be ours
 
     def _format_context(self, knowledge):
         first_hand, second_hand = [], []

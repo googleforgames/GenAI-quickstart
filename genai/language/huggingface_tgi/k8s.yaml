@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: huggingface-tgi-api
+  labels:
+    name: huggingface-tgi-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: huggingface-tgi-api
+  template:
+    metadata:
+      labels:
+        name: huggingface-tgi-api
+    spec:
+      serviceAccountName: k8s-sa-aiplatform
+      containers:
+        - name: huggingface-tgi-api
+          ports:
+            - containerPort: 80
+          image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          # Use this image for Gemma support:
+          # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
+          args:
+            # Choose models with multiturn chat support
+            # Look for `chat_template`, e.g.: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta/blob/main/tokenizer_config.json#L34
+            # Alternatives if you don't have an API Key:
+            # - --model-id=mistralai/Mistral-7B-Instruct-v0.2
+            # - --model-id=HuggingFaceH4/zephyr-7b-beta
+            #
+            # To run Gemma:
+            # - --model-id=google/gemma-7b-it
+            # (but you'll need the updated image above)
+            #
+            # Another alternative, but you'll need a bunch of ephemeral storage:
+            - --model-id=mistralai/Mixtral-8x7B-Instruct-v0.1
+            # To run on L4s we have to quantize
+            - --quantize=bitsandbytes-nf4
+            # - --quantize=gptq
+            #
+            # --num-shard should match nvidia.com/gpu: limits
+            - --num-shard=2
+          # To use Gemma, you need to uncomment and fill this in. (Preferably, use a secret or a secret manager instead.)
+          # env:
+          # - name: HUGGING_FACE_HUB_TOKEN
+          #   value: <your API key>
+          resources:
+            requests:
+              cpu: "2"
+              memory: "25Gi"
+              ephemeral-storage: "200Gi"
+              nvidia.com/gpu: 2
+            limits:
+              cpu: "20"
+              memory: "80Gi"
+              ephemeral-storage: "600Gi"
+              nvidia.com/gpu: 2
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: shm
+            - mountPath: /data
+              name: data 
+      volumes:
+        # # c.f. https://github.com/huggingface/text-generation-inference#a-note-on-shared-memory-shm
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: huggingface-tgi-api
+  name: huggingface-tgi-api
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 80
+    protocol: TCP
+  selector:
+    name: huggingface-tgi-api
+  sessionAffinity: None
+  type: ClusterIP

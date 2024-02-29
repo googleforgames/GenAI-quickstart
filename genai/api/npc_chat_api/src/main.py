@@ -73,8 +73,8 @@ npcs = npc.npcs_from_world(world_data, genai, db)
 
 class Payload_NPC_Chat(BaseModel):
     message: str
-    from_npc_id: int | None = 2 # XXX: "Jane"
-    to_npc_id: int | None = 1 # XXX: "Joseph"
+    from_id: int
+    to_id: int
     debug: bool | None = False
 
 
@@ -84,14 +84,13 @@ class Payload_NPC_Chat(BaseModel):
 @app.post("/")
 def npc_chat(payload: Payload_NPC_Chat):
     try:
-        resp = npcs[0].reply(payload.from_npc_id, "Jane", payload.message)
+        resp = npcs[0].reply(payload.from_id, "Jane", payload.message)
         if not payload.debug:
             # Filter to just the response
             resp = {"response": resp['response']}
         return resp
     except Exception as e:
-        traceback.print_exc()
-        return {}
+        raise
 
 
 @app.get("/genai_health", include_in_schema=False)
@@ -106,7 +105,7 @@ def reset_world_data():
         return {'status': 'ok'}
     except Exception as e:
         traceback.print_exc()
-        return {'status': f'EXCEPTION: {e}'}
+        raise
 
 
 if __name__ == "__main__":

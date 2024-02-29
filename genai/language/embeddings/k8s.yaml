@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: embeddings-api
+  labels:
+    name: embeddings-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 40%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      name: embeddings-api
+  template:
+    metadata:
+      labels:
+        name: embeddings-api
+        version: stable
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "genai-instrumentation"
+    spec:
+      serviceAccountName: k8s-sa-aiplatform
+      restartPolicy: Always
+      containers:
+      - image: embeddings-api
+        name: embeddings-api
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: http-front
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        env:
+        - name: ENV
+          value: dev
+        # resources:
+        #   requests:
+        #     cpu: 100m
+        #     memory: 512Gi
+        #   limits:
+        #     memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: embeddings-api
+  name: embeddings-api
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    name: embeddings-api
+  sessionAffinity: None
+  type: ClusterIP
+# ---
+# apiVersion: autoscaling/v1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: embeddings-api
+# spec:
+#   scaleTargetRef:
+#     apiVersion: apps/v1
+#     kind: Deployment
+#     name: embeddings-api
+#   minReplicas: 5
+#   maxReplicas: 30
+#   targetCPUUtilizationPercentage: 50
