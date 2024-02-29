@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-fastapi==0.103.2
+fastapi==0.109.1
 uvicorn==0.23.2
 diffusers==0.20.0
 transformers==4.36.0
