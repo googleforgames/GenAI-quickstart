@@ -14,13 +14,12 @@
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.responses import StreamingResponse
 from utils.model_util import Google_Cloud_GenAI
-import io
-import os, sys
-import json
-import requests
+import sys
 import logging
+import requests
+from typing import List
+from vertexai.language_models import ChatMessage
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -68,6 +67,7 @@ headers = {"Content-Type": "application/json"}
 class Payload_Vertex_Chat(BaseModel):
     prompt: str
     context: str | None = ''
+    message_history: List[ChatMessage] | None = []
     max_output_tokens: int | None = 1024
     temperature: float | None = 0.2
     top_p: float | None = 0.8
@@ -88,6 +88,7 @@ def vertex_llm_chat(payload: Payload_Vertex_Chat):
         request_payload = {
             'prompt': payload.prompt,
             'context': payload.context,
+            'message_history': payload.message_history,
             'max_output_tokens': payload.max_output_tokens,
             'temperature': payload.temperature,
             'top_p': payload.top_p,
