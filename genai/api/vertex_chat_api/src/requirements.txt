@@ -13,7 +13,7 @@
 # limitations under the License.
 
 uvicorn==0.23.2
-fastapi==0.104.0
+fastapi==0.109.1
 pydantic==2.4.2
 google-cloud-aiplatform==1.35.0
 requests==2.31.0
