@@ -15,6 +15,8 @@ spec:
         name: huggingface-tgi-api
     spec:
       serviceAccountName: k8s-sa-aiplatform
+      nodeSelector:
+        cloud.google.com/gke-accelerator: "nvidia-l4"
       containers:
         - name: huggingface-tgi-api
           ports:
@@ -60,7 +62,7 @@ spec:
             - mountPath: /dev/shm
               name: shm
             - mountPath: /data
-              name: data 
+              name: data
       volumes:
         # # c.f. https://github.com/huggingface/text-generation-inference#a-note-on-shared-memory-shm
         - name: shm

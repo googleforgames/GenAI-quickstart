@@ -16,7 +16,7 @@ If you’re using this project, please ★Star this repository to show your inte
 | [examples](./examples)        | Individual quickstarts that can be tested and deployed based on your use case |
 | [src](./src)                  | Core source code that is used as part of our quickstarts |
 
-## Architecture 
+## Architecture
 
 ![Architecture](images/genai-api-arch.png)
 
@@ -26,6 +26,7 @@ If you’re using this project, please ★Star this repository to show your inte
 - [gcloud](https://cloud.google.com/sdk/docs/install)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - [skaffold](https://skaffold.dev/docs/)
+- [Helm](https://helm.sh/docs/intro/install/)
 
 ## Getting started
 
@@ -112,7 +113,7 @@ The deployment of cloud resources can take between 5 - 10 minutes. For a detaile
 After cloud resources have successfully been deployed with Terraform. Get newly created GKE cluster credentials.
 
 ```
-gcloud container clusters get-credentials genai-quickstart --zone us-west1-b --project $PROJECT_ID
+gcloud container clusters get-credentials genai-quickstart --region us-west1 --project $PROJECT_ID
 ```
 
 ### 7) Deploy GenAI workloads on GKE
