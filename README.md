@@ -53,7 +53,7 @@ export PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2>/dev/nul
 Set default location for Google Cloud
 
 ```
-export LOCATION=us-west1
+export LOCATION=us-central1
 ```
 
 To better follow along with this quickstart guide, set `CUR_DIR` env variable
@@ -113,7 +113,7 @@ The deployment of cloud resources can take between 5 - 10 minutes. For a detaile
 After cloud resources have successfully been deployed with Terraform. Get newly created GKE cluster credentials.
 
 ```
-gcloud container clusters get-credentials genai-quickstart --region us-west1 --project $PROJECT_ID
+gcloud container clusters get-credentials genai-quickstart --region us-central1 --project $PROJECT_ID
 ```
 
 ### 7) Deploy GenAI workloads on GKE

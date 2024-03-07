@@ -27,12 +27,12 @@ module "gke" {
 
   project_id                 = var.project_id
   name                       = "genai-quickstart"
-  region                     = "us-west1"
-  zones                      = ["us-west1-a", "us-west1-b", "us-west1-c"]
+  region                     = "us-central1"
+  zones                      = ["us-central1-a", "us-central1-b", "us-central1-c"]
   network                    = module.vpc.network_name
-  subnetwork                 = "sn-usw1"
-  ip_range_pods              = "sn-usw1-pods1"
-  ip_range_services          = "sn-usw1-svcs1"
+  subnetwork                 = "sn-usc1"
+  ip_range_pods              = "sn-usc1-pods1"
+  ip_range_services          = "sn-usc1-svcs1"
   horizontal_pod_autoscaling = true
   release_channel            = "RAPID"
   service_account            = google_service_account.sa_gke_cluster.email
