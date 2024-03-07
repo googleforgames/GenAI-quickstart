@@ -1,0 +1,107 @@
+<!--
+Copyright 2024 Google LLC All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http: www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Client</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <input type="text" placeholder="Enter your description" id="textInput">
+    <button id="sendBtn">Send</button>
+    <div id="gameStatus"></div>
+    <div id="llmResponse"></div>
+    <div id="llmImage"></div>
+    <input style="display: none;" type="text" placeholder="Enter your guess" id="guessInput"> <button style="display: none;" id="guessSendBtn">Send</button>
+
+    <div id="guessResponse"></div>
+    <div id="winner"></div>
+    <script>
+        const socket = io();
+        const promptSendBtn = document.getElementById('sendBtn');
+        const promptInput = document.getElementById('textInput');
+        const guessSendBtn = document.getElementById('guessSendBtn');
+        const guessInput = document.getElementById('guessInput');
+
+        promptSendBtn.addEventListener('click', () => {
+            sendMessage();
+            cleanUp();
+        });
+
+        promptInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+               sendMessage();
+               cleanUp();
+            }
+        });
+
+        guessSendBtn.addEventListener('click', () => {
+            const message = guessInput.value;
+            guessInput.value = '';
+            socket.emit('guess', message);
+            guessSendBtn.style.display = 'none';
+            guessInput.style.display = 'none';
+        });
+
+        function cleanUp() {
+            llmResponse.textContent = '';
+            llmImage.innerHTML = '';
+            guessResponse.textContent = '';
+            winner.textContent = '';
+            gameStatus.textContent = '';
+        }
+
+        function sendMessage() {
+            const message = promptInput.value;
+            promptInput.value = '';
+            socket.emit('message', message);
+            promptSendBtn.disabled = true;
+            promptInput.disabled = true;
+        }
+
+        socket.on('match_found', (data) => {
+            gameStatus.textContent = data.message;
+        });
+
+        socket.on('llm_response', (data) => {
+            const img = new Image();
+            llmResponse.textContent = "Your partner's picture:";
+            img.src = 'data:image/jpeg;base64,' + data.image;
+            img.style.width = '200px';  // Example - adjust as needed
+            img.style.height = 'auto';  // Optionally maintain aspect ratio
+            llmImage.appendChild(img);
+            guessSendBtn.style.display = 'block';
+            guessInput.style.display = 'block';
+        });
+
+        socket.on('guess_response', (data) => {
+            guessResponse.textContent = data.message;
+        });
+
+        socket.on('winner', (data) => {
+            winner.textContent = data.message;
+            enableOldInput();
+        });
+
+        function enableOldInput() {
+            promptInput.disabled = false;
+            promptSendBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
+
