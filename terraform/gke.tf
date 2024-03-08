@@ -34,6 +34,7 @@ module "gke" {
   ip_range_services          = "sn-usc1-svcs1"
   horizontal_pod_autoscaling = true
   release_channel            = "RAPID" # RAPID was chosen for L4 support.
+  kubernetes_version         = "1.29"  # We need the tip of 1.29 (not just default)
   service_account            = google_service_account.sa_gke_cluster.email
 
   # Need to allow 48 hour window in rolling 32 days For `maintenance_start_time`
