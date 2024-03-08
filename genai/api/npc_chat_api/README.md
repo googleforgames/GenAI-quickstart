@@ -3,7 +3,7 @@
 > [!NOTE]
 > Work in progress!
 
-The NPC Chat API demonstrates using [RAG](https://www.promptingguide.ai/techniques/rag) to create a 
+The NPC Chat API demonstrates using [RAG](https://www.promptingguide.ai/techniques/rag) to create a
 smart NPC for your game, enriched by world knowledge, NPC-specific knowledge, and secondhand
 knowledge from chat.
 
@@ -18,7 +18,7 @@ To try it out:
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
 
 # Set location of Artifact Registry previously created for Skaffold builds by Terraform
-export LOCATION=us-west1
+export LOCATION=us-central1
 
 # Set CUR_DIR to the top level directory of the git repo
 export CUR_DIR=$(pwd)

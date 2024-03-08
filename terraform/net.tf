@@ -22,23 +22,23 @@ module "vpc" {
 
   subnets = [
     {
-      subnet_name           = "sn-usw1"
+      subnet_name           = "sn-usc1"
       subnet_ip             = "10.11.16.0/20"
-      subnet_region         = "us-west1"
+      subnet_region         = "us-central1"
       subnet_private_access = "true"
       subnet_flow_logs      = "false"
-      description           = "Subnet for US West1"
+      description           = "Subnet for US central1"
     }
   ]
 
   secondary_ranges = {
-    "sn-usw1" = [
+    "sn-usc1" = [
       {
-        range_name    = "sn-usw1-pods1"
+        range_name    = "sn-usc1-pods1"
         ip_cidr_range = "10.11.0.0/20"
       },
       {
-        range_name    = "sn-usw1-svcs1"
+        range_name    = "sn-usc1-svcs1"
         ip_cidr_range = "10.111.0.0/25"
       },
     ]

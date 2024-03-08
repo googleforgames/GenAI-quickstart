@@ -1,7 +1,7 @@
 resource "google_spanner_instance" "npc-chat" {
   name             = "npc-chat"
   display_name     = "Data behind npc-chat-api"
-  config           = "regional-us-west1"
+  config           = "regional-us-central1"
   autoscaling_config {
     autoscaling_limits {
       max_processing_units            = 10000
@@ -45,7 +45,7 @@ resource "google_spanner_database" "npc-chat" {
   EOT
   , <<-EOT
     CREATE INDEX EntityHistoryDynamicByEntityAndTarget
-    ON EntityHistoryDynamic(EntityId, TargetEntityId, EventTime DESC, MessageId DESC) 
+    ON EntityHistoryDynamic(EntityId, TargetEntityId, EventTime DESC, MessageId DESC)
     STORING (EntityName, TargetEntityName, EventDescription, EventDescriptionEmbedding)
   EOT
   , <<-EOT

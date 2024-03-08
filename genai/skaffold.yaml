@@ -12,34 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Cert Manager config
-apiVersion: skaffold/v3
-kind: Config
-metadata:
-  name: cert-manager-cfg
-manifests:
-  rawYaml:
-  - https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml
-deploy:
-  kubectl: {}
----
 #OpenTelemetry Installation
 apiVersion: skaffold/v3
 kind: Config
 metadata:
   name: open-telemetry-cfg
-manifests:
-  rawYaml:
-  - https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
 deploy:
-  kubectl:
-    hooks:
-      before:
-        - host:
-            command: ["sh", "-c", "echo Waiting for cert-manager stabilization; sleep 90"]
-      after:
-        - host:
-            command: ["sh", "-c", "sleep 10"]
+  helm:
+    releases:
+      - name: otel-operator
+        createNamespace: true
+        namespace: "opentelemetry-operator-system"
+        wait: true
+        remoteChart: opentelemetry-operator
+        repo: https://open-telemetry.github.io/opentelemetry-helm-charts
+        setValues:
+          admissionWebhooks.certManager.enabled: false # Disable certManager
+          admissionWebhooks.certManager.autoGenerateCert.enabled: true # Helm will create a self-signed cert and secret
+          image.pullPolicy: "IfNotPresent"
 ---
 apiVersion: skaffold/v4beta1
 kind: Config

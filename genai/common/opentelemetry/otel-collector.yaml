@@ -6,7 +6,7 @@ metadata:
   name: otel
 spec:
   mode: deployment
-  hostNetwork: true
+  hostNetwork: false
   image: otel/opentelemetry-collector-contrib:latest
   config: |
     receivers:
