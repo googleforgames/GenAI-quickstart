@@ -37,6 +37,8 @@ class NPC(object):
         self._knowledge_distance = 0.3
         self._knowledge_limit = 3
         self._chat_window = 20 # must be even, need last response to be ours
+        self._max_prompt_bytes = 7000 # how much we can send to the LLM - we trim from chat history if necessary
+        self._per_chat_cost = 10 # bytes to "charge" for each chat
 
     def _format_context(self, knowledge):
         first_hand, second_hand = [], []
@@ -50,17 +52,21 @@ class NPC(object):
         relevant += self._SECOND_HAND.format(second_hand='\n'.join(second_hand)) if second_hand else ""
         return self._context.format(relevant=relevant)
 
-    def _chat_history(self, from_id):
-        return [{
+    def _chat_history(self, from_id, max_bytes):
+        chats = [{
             "author": "user" if chat['entity_id'] == from_id else "bot",
             "content": chat['message'],
         } for chat in self._db.get_chat_history(self._id, from_id, self._chat_window)]
+
+        while sum([len(chat['content']) + self._per_chat_cost for chat in chats]) > max_bytes:
+            chats = chats[2:]
+        return chats
 
     def reply(self, from_id, from_name, message):
         embedding = self._genai.get_embeddings([message])[0]
         knowledge = self._db.get_knowledge(self._id, embedding, self._knowledge_distance, self._knowledge_limit)
         context = self._format_context(knowledge)
-        chat_history = self._chat_history(from_id)
+        chat_history = self._chat_history(from_id, self._max_prompt_bytes - len(context) - len(message))
         response = self._genai.send_message(context, chat_history, message)
         self._db.insert_chat(from_id, from_name, self._id, self._name, [message, response])
 

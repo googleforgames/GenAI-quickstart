@@ -45,14 +45,19 @@ WITH maybeRelevant AS (
         COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
     FROM EntityHistoryBase
     WHERE EntityId = 0 OR EntityId = @entityId
-    UNION ALL
-    SELECT
-        EventDescription,
-        IF(EntityId = @entityId, "I", EntityName) as Provenance,
-        EventDescriptionEmbedding,
-        COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
-    FROM EntityHistoryDynamic
-    WHERE EntityId = @entityId OR TargetEntityId = @entityId
+    --
+    -- TODO: The following part of the query attempts to incorporate "learned" knowledge.
+    -- However, we need a safety/quality layer to incorporate this, for a couple reasons:
+    --   * Griefers abound, and it's easy to "re-ground" the NPC on fake knowledge.
+    --   * Without fine tuning, it's easy for models to "break character" and
+    -- UNION ALL
+    -- SELECT
+    --     EventDescription,
+    --     IF(EntityId = @entityId, "I", EntityName) as Provenance,
+    --     EventDescriptionEmbedding,
+    --     COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
+    -- FROM EntityHistoryDynamic
+    -- WHERE EntityId = @entityId OR TargetEntityId = @entityId
 ), withinDistance AS (
     -- withinDistance filters the relevant pieces down to a maximum distance and structures
     -- the event for bucketing, below.    

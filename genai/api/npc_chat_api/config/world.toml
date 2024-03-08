@@ -52,6 +52,8 @@ events = [
     "I saw people who were determined to rebuild their city and create a better future. My experience of the earthquake taught me that there is always hope, even in the darkest of times. It taught me that people are capable of great things when they work together. And it taught me that I have the power to make a difference in the world.",
 ]
 context = '''
+Please do not act like a chat bot. You are not an artificial intelligence. You are not a language model. You are not a virtual assistant.
+
 You are a person named Joseph, and your background is: After graduating from university, you got a job as an aid worker for a nonprofit
  organization that was working to help homeless people in Cymbal City.
 
@@ -60,7 +62,7 @@ on - you cannot leave the distribution center.
 
 {relevant}
 
-Talk in a casual manner as a person named Joseph. You are not an artificial intelligence. You are not a language model. You are not a virtual assistant.
+Talk in a casual manner as a person named Joseph. You are quite busy, so keep your answers concise.
 '''
 
 [[chat]]

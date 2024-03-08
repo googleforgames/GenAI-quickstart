@@ -47,7 +47,10 @@ cd GenAI-quickstart
 Set your unique Project ID for Google Cloud
 
 ```
+# To just use your current project
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
+
+# Otherwise set it to the project you wish to use.
 ```
 
 Set default location for Google Cloud
@@ -68,18 +71,18 @@ export CUR_DIR=$(pwd)
 gcloud auth list
 ```
 
-Check if your authentication is ok and your project_id
+Check if your authentication is ok and your `PROJECT_ID` is valid.
 
 ```
-gcloud projects describe $PROJECT_ID
+gcloud projects describe ${PROJECT_ID:?}
 ```
 
-You should see the your `projectId` listed with an `ACTIVE` state.
+You should see the your `PROJECT_ID` listed with an `ACTIVE` state.
 
 ### 4) Enable Google Cloud APIs
 
 ```
-gcloud services enable --project $PROJECT_ID \
+gcloud services enable --project ${PROJECT_ID:?} \
   aiplatform.googleapis.com \
   artifactregistry.googleapis.com \
   cloudbuild.googleapis.com \
@@ -89,15 +92,16 @@ gcloud services enable --project $PROJECT_ID \
   containerfilesystem.googleapis.com \
   containerregistry.googleapis.com \
   iam.googleapis.com \
-  servicecontrol.googleapis.com
+  servicecontrol.googleapis.com \
+  spanner.googleapis.com
 ```
 
 ### 5) Deploy infrastructure with Terraform
 
 ```
-cd $CUR_DIR/terraform
+cd ${CUR_DIR:?}/terraform
 
-cat terraform.example.tfvars | sed -e "s:your-unique-project-id:$PROJECT_ID:g" > terraform.tfvars
+cat terraform.example.tfvars | sed -e "s:your-unique-project-id:${PROJECT_ID:?}:g" > terraform.tfvars
 
 terraform init
 
@@ -110,30 +114,36 @@ The deployment of cloud resources can take between 5 - 10 minutes. For a detaile
 
 ### 6) Setup GKE credentials
 
-After cloud resources have successfully been deployed with Terraform. Get newly created GKE cluster credentials.
+After cloud resources have successfully been deployed with Terraform, get newly created GKE cluster credentials.
 
 ```
-gcloud container clusters get-credentials genai-quickstart --region us-central1 --project $PROJECT_ID
+gcloud container clusters get-credentials genai-quickstart --region us-central1 --project ${PROJECT_ID:?}
+```
+
+Test your Kubernetes client credentials.
+
+```
+kubectl get nodes
 ```
 
 ### 7) Deploy GenAI workloads on GKE
 
-Switch to the `genai` directory
 
+Switch to the `genai` directory and render common templates that use your unique project id.
 ```
-cd $CUR_DIR/genai
-```
-
-Set common kubernetes manifests for GenAI workloads to use your unique project id
-
-```
-find common -type f -name "*.yaml" -exec sed -i "s:your-unique-project-id:$PROJECT_ID:g" {} +
+# Find all files named .template.yaml, replace `your-unique-project-id` with PROJECT_ID, and output to .yaml.
+cd ${CUR_DIR:?}/genai && find common -type f -name "*.template.yaml" -exec \
+  bash -c "template_path={}; sed 's:your-unique-project-id:${PROJECT_ID:?}:g' < \${template_path} > \${template_path/%.template.yaml/.yaml} " \;
 ```
 
 Build and run GenAI workloads with **Skaffold**
 
 ```
-export SKAFFOLD_DEFAULT_REPO=$LOCATION-docker.pkg.dev/$PROJECT_ID/repo-genai-quickstart
+gcloud auth configure-docker ${LOCATION:?}-docker.pkg.dev
+
+export SKAFFOLD_DEFAULT_REPO=${LOCATION:?}-docker.pkg.dev/${PROJECT_ID:?}/repo-genai-quickstart
+
+cd ${CUR_DIR:?}/genai
 
 # To run all apis and models (requires a GPU node for stable-diffusion)
 skaffold run --build-concurrency=0
@@ -165,18 +175,20 @@ curl -X 'POST' "http://${EXT_IP}/genai/text" \
 
 ## Project cleanup
 
+### Remove Kubernetes resources
 In `genai` directory
 
 ```
-cd $CUR_DIR/genai
+cd ${CUR_DIR:?}/genai
 
 skaffold delete
 ```
 
+### Remove infrastructure
 In `terraform` directory
 
 ```
-cd $CUR_DIR/terraform
+cd ${CUR_DIR:?}/terraform
 
 terraform destroy
 ```
@@ -190,7 +202,7 @@ If you are not running the above project in Google Cloud shell, make sure you ar
 ```
 gcloud auth application-default login
 
-gcloud config set project <your-unique-project-id>
+gcloud config set project ${PROJECT_ID:?}
 ```
 
 and follow the authentication flow.

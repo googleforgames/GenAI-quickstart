@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import sys
 import json
 import logging
 import requests
-import argparse
+import time
 import yaml
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -50,6 +51,7 @@ def chat_endpoint(endpoint, from_id, to_id):
             debug = False
             continue
 
+        t0 = time.monotonic()
         req = requests.post(
             url = endpoint,
             headers = {"Content-Type": "application/json"},
@@ -62,10 +64,12 @@ def chat_endpoint(endpoint, from_id, to_id):
 
         resp = json.loads(req.text)
 
+        latency = time.monotonic() - t0
         if debug:
             print(f'\n{yaml.dump(resp)}')
         else:
-            print('\n<<<', resp['response'])
+            reply = resp['response']
+            print('\n<<<', reply, f'\n(latency: {latency:0.2f}s, rate: {len(reply)/latency:0.2f}b/s)')
 
 
 if __name__ == "__main__":
