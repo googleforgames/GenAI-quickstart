@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC All Rights Reserved.
+# Copyright 2023 Google LLC All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,13 +28,12 @@ module "gke" {
   project_id                 = var.project_id
   name                       = "genai-quickstart"
   region                     = "us-central1"
-  zones                      = ["us-central1-a", "us-central1-b", "us-central1-c"]
   network                    = module.vpc.network_name
   subnetwork                 = "sn-usc1"
   ip_range_pods              = "sn-usc1-pods1"
   ip_range_services          = "sn-usc1-svcs1"
   horizontal_pod_autoscaling = true
-  release_channel            = "RAPID"
+  release_channel            = "RAPID" # RAPID was chosen for L4 support.
   service_account            = google_service_account.sa_gke_cluster.email
 
   # Need to allow 48 hour window in rolling 32 days For `maintenance_start_time`
@@ -43,5 +42,10 @@ module "gke" {
   maintenance_recurrence = "FREQ=WEEKLY;BYDAY=SU"
   maintenance_start_time = "2023-01-02T07:00:00Z"
   maintenance_end_time   = "2023-01-02T19:00:00Z"
+
+  depends_on = [
+    google_service_account.sa_gke_cluster,
+    module.vpc
+  ]
 }
 

@@ -24,8 +24,8 @@ If you’re using this project, please ★Star this repository to show your inte
 
 - [Terraform](https://www.terraform.io/downloads.html)
 - [gcloud](https://cloud.google.com/sdk/docs/install)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [skaffold](https://skaffold.dev/docs/)
+- [kubectl](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl#install_kubectl)
+- [Skaffold](https://skaffold.dev/docs/)
 - [Helm](https://helm.sh/docs/intro/install/)
 
 ## Getting started
