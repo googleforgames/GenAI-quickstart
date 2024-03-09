@@ -68,3 +68,6 @@ requires:
 
 - configs: ["npc-chat-api-cfg"]
   path: ./api/npc_chat_api/skaffold.yaml
+
+- configs: ["api-caller-build"]
+  path: ./api_caller/skaffold.yaml

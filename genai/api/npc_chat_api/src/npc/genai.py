@@ -95,7 +95,6 @@ class GKEGenAI(object):
         assert messages[-1]['role'] == 'assistant' # last message in history should be bot
         messages.append({'role': 'user', 'content': message})
 
-        logging.info(f'_translate_messages={messages}')
         return messages
 
     class ChatCompletions(object):

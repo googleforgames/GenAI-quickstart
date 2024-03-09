@@ -147,11 +147,30 @@ cd ${CUR_DIR:?}/genai
 
 # To run all apis and models (requires a GPU node for stable-diffusion)
 skaffold run --build-concurrency=0
+```
 
+After workloads are deployed, you can swap to using GPU deployments instead:
+```
+# Scale up a 2xL4 Mixtral 8x7B Deployment:
+kubectl scale -n genai deployment huggingface-tgi-mixtral-small --replicas=1
+
+# Or scale up a 8xL4 Mixtral 8x7B Deployment:
+kubectl scale -n genai deployment huggingface-tgi-mixtral-big --replicas=1
+
+# Scale down CPU Deployment:
+kubectl scale -n genai deployment huggingface-tgi-mistral-cpu --replicas=0
+
+# Note that the `huggingface-tgi-api` Service matches all of the huggingface-tgi-*
+# Deployments, so if you have multiple replicas running, it will load balance
+# between them.
+```
+
+You can also run the individual backends in isolation:
+```
 # To run only stable-diffusion (requires a GPU node)
 #skaffold run --module stable-diffusion-api-cfg,stable-diffusion-endpt-cfg
 
-# To run Vertex chat (Vertex AI is required)
+# To run only Vertex chat (Vertex AI is required)
 #skaffold run --module vertex-chat-api-cfg
 ```
 
@@ -161,16 +180,53 @@ Access the API - You can test the application and all the APIs from here  :)
 
 ```
 export EXT_IP=`kubectl -n genai get svc genai-api -o jsonpath='{.status.loadBalancer.ingress.*.ip}'`
-echo http://${EXT_IP}/genai_docs
+echo "Browse to http://${EXT_IP}/genai_docs to try out the GenAI APIs!"
 ```
 
-Test the API (command line - curl)
+Test the API using `curl`:
 
 ```
 curl -X 'POST' "http://${EXT_IP}/genai/text" \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{"prompt": "Who are the founders of Google?"}'
+```
+
+Or test the API using the `api-caller` container inside the cluster:
+```
+# See available service endpoints. The `genai` endpoint wraps them all.
+kubectl get svc -ngenai
+
+# Start `api-caller` pod interactively
+kubectl run -it -ngenai --rm --restart=Never api-caller --image=$SKAFFOLD_DEFAULT_REPO/api-caller:latest
+
+# Examples:
+
+# See available example scripts
+root@api-caller:/app# ls
+embeddings.py  genai_api.py  huggingface_tgi.py  npc_chat_api.py  stable_diffusion_api.py  vertex_chat_api.py  vertex_code_api.py  vertex_gemini_api.py  vertex_image_api.py  vertex_text_api.py
+
+# The genai_api script works for text prompts
+root@api-caller:/app# python3 genai_api.py --endpoint=http://genai-api/genai/text --prompt "Describe a wombat"
+INFO:root:Status Code: 200
+INFO:root:Response:    "A wombat is a marsupial native to Australia. [...]"
+
+# To try the Smart NPC, first reset the world data:
+root@api-caller:/app# python3 npc_chat_api.py --endpoint http://genai-api/genai/npc_chat/reset_world_data --empty
+INFO:root:Status Code: 200
+INFO:root:Response:    {"status":"ok"}
+
+# Then you can use the interactive chat:
+root@api-caller:/app# python3 npc_chat_api.py --endpoint http://genai-api/genai/npc_chat --chat
+>>> hey, how are you?
+<<< I am doing my best here at the distribution center. It's a tough situation, but I am staying focused on helping those in need. How about you? How are you holding up?
+
+# You can also interact with the services underneath, e.g.: Hugging Face TGI supports an interactive chat
+root@api-caller:/app# python3 huggingface_tgi.py --endpoint=http://huggingface-tgi-api:8080/v1
+>>> hello!
+INFO:httpx:HTTP Request: POST http://huggingface-tgi-api:8080/v1/chat/completions "HTTP/1.1 200 OK"
+<<<  Hello! How can I help you today? If you have any questions or need assistance with something, feel free to ask and I'll do my best to help. If you just want to chat, we can talk about pretty much anything. What's on your mind?
+
 ```
 
 ## Project cleanup
