@@ -34,19 +34,36 @@ logging.basicConfig(
 tags_metadata = [
     {
         "name": "text",
-        "description": "The Text endpoint routes to a general purpose llm that can handle Q&A, summarization, classifcation, extraction of information, etc.",
+        "description": "The Text endpoint routes to a general purpose llm that can handle Q&A, \
+          summarization, classifcation, extraction of information, etc.",
     },
     {
         "name": "chat",
-        "description": "The Chat endpoint routes to a multi-turn chat service, which maintains the history of a conversation and then uses that history as the context for responses.",
+        "description": "The Chat endpoint routes to a multi-turn chat service, which maintains the \
+          history of a conversation and then uses that history as the context for responses.",
     },
     {
         "name": "code",
-        "description": "The Code endpoint routes to an LLM optimized for code generation and general purpose coding support.",
+        "description": "The Code endpoint routes to an LLM optimized for code generation and general \
+          purpose coding support.",
     },
     {
         "name": "image",
-        "description": "The Image endpoint routes to a service that can be used to generate 2D images based on a text prompt.",
+        "description": "The Image endpoint routes to a service that can be used to generate 2D images \
+          based on a text prompt.",
+    },
+    {
+        "name": "npc_chat",
+        "description": "The NPC Chat endpoint routes to a service that demonstrates using RAG to \
+          create a smart NPC for your game, enriched by world knowledge, NPC-specific knowledge, and \
+          secondhand knowledge from chat. The Reset World Data endpoint should be run once before \
+          using this endpoint.",
+    },
+    {
+        "name": "reset_world_data",
+        "description": "The Reset World Data endpoint seeds the NPC Chat with the world knowledge. \
+          You can use this endpoint at any time to flush previous chat history and start over from \
+          the original state.",
     },
 ]
 
@@ -65,11 +82,12 @@ app = FastAPI(
 )
 
 
-GENAI_GEMINI_ENDPOINT= os.environ['GENAI_GEMINI_ENDPOINT']
-GENAI_TEXT_ENDPOINT  = os.environ['GENAI_TEXT_ENDPOINT']
-GENAI_CHAT_ENDPOINT  = os.environ['GENAI_CHAT_ENDPOINT']
-GENAI_CODE_ENDPOINT  = os.environ['GENAI_CODE_ENDPOINT']
-GENAI_IMAGE_ENDPOINT = os.environ['GENAI_IMAGE_ENDPOINT']
+GENAI_GEMINI_ENDPOINT    = os.environ['GENAI_GEMINI_ENDPOINT']
+GENAI_TEXT_ENDPOINT      = os.environ['GENAI_TEXT_ENDPOINT']
+GENAI_CHAT_ENDPOINT      = os.environ['GENAI_CHAT_ENDPOINT']
+GENAI_CODE_ENDPOINT      = os.environ['GENAI_CODE_ENDPOINT']
+GENAI_IMAGE_ENDPOINT     = os.environ['GENAI_IMAGE_ENDPOINT']
+GENAI_NPC_CHAT_ENDPOINT  = os.environ['GENAI_NPC_CHAT_ENDPOINT']
 
 
 headers = {"Content-Type": "application/json"}
@@ -186,6 +204,25 @@ class Payload_Image(BaseModel):
         }
     }
 
+
+class Payload_NPC_Chat(BaseModel):
+    message: str
+    from_id: int
+    to_id: int
+    debug: bool | None = False
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "message": "What are you doing here?",
+                    "from_id": 2,
+                    "to_id": 1,
+                    "debug": False,
+                }
+            ]
+        }
+    }
 
 # Routes
 
@@ -305,6 +342,38 @@ def genai_image(payload: Payload_Image):
             content={'status': 'exception calling endpoint'},
         )
 
+
+@app.post("/genai/npc_chat", tags=["npc_chat"])
+def genai_npc_chat(payload: Payload_NPC_Chat):
+    try:
+        request_payload = {
+            'message': payload.message,
+            'from_id': payload.from_id,
+            'to_id': payload.to_id,
+            'debug': payload.debug
+        }
+        logging.debug(f'request_payload: {request_payload}')
+        response = requests.post(f'{GENAI_NPC_CHAT_ENDPOINT}', headers=headers, json=request_payload)
+        return json.loads(response.content)
+    except Exception as e:
+        logging.exception(f'At /genai/npc_chat. {e}')
+        return JSONResponse(
+            status_code=400,
+            content={'status': 'exception calling endpoint'},
+        )
+
+
+@app.post("/genai/npc_chat/reset_world_data", tags=["reset_world_data"])
+def reset_world_data():
+    try:
+        response = requests.post(f'{GENAI_NPC_CHAT_ENDPOINT}/reset_world_data', headers=headers)
+        return json.loads(response.content)
+    except Exception as e:
+        logging.exception(f'At /genai/npc_chat/reset_world_data. {e}')
+        return JSONResponse(
+            status_code=400,
+            content={'status': 'exception calling endpoint'},
+        )
 
 if __name__ == "__main__":
     import uvicorn

@@ -59,3 +59,12 @@ requires:
 
 - configs: ["stable-diffusion-endpt-cfg"]
   path: ./image/stable_diffusion/skaffold.yaml
+
+- configs: ["embeddings-api-cfg"]
+  path: ./language/embeddings/skaffold.yaml
+
+- configs: ["huggingface-tgi-endpt-cfg"]
+  path: ./language/huggingface_tgi/skaffold.yaml
+
+- configs: ["npc-chat-api-cfg"]
+  path: ./api/npc_chat_api/skaffold.yaml
