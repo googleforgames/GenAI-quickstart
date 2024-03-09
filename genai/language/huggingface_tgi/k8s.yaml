@@ -17,6 +17,8 @@ spec:
       serviceAccountName: k8s-sa-aiplatform
       nodeSelector:
         cloud.google.com/gke-accelerator: "nvidia-l4"
+        cloud.google.com/gke-ephemeral-storage-local-ssd: "true"
+        cloud.google.com/compute-class: "Accelerator"
       containers:
         - name: huggingface-tgi-api
           ports:
