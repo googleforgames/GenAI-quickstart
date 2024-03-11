@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 def npcs_from_world(world, genai, db):
     return [ NPC(entity, genai, db) for entity in world['base'] if entity['entity_type'] == 1 ]
 
@@ -34,10 +36,10 @@ class NPC(object):
         self._genai = genai
 
         # TODO: Are these global? Per NPC?
-        self._knowledge_distance = 0.3
+        self._knowledge_distance = 0.5
         self._knowledge_limit = 3
-        self._chat_window = 20 # must be even, need last response to be ours
-        self._max_prompt_bytes = 7000 # how much we can send to the LLM - we trim from chat history if necessary
+        self._chat_window = 10 # must be even, need last response to be ours
+        self._max_prompt_bytes = 6500 # how much we can send to the LLM - we trim from chat history if necessary
         self._per_chat_cost = 10 # bytes to "charge" for each chat
 
     def _format_context(self, knowledge):
@@ -57,9 +59,9 @@ class NPC(object):
             "author": "user" if chat['entity_id'] == from_id else "bot",
             "content": chat['message'],
         } for chat in self._db.get_chat_history(self._id, from_id, self._chat_window)]
-
         while sum([len(chat['content']) + self._per_chat_cost for chat in chats]) > max_bytes:
             chats = chats[2:]
+        logging.info(f'using {len(chats)}/{self._chat_window} chat messages')
         return chats
 
     def reply(self, from_id, from_name, message):

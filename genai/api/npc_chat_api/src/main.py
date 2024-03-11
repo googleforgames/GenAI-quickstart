@@ -84,7 +84,9 @@ class Payload_NPC_Chat(BaseModel):
 @app.post("/")
 def npc_chat(payload: Payload_NPC_Chat):
     try:
+        logging.info(f'payload: {payload}')
         resp = npcs[0].reply(payload.from_id, "Jane", payload.message)
+        logging.debug(f'resp: {resp}')
         if not payload.debug:
             # Filter to just the response
             resp = {"response": resp['response']}
