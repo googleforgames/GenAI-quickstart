@@ -40,17 +40,18 @@ completions = "ChatCompletions"
 [GKEGenAI.ChatCompletions]
 endpoint = "http://huggingface-tgi-api:8080/v1/"
 model = "tgi" # irrelevant when using TGI
-use_system_for_context = false
+use_system_for_context = false # Does the model support a system prompt? Otherwise we have to send it as an initial chat.
 
 [GKEGenAI.ChatCompletions.params]
-temperature = 0.95
+temperature = 0.8
 # stop = ['<|user|>'] # some models continue past a turn, this can help stop the model
 max_tokens = 1024
 
 [GKEGenAI.ChatCompletionTemplate]
 endpoint = "http://huggingface-tgi-api:8080/generate"
 
-# Copied from https://huggingface.co/google/gemma-7b-it/blob/main/tokenizer_config.json
+# Use this for Gemma 7B:
+#   Copied from https://huggingface.co/google/gemma-7b-it/blob/main/tokenizer_config.json
 chat_template = "{% if messages[0]['role'] == 'system' %}{{ raise_exception('System role not supported') }}{% endif %}{% for message in messages %}{% if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}{{ raise_exception('Conversation roles must alternate user/assistant/user/assistant/...') }}{% endif %}{% if (message['role'] == 'assistant') %}{% set role = 'model' %}{% else %}{% set role = message['role'] %}{% endif %}{{ '<start_of_turn>' + role + '\n' + message['content'] | trim + '<end_of_turn>\n' }}{% endfor %}{% if add_generation_prompt %}{{'<start_of_turn>model\n'}}{% endif %}"
 # Does the chat template support using a "system" message for context?
 use_system_for_context = false

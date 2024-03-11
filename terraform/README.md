@@ -44,6 +44,7 @@ Legend: <code>+</code> additive, <code>•</code> conditional.
 | [gke.tf](./gke.tf) | GKE Autopilot cluster for running GenAI workloads. | [`gke`](https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/latest/submodules/beta-autopilot-public-cluster) |  |
 | [iam.tf](./gke.tf) | IAM resources for project needed by Cloud resources. | [`member_roles_gke`, `member_roles_aiplatform`, `member_roles_telemetry`, `member_roles_cloudbuild`](https://registry.terraform.io/modules/terraform-google-modules/iam/google/latest/submodules/member_iam) | `google_service_account.sa_gke_cluster`, `google_service_account.sa_gke_aiplatform`, `google_service_account.sa_gke_telemetry` · `google_service_account_iam_binding.sa_gke_cluster_wi_binding`, `google_service_account_iam_binding.sa_gke_aiplatform_wi_binding`, `google_service_account_iam_binding.sa_gke_telemetry_wi_binding` |
 | [net.tf](./net.tf) | VPC network and firewall rules. | [`vpc`](https://registry.terraform.io/modules/terraform-google-modules/network/google/latest) |  |
+| [spanner.tf](./spanner.tf) | Spanner instance/database for NPC Chat demo. | [`spanner`](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/spanner_instance) |  |
 
 
 ## Variables

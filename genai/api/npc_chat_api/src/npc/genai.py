@@ -84,7 +84,7 @@ class GKEGenAI(object):
         if supports_system:
             messages = [{'role': 'system', 'content': context}]
         else:
-            # TODO: This is awkward, see https://huggingface.co/google/gemma-7b-it/discussions/25
+            # TODO: This is awkward, but not all models support the system message (e.g. gemma-7b and mixtral)
             messages = [{'role': 'user', 'content': context}, {'role': 'assistant', 'content': 'OK'}]
 
         for chat in chat_history:
