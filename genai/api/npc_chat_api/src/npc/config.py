@@ -14,8 +14,9 @@
 
 import tomllib
 
-CONFIG_PATH="config/config.toml"
-WORLD_PATH="config/world.toml"
+# Mounted as ConfigMaps in genai/api/npc_chat_api/k8s.yaml
+CONFIG_PATH="/config/config.toml"
+WORLD_PATH="/config/world.toml"
 
 def data_from_file(path):
     with open(path, "rb") as f:
