@@ -25,9 +25,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src /app/
 
-# TODO: Use ConfigMap instead
-COPY config /app/config
-
 EXPOSE 8080
 
 # Start the application with Uvicorn
