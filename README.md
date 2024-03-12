@@ -133,7 +133,7 @@ Switch to the `genai` directory and render common templates that use your unique
 ```
 # Find all files named .template.yaml, replace `your-unique-project-id` with PROJECT_ID, and output to .yaml.
 cd ${CUR_DIR:?}/genai && find common -type f -name "*.template.yaml" -exec \
-  bash -c "template_path={}; sed 's:your-unique-project-id:${PROJECT_ID:?}:g' < \${template_path} > \${template_path/%.template.yaml/.yaml} " \;
+  bash -c "template_path={}; sed \"s:your-unique-project-id:${PROJECT_ID:?}:g\" < \${template_path} > \${template_path/%.template.yaml/.yaml} " \;
 ```
 
 Build and run GenAI workloads with **Skaffold**
