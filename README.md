@@ -178,10 +178,16 @@ You can also run the individual backends in isolation:
 
 Access the API - You can test the application and all the APIs from here  :)
 
+The cluster creates an internal passthrough Network Load Balancer (ILB). To access the APIs run:
 ```
-export EXT_IP=`kubectl -n genai get svc genai-api -o jsonpath='{.status.loadBalancer.ingress.*.ip}'`
+kubectl port-forward svc/genai-api -n genai 8080:80
+```
+then in another window run:
+```
+export EXT_IP=localhost:8080
 echo "Browse to http://${EXT_IP}/genai_docs to try out the GenAI APIs!"
 ```
+and then navigate to the URL in your browser.
 
 Test the API using `curl`:
 

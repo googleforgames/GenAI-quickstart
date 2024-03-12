@@ -71,6 +71,8 @@ metadata:
   labels:
     name: genai-api
   name: genai-api
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
   ports:
   - name: http
