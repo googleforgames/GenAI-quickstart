@@ -14,6 +14,7 @@
 
 import tomllib
 
+# Mounted as ConfigMaps in genai/api/npc_chat_api/k8s.yaml
 CONFIG_PATH="/config/config.toml"
 WORLD_PATH="/config/world.toml"
 

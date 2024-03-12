@@ -23,8 +23,8 @@ data:
 
     # GenAI provider - GKEGenAI or VertexAI. Note that switching GenAI implementations switches the
     # embedding model requiring a data regeneration using the /reset_world_data endpoint.
-    # genai = "GKEGenAI"
-    genai = "VertexAI"
+    genai = "GKEGenAI"
+    # genai = "VertexAI"
 
 
     [Spanner]
