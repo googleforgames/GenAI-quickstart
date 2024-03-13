@@ -33,5 +33,5 @@ deploy:
       global:
       - --namespace=genai
 requires:
-- configs: ["common-k8s-cfg","common-otel-cfg"]
+- configs: ["common"]
   path: ../../common/skaffold.yaml
