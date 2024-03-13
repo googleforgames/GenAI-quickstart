@@ -16,7 +16,7 @@ The gameplay is:
 ```
 # These steps will already be done if you followed the top-level readme
 export PROJECT_ID=$(gcloud config list --format 'value(core.project)' 2>/dev/null)
-export LOCATION=us-west1
+export LOCATION=us-central1
 export SKAFFOLD_DEFAULT_REPO=$LOCATION-docker.pkg.dev/$PROJECT_ID/repo-genai-quickstart
 
 cd $CUR_DIR/examples/guess-the-sketch/src
