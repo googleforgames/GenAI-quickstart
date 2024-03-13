@@ -31,6 +31,18 @@ spec:
           ports:
             - containerPort: 80
           image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 240
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 12
+            periodSeconds: 5
           # Use this image for Gemma support:
           # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
@@ -113,6 +125,18 @@ spec:
           ports:
             - containerPort: 80
           image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 240
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 12
+            periodSeconds: 5
           # Use this image for Gemma support:
           # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
@@ -195,6 +219,18 @@ spec:
           ports:
             - containerPort: 80
           image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 240
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 12
+            periodSeconds: 5
           # Use this image for Gemma support:
           # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
