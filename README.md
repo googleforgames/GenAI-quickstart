@@ -204,7 +204,7 @@ Or test the API using the `api-caller` container inside the cluster:
 kubectl get svc -ngenai
 
 # Start `api-caller` pod interactively
-kubectl run -it -ngenai --rm --restart=Never api-caller --image=$SKAFFOLD_DEFAULT_REPO/api-caller:latest
+kubectl run -it -ngenai --rm --restart=Never api-caller --image=${SKAFFOLD_DEFAULT_REPO}/api-caller:latest
 
 # Examples:
 
