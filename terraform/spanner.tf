@@ -21,12 +21,13 @@ resource "google_spanner_database" "npc-chat" {
   ddl = [<<-EOT
     CREATE TABLE EntityHistoryBase (
         EntityId INT64,
+        IsWorldData bool,
         EventId INT64,
         EntityName STRING(MAX),
         EntityType INT64,
         EventDescription STRING(MAX),
         EventDescriptionEmbedding ARRAY<FLOAT64>,
-    ) PRIMARY KEY(EntityId, EventId)
+    ) PRIMARY KEY(EntityId, IsWorldData, EventId)
   EOT
   , <<-EOT
     CREATE TABLE EntityHistoryDynamic (
