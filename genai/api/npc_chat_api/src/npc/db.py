@@ -22,42 +22,76 @@ def db_from_config(cfg, genai):
     raise Exception(f"Unknown database config: {cfg['global']['database']}")
 
 class Spanner(object):
-    _CHAT_HISTORY = """\
+    _CHAT_HISTORY = """
 SELECT
-  EntityId,
-  EventDescription
-FROM EntityHistoryDynamic
-WHERE
-  (EntityId = @entityId1 AND TargetEntityId = @entityId2) OR (EntityId = @entityId2 AND TargetEntityId = @entityId1)
+    EntityId,
+    EventDescription
+FROM
+(
+    (
+        SELECT
+            EntityId,
+            EventTime,
+            MessageId,
+            EventDescription
+        FROM EntityHistoryDynamic
+        WHERE EntityId = @entityId1 AND TargetEntityId = @entityId2
+        ORDER BY EntityId, TargetEntityId, EventTime DESC, MessageId DESC
+        LIMIT @halfLimit
+    )
+    UNION ALL
+    (
+        SELECT
+            EntityId,
+            EventTime,
+            MessageId,
+            EventDescription
+        FROM EntityHistoryDynamic
+        WHERE EntityId = @entityId2 AND TargetEntityId = @entityId1
+        ORDER BY  EntityId, TargetEntityId, EventTime DESC, MessageId DESC
+        LIMIT @halfLimit
+    )
+)
 ORDER BY EventTime DESC, MessageId DESC
-LIMIT @limit
 """
 
     _KNOWLEDGE = """
 WITH maybeRelevant AS (
-    -- maybeRelevant is a union of "known facts" by @entityId, and world facts (entity 0),
-    -- plus anything @entityId said or heard in chat. The `Provenance` column indicates who
-    -- relayed the fact, with NULL meaning "It is known".
-    SELECT
-        EventDescription,
-        NULL as Provenance,
-        EventDescriptionEmbedding,
-        COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
-    FROM EntityHistoryBase
-    WHERE EntityId = 0 OR EntityId = @entityId
-    --
-    -- TODO: The following part of the query attempts to incorporate "learned" knowledge.
-    -- However, we need a safety/quality layer to incorporate this, for a couple reasons:
-    --   * Griefers abound, and it's easy to "re-ground" the NPC on fake knowledge.
-    --   * Without fine tuning, it's easy for models to "break character" and
-    -- UNION ALL
-    -- SELECT
-    --     EventDescription,
-    --     IF(EntityId = @entityId, "I", EntityName) as Provenance,
-    --     EventDescriptionEmbedding,
-    --     COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
-    -- FROM EntityHistoryDynamic
-    -- WHERE EntityId = @entityId OR TargetEntityId = @entityId
+        -- maybeRelevant is a union of "known facts" by @entityId, and world facts (embedded into each entityId where IsWorldData=True),
+        -- plus anything @entityId said or heard in chat. The `Provenance` column indicates who
+        -- relayed the fact, with NULL meaning "It is known".
+        SELECT
+            EventDescription,
+            NULL as Provenance,
+            EventDescriptionEmbedding,
+            COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
+        FROM EntityHistoryBase
+        WHERE EntityId = @entityId
+        UNION ALL
+        (SELECT
+            EventDescription,
+            IF(EntityId = @entityId, "I", EntityName) as Provenance,
+            EventDescriptionEmbedding,
+            COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
+        FROM EntityHistoryDynamic
+        WHERE EntityId = @entityId 
+        --- adding redundant order by entityId makes it clear we are ordered by primary key prefix rather than leaving it for the optimizer to understand the right thing to do.
+        --- Because it is primary key ordered, it will not scan everything in entityid then order then do limit. It should just take the most recent 16K.
+        ORDER BY EntityId, EventTime DESC, MessageId DESC
+        LIMIT @entityHistoryDynamicLimit
+    )
+    UNION ALL
+    (
+        SELECT
+            EventDescription,
+            IF(EntityId = @entityId, "I", EntityName) as Provenance,
+            EventDescriptionEmbedding,
+            COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
+        FROM EntityHistoryDynamic
+        WHERE TargetEntityId = @entityId
+        ORDER BY TargetEntityId, EventTime DESC, MessageId DESC
+        LIMIT @entityHistoryDynamicLimit
+    )
 ), withinDistance AS (
     -- withinDistance filters the relevant pieces down to a maximum distance and structures
     -- the event for bucketing, below.    
@@ -88,6 +122,7 @@ LIMIT @limit
     def __init__(self, genai, gcfg, cfg):
         self._get_embeddings = genai.get_embeddings
         self._db = spanner.Client().instance(cfg['instance_id']).database(cfg['database_id'])
+        self._dynamic_knowledge_limit = 16600  # bounds on all knowledge before relevance, to bound latency
 
     # TODO: This is doing one-by-one insert into the batch, but is getting called in a loop. Be kinder?
     @staticmethod
@@ -95,16 +130,26 @@ LIMIT @limit
         columns, values = list(zip(*column_values.items()))
         batch.insert(table, columns=columns, values=[values])
 
-    def _insert_base(self, batch, event_counter, base_event):
-        descs = base_event['events']
-        embeddings = self._get_embeddings(descs)
-
-        for (desc, embedding) in zip(descs, embeddings):
+    def _insert_base(self, batch, event_counter, world_event, base_event):
+        for (desc, embedding) in base_event['_events_with_embeddings']:
             Spanner._batch_insert(batch, 'EntityHistoryBase', {
                 'EntityId': base_event['entity_id'],
+                'IsWorldData': False,
                 'EventId': next(event_counter),
                 'EntityName': base_event['entity_name'],
                 'EntityType': base_event['entity_type'],
+                'EventDescription': desc,
+                'EventDescriptionEmbedding': embedding,
+            })
+
+        # Duplicate world events into each entity to prevent Spanner hotspotting on world data.
+        for (desc, embedding) in world_event['_events_with_embeddings']:
+            Spanner._batch_insert(batch, 'EntityHistoryBase', {
+                'EntityId': base_event['entity_id'],
+                'IsWorldData': True,
+                'EventId': next(event_counter),
+                'EntityName': world_event['entity_name'],
+                'EntityType': world_event['entity_type'],
                 'EventDescription': desc,
                 'EventDescriptionEmbedding': embedding,
             })
@@ -135,7 +180,7 @@ LIMIT @limit
                 params={
                     'entityId1': entity_id1,
                     'entityId2': entity_id2,
-                    'limit': limit,
+                    'halfLimit': limit // 2,
                 },
                 param_types={
                     'entityId1': spanner.param_types.INT64,
@@ -165,6 +210,7 @@ LIMIT @limit
                     'embedding': embedding,
                     'distance': distance,
                     'limit': limit,
+                    'entityHistoryDynamicLimit': self._dynamic_knowledge_limit,
                     'crowdBuckets': crowd_buckets,
                 },
                 param_types={
@@ -172,6 +218,7 @@ LIMIT @limit
                     'embedding': spanner.param_types.Array(spanner.param_types.FLOAT64),
                     'distance': spanner.param_types.FLOAT64,
                     'limit': spanner.param_types.INT64,
+                    'entityHistoryDynamicLimit': spanner.param_types.INT64,
                     'crowdBuckets': spanner.param_types.INT64,
                 },
             )
@@ -183,8 +230,23 @@ LIMIT @limit
             batch.delete("EntityHistoryDynamic", spanner.KeySet(all_=True))
 
             event_counter = itertools.count()
+            world_event = None
             for base_event in data['base']:
-                self._insert_base(batch, event_counter, base_event)
+                descs = base_event['events']
+                embeddings = self._get_embeddings(descs)
+                base_event['_events_with_embeddings'] = zip(descs, embeddings)
+
+                if base_event['entity_id'] == 0:
+                    assert not world_event
+                    world_event = base_event
+
+                    descs = base_event['events']
+                    embeddings = self._get_embeddings(descs)
+
+                    continue
+
+                assert world_event
+                self._insert_base(batch, event_counter, world_event, base_event)
 
             message_counter = itertools.count()
             for chat_event in data['chat']:
