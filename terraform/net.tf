@@ -46,14 +46,27 @@ module "vpc" {
 
   ingress_rules = [
     {
-      name          = "fw-game-server"
-      description   = "Allow game server traffic"
+      name          = "gke-fw-game-server-udp"
+      description   = "Allow UDP game server traffic"
       priority      = 1000
       source_ranges = ["0.0.0.0/0"],
       target_tags   = ["game-server"]
       allow = [
         {
           protocol = "udp"
+          ports    = ["7000-8000"]
+        }
+      ]
+    },
+    {
+      name          = "gke-fw-game-server-tcp"
+      description   = "Allow TCP game server traffic"
+      priority      = 1000
+      source_ranges = ["0.0.0.0/0"],
+      target_tags   = ["game-server"]
+      allow = [
+        {
+          protocol = "tcp"
           ports    = ["7000-8000"]
         }
       ]

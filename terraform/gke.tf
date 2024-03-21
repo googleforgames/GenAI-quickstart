@@ -29,6 +29,7 @@ module "gke" {
   name                       = "genai-quickstart"
   region                     = "us-central1"
   network                    = module.vpc.network_name
+  network_tags               = ["game-server"]
   subnetwork                 = "sn-usc1"
   ip_range_pods              = "sn-usc1-pods1"
   ip_range_services          = "sn-usc1-svcs1"

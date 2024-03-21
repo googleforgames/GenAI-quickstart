@@ -26,10 +26,7 @@ deploy:
         wait: true
         remoteChart: opentelemetry-operator
         repo: https://open-telemetry.github.io/opentelemetry-helm-charts
-        setValues:
-          admissionWebhooks.certManager.enabled: false # Disable certManager
-          admissionWebhooks.certManager.autoGenerateCert.enabled: true # Helm will create a self-signed cert and secret
-          image.pullPolicy: "IfNotPresent"
+        valuesFiles: ["./helm_values.yaml"]
 ---
 apiVersion: skaffold/v4beta1
 kind: Config
