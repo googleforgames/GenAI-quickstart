@@ -25,6 +25,7 @@ spec:
       restartPolicy: Always
       nodeSelector:
         cloud.google.com/gke-accelerator: "nvidia-l4"
+        cloud.google.com/compute-class: "Accelerator"
       containers:
       - image: stable-diffusion-endpt
         name: stable-diffusion-endpt
