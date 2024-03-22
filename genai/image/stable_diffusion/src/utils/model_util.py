@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-import requests
-import base64
 from io import BytesIO
 from diffusers import StableDiffusionPipeline
 import torch
@@ -27,7 +24,7 @@ class Stable_Diffusion:
         # https://huggingface.co/models
         # Example MODEL_TYPE = 'runwayml/stable-diffusion-v1-5'
         self.model_type = model_type
-        
+
         # Load Model
         self.pipe = StableDiffusionPipeline.from_pretrained(self.model_type, torch_dtype=torch.float16)
         self.pipe = self.pipe.to("cuda")
@@ -40,7 +37,7 @@ class Stable_Diffusion:
             # Process and format image
             buffer = BytesIO()
             image.save(buffer, format="PNG")
-            image_bytes = buffer.getvalue()            
+            image_bytes = buffer.getvalue()
 
             return image_bytes
         except Exception as e:
