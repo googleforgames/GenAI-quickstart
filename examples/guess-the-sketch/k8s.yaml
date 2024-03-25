@@ -39,8 +39,8 @@ spec:
         app: guess-the-sketch-app
     spec:
       containers:
-        - name: guess-the-sketch
-          image: your-image-repo/guess-the-sketch:0.1
+        - name: guess-the-sketch-app
+          image: guess-the-sketch-app
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
