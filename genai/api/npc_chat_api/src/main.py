@@ -15,6 +15,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+import json
 import logging
 import npc
 import requests
@@ -86,7 +87,7 @@ def npc_chat(payload: Payload_NPC_Chat):
     try:
         logging.info(f'payload: {payload}')
         resp = npcs[0].reply(payload.from_id, "Jane", payload.message)
-        logging.debug(f'resp: {resp}')
+        logging.debug(f'resp: {json.dumps(resp, indent=2)}')
         if not payload.debug:
             # Filter to just the response
             resp = {"response": resp['response']}
