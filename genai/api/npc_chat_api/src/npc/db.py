@@ -57,6 +57,8 @@ ORDER BY EventTime DESC, MessageId DESC
 
     _KNOWLEDGE = """
 WITH maybeRelevant AS (
+        -- NOTE: Dynamic knowledge may be disabled by changing @entityHistoryDynamicLimit to 0.
+        --
         -- maybeRelevant is a union of "known facts" by @entityId, and world facts (embedded into each entityId where IsWorldData=True),
         -- plus anything @entityId said or heard in chat. The `Provenance` column indicates who
         -- relayed the fact, with NULL meaning "It is known".
@@ -74,7 +76,7 @@ WITH maybeRelevant AS (
             EventDescriptionEmbedding,
             COSINE_DISTANCE(EventDescriptionEmbedding, @embedding) as Distance
         FROM EntityHistoryDynamic
-        WHERE EntityId = @entityId 
+        WHERE EntityId = @entityId
         --- adding redundant order by entityId makes it clear we are ordered by primary key prefix rather than leaving it for the optimizer to understand the right thing to do.
         --- Because it is primary key ordered, it will not scan everything in entityid then order then do limit. It should just take the most recent 16K.
         ORDER BY EntityId, EventTime DESC, MessageId DESC
@@ -122,7 +124,8 @@ LIMIT @limit
     def __init__(self, genai, gcfg, cfg):
         self._get_embeddings = genai.get_embeddings
         self._db = spanner.Client().instance(cfg['instance_id']).database(cfg['database_id'])
-        self._dynamic_knowledge_limit = 16600  # bounds on all knowledge before relevance, to bound latency
+        # self._dynamic_knowledge_limit = 16600  # bounds on all knowledge before relevance, to bound latency
+        self._dynamic_knowledge_limit = 0 # no secondhand/dynamic knowledge
 
     # TODO: This is doing one-by-one insert into the batch, but is getting called in a loop. Be kinder?
     @staticmethod
