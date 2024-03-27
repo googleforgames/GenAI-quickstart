@@ -16,6 +16,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install curl
+RUN apt-get update; apt-get install -y curl
+
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 
