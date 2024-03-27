@@ -1,10 +1,10 @@
-# Copyright 2024 Google LLC All Rights Reserved.
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http:#www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,19 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Base Image
-FROM python:3.11.5
+FROM golang:1.22
 
-WORKDIR /workspace/frontend
-COPY app.py /workspace/frontend
-COPY requirements.txt /workspace/frontend
-COPY templates/index.html /workspace/frontend/templates/
+# Set destination for COPY
+WORKDIR /go/src
 
-# Install Dependencies
-RUN pip install -r requirements.txt
+# Download Go modules
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Expose Port
-EXPOSE 5000
+# Copy source code into the image
+RUN mkdir /app
+COPY *.go ./
 
-# Start the Application
-CMD ["python", "app.py"]
+# Build
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/mmf
+
+# Expose port
+EXPOSE 50502
+
+# Run
+CMD ["/app/mmf"]
