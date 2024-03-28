@@ -19,12 +19,15 @@ WORKDIR /workspace/frontend
 COPY src/app.py /workspace/frontend
 COPY src/requirements.txt /workspace/frontend
 COPY src/templates/index.html /workspace/frontend/templates/
+COPY src/agones /workspace/frontend/agones
+
 
 # Install Dependencies
 RUN pip install -r requirements.txt
+RUN pip install ./agones
 
 # Expose Port
-EXPOSE 5000
+EXPOSE 7654
 
 # Start the Application
 CMD ["python", "app.py"]
