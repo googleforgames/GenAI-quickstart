@@ -28,4 +28,6 @@ manifests:
   - ./k8s.yaml
 deploy:
   kubectl:
-    defaultNamespace: genai
+    flags:
+      global:
+      - --namespace=genai

@@ -106,16 +106,7 @@ func createOMFetchMatchesRequest() *pb.FetchMatchesRequest {
 }
 
 func createAgonesGameServerAllocation() *allocationv1.GameServerAllocation {
-	// TODO: Update allocation requirements
-	return &allocationv1.GameServerAllocation{
-		// Spec: allocationv1.GameServerAllocationSpec{
-		// 	Required: allocationv1.GameServerSelector{
-		// 		LabelSelector: metav1.LabelSelector{
-		// 			MatchLabels: map[string]string{agonesv1.FleetNameLabel: "dedicated"},
-		// 		},
-		// 	},
-		// },
-	}
+	return &allocationv1.GameServerAllocation{}
 }
 
 func createOMAssignTicketRequest(match *pb.Match, gsa *allocationv1.GameServerAllocation) *pb.AssignTicketsRequest {

@@ -12,27 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Open Match Installation
-apiVersion: skaffold/v3
-kind: Config
-metadata:
-  name: open-match-cfg
-deploy:
-  helm:
-    releases:
-      - name: open-match
-        createNamespace: true
-        namespace: "open-match"
-        wait: true
-        remoteChart: open-match
-        repo: https://open-match.dev/chart/stable
-        setValues:
-          # Install the Default Evaluator
-          open-match-customize.enabled: true
-          open-match-customize.evaluator.enabled: true
-          # Install ConfigMap `om-configmap-override`, this ConfigMap configures Open Match to talk to the Default Evaluator
-          open-match-override.enabled: true
----
 apiVersion: skaffold/v3
 kind: Config
 metadata:
@@ -49,4 +28,6 @@ manifests:
   - ./k8s.yaml
 deploy:
   kubectl:
-    defaultNamespace: genai
+    flags:
+      global:
+      - --namespace=genai
