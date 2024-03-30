@@ -34,8 +34,8 @@ PORT=os.environ.get("AGONES_SDK_HTTP_PORT","8080")
 conf = Agones.Configuration()
 conf.host = "http://localhost:"+PORT
 
-pending_requests = {}
-original_prompts = {}
+player_prompt = {}
+player_guess = {}
 
 logging.basicConfig(level=logging.INFO)  # Set to logging.DEBUG for more verbose logs 
 logger = logging.getLogger(__name__)  # Get a logger for your application
@@ -77,106 +77,135 @@ health_thread.start()
 def index():
     return render_template('index.html')
 
-@socketio.on('guess')
-def handle_message(message):
-    logger.info('Received guess: %s', message)
-    pending_requests[request.sid]['guess'] = message
-    partner_id = pending_requests[request.sid]['partner']
+game_round = 3
+embedding_endpoint = 'http://embeddings-api'
 
-    if pending_requests[partner_id]['guess'] is None:
-        emit('guess_response', {'message': 'Wait partner guess'}, room=request.sid)
-    else:
-        # Both partners have guessed
-        emit('guess_response', {'message': 'You guessed: ' + message + ' - Your partner\'s original prompt was: ' + pending_requests[request.sid]['partner_message']}, room=request.sid)
-        emit('guess_response', {'message': 'You guessed: ' + pending_requests[partner_id]['guess'] + ' - Your partner\'s original prompt was: ' + pending_requests[partner_id]['partner_message']}, room=partner_id)
+@socketio.on('guess1')
+def handle_message(data):
+    player_id = request.sid
+    message = data['message']
+    oppontent_id = data['opponentId']
+    round = int(data['round'])
 
-        # Calculate similarity
-        similarity_prompt = f'''calculate the vector similarity number between '{pending_requests[partner_id]['message']}' and '{pending_requests[request.sid]['guess']}' as number A, 
-                            calculate the vector similarity number between '{pending_requests[request.sid]['message']}' and '{pending_requests[partner_id]['guess']}' as number B. 
-                            Return number A and number B in the format: A = , B = ''' 
-        payload_similarity = {
-            'prompt': f'''{similarity_prompt}''',
-        }
+    logger.info('Received guess %s from player %s for oppontent %s: %s', str(round), player_id, oppontent_id, message)
 
-        logger.info(f'Similarity payload: {payload_similarity}')
+    if player_guess.get(player_id) is None:
+        player_guess[player_id] = {}
+    player_guess[player_id][round] = {
+        'guess': message
+    }
+    
+    # Send next picture
+    if round != game_round:
+        next_round = round + 1
+        while player_prompt[oppontent_id][next_round]['picture'] is None:
+            time.sleep(0.1)
+        emit('llm_response', {'image': player_prompt[oppontent_id][next_round]['picture'], 'opponentId': oppontent_id, 'round': next_round}, room=player_id)
+        logger.info('Sent image %s to %s', str(next_round), player_id)
 
-        similarity_response_cur = requests.post(f'http://genai-api.genai.svc/genai/text', headers=headers, json=payload_similarity)
+    # Generate and store the picture for the guess
+    guess_payload = {
+        'prompt': f'''{message}''',
+    }
+    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=guess_payload)
+    # stable diffusion
+    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=payload_cur)
+    encoded_image = base64.b64encode(model_response.content).decode('utf-8')
+    logger.info('Encoded guess image %s for player %s: %s', str(round), player_id, encoded_image)
 
-        # logger.info(f'Similarity response: {similarity_response_cur.text}')
-        similarity_prompt_cur_without_quota = similarity_response_cur.text.strip('"')
-        logger.info(f'Similarity response without quota: {similarity_prompt_cur_without_quota}')
+    player_guess[player_id][round]['guess_picture'] = encoded_image
 
-        parts = similarity_prompt_cur_without_quota.split(",")  # Split the string by commas
+    # Generate and store the similarity score
+    # embedding_req = requests.post(
+    #     url = embedding_endpoint,
+    #     headers = headers,
+    #     json = json,
+    # )
 
-        # Extract numbers and convert to float
-        score1 = float(parts[0].split()[-1])  
-        score2 = float(parts[1].split()[-1]) 
-
-        logger.info(f'num1: {score1}')
-        logger.info(f'num2: {score2}')
-
-        if score1 > score2:
-            emit('winner', {'message': 'You won!'}, room=request.sid)
-            emit('winner', {'message': 'You lost!'}, room=partner_id)
-        elif score1 < score2:
-            emit('winner', {'message': 'You lost!'}, room=request.sid)
-            emit('winner', {'message': 'You won!'}, room=partner_id)
-        else:
-            emit('winner', {'message': 'It\'s a tie!'}, room=request.sid)
-            emit('winner', {'message': 'It\'s a tie!'}, room=partner_id)
-
-        del pending_requests[request.sid]
-        del pending_requests[partner_id]
-
-@socketio.on('message')
-def handle_message(message):
-    request_id = request.sid
-    logger.info('Received request %s', request_id)
-    logger.info('socket id %s', request.sid)
-    logger.info('Message: %s', message)
-    logger.info('Pending requests: %s', pending_requests)
-
-    # TODO ... (Timeout logic - Consider a background task or database) ...
-
-    pending_requests[request_id] = {
-        'timestamp': time.time(),
-        'partner': None,
-        'socket_id': request.sid,
-        'message': message,
-        'partner_message': None,
-        'guess': None
+    similarity_prompt = f'''calculate the vector similarity number between '{player_prompt[oppontent_id][round]['prompt']}' and '{player_guess[player_id][round]['guess']}' as number A,
+                            Return number A in the format: A = '''
+    
+    similarity_payload = {
+        'prompt': f'''{similarity_prompt}''',
     }
 
-    for pending_id, pending_req in pending_requests.items():
-        if pending_id != request_id and pending_req['partner'] is None: 
-            # Match found!
-            logging.info(f'Match found')
-            pending_req['partner'] = request.sid
-            pending_req['partner_message'] = message
-            pending_requests[request_id]['partner'] = pending_id
-            pending_requests[request_id]['partner_message'] = pending_req['message']
-            payload_cur = {
+    similarity_response = requests.post(f'http://genai-api.genai.svc/genai/text', headers=headers, json=similarity_payload)
+    logger.info(f'Similarity response: {similarity_response.text}')
+
+    similarity_response_without_quota = similarity_response.text.strip('"')
+    score = float(similarity_response_without_quota.split()[-1])
+
+    logger.info(f'score: {score}')
+
+    player_prompt[player_id][round]['guess_score'] = score
+
+    # Generate and return summary once both players have guessed all 3 pictures
+
+    if round == game_round:
+        while len(player_guess) != 2:
+            time.sleep(0.1)
+        for player in player_guess:
+            while len(player_guess[player]) != game_round:
+                time.sleep(0.1)
+            for round in player_guess[player]:
+                while player_guess[player][round].get('guess_picture') is None:
+                    time.sleep(0.1)
+        for player in player_guess:
+            for round in player_guess[player]:
+                logger.debug('Sending guess picture of Player %s round %s to player %s', player, round, player_id)
+                try:
+                    emit('guess_response', {'image': player_guess[player][round]['guess_picture'], 'round': round}, room=player_id)
+                except:
+                    logger.exception('Error sending guess picture of Player %s round %s to player %s', player, round, player_id)
+
+@socketio.on('prompt')
+def handle_message(data):
+    player_id = request.sid
+    message = data['message']
+    round = int(data['round'])
+    logger.info('Received prompt %s from player %s: %s', str(round), player_id, message)
+
+    if round == 1:
+        player_prompt[player_id] = {
+            1: {
                 'prompt': f'''{message}''',
             }
-            payload_pre = {
-                'prompt': f'''{pending_req['message']}''',
-            }
-            # vertex
-            model_response_cur = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=payload_cur)
-            model_response_pre = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=payload_pre)
-            # stable diffusion
-            #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=payload_cur)
-            #model_response_pre = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=payload_pre)
+        }
+    else:
+        player_prompt[player_id][round] = {
+            'prompt': f'''{message}''',
+        }
 
+    picture_generate_payload = {
+        'prompt': f'''{message}''',
+    }
+    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=picture_generate_payload)
+    # stable diffusion
+    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=picture_generate_payload)
+    encoded_image = base64.b64encode(model_response.content).decode('utf-8')
+    logger.info('Encoded image %s for player %s: %s', str(round), player_id, encoded_image)
 
-            encoded_image_cur = base64.b64encode(model_response_cur.content).decode('utf-8')
-            encoded_image_pre = base64.b64encode(model_response_pre.content).decode('utf-8')
+    player_prompt[player_id][round]['picture'] = encoded_image
+    logger.info('Stored image %s for player %s: ', str(round), player_id)
+    
+    # The first picture should be displayed if both players have entered all their prompts
+    # The first picture page should be displayed only if the picture is generated
 
-            # Notify both clients with messages:
-            emit('match_found', {'message': 'Match found - You initiated! Your partner id is ' + request_id}, room=pending_id)
-            emit('llm_response', {'image': encoded_image_cur}, room=pending_id)
-            emit('match_found', {'message': 'Match found! Your partner id is ' + pending_id}, room=request.sid)
-            emit('llm_response', {'image': encoded_image_pre}, room=request.sid)
+    if round != game_round:
+        return
+    
+    while len(player_prompt) != 2:
+        time.sleep(0.1)
+    for player in player_prompt:
+        if player != player_id:
+            while len(player_prompt[player]) != game_round:
+                time.sleep(0.1)
+            logger.info("I'm here")
+            while 'picture' not in player_prompt[player][1]:
+                time.sleep(0.25)
+                logger.info('Waiting for image 1')
+            emit('llm_response', {'image': player_prompt[player][1]['picture'], 'opponentId': player, 'round': 1}, room=player_id)
+            logger.info('Sent image 1 to %s', player_id)
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=7654)
