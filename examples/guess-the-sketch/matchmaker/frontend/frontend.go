@@ -53,8 +53,6 @@ func main() {
 }
 
 func matchmake(ws *websocket.Conn) {
-	ws.PayloadType = 2 // Sets sent payloads to binary
-	stream := NewProtoStream(ws)
 
 	ctx, cancel := context.WithCancel(ws.Request().Context())
 	defer cancel()
@@ -67,14 +65,14 @@ func matchmake(ws *websocket.Conn) {
 		select {
 		case err := <-errs:
 			log.Println("Error getting assignment:", err)
-			//err = stream.Send(&pb.Assignment{Error: status.Convert(err).Proto()})
-			err = stream.Send(&pb.Assignment{})
+			err = websocket.JSON.Send(ws, MatchMakeResponse{Err: err})
 			if err != nil {
 				log.Println("Error sending error:", err)
 			}
 			return
 		case assigment := <-assignments:
-			err := stream.Send(assigment)
+			log.Println("assigment.Connection:", assigment.Connection)
+			err := websocket.JSON.Send(ws, MatchMakeResponse{Connection: assigment.Connection})
 			if err != nil {
 				log.Println("Error sending updated assignment:", err)
 				cancel()
@@ -140,4 +138,9 @@ func connectFrontendServer() (*grpc.ClientConn, error) {
 		return nil, fmt.Errorf("error dialing open match: %w", err)
 	}
 	return conn, nil
+}
+
+type MatchMakeResponse struct {
+	Connection string `json:"connection,omitempty"`
+	Err        error  `json:"err,omitempty"`
 }

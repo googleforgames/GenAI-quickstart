@@ -38,11 +38,11 @@ kind: Config
 metadata:
   name: matchmaker-cfg
 requires:
-- configs: ["guess-the-sketch-director-cfg"]
-  path: ./director/skaffold.yaml
-
 - configs: ["guess-the-sketch-frontend-cfg"]
   path: ./frontend/skaffold.yaml
 
 - configs: ["guess-the-sketch-mmf-cfg"]
   path: ./mmf/skaffold.yaml
+
+- configs: ["guess-the-sketch-director-cfg"]
+  path: ./director/skaffold.yaml
