@@ -67,8 +67,7 @@ def agones_health():
             logger.debug('health check reponse: %s', api_response)
             time.sleep(2)
         except ApiException as exc:
-            logger.error('health check failed')
-            logger.info(exc)
+            logger.error('health check failed: %s', exc)
 
 health_thread = threading.Thread(target=agones_health)
 health_thread.start()
