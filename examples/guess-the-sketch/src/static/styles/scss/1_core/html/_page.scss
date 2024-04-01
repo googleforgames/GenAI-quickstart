@@ -1,0 +1,31 @@
+// ================================== //
+//    #CORE/HTML - PAGE
+// ================================== //
+
+* {
+  box-sizing: border-box; // establishes border-box model for all elements
+  -webkit-tap-highlight-color: rgb(0 0 0 / 0%); // Remove default tappable touch color in iOS
+  word-wrap: normal;
+}
+
+:root {
+  font-size: 62.5%; // Sets up the Base 10 stuff
+  position: relative;
+}
+
+html,
+body {
+  height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  @include font-size(16, 24);
+  background-color: var(--color-white);
+  background-image: url('../imgs/bg.png');
+  background-attachment: fixed;
+  background-repeat: repeat;
+  font-family: var(--font-roboto);
+  margin: 0;
+  overflow-x: hidden;
+}

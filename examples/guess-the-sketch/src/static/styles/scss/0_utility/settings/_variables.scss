@@ -1,0 +1,57 @@
+$mobile: 240px;
+$large-mobile: 400px; // xs
+$tablet: 600px; // sm
+$large-tablet: 800px; // md
+$desktop: 1200px; // lg
+$large-desktop: 1600px; // xl
+
+:root {
+  // font vars: 
+  --system-sans: -apple-system, blinkmacsystemfont, avenir next, avenir,
+  segoe ui, helvetica neue, helvetica, ubuntu, roboto, noto, arial, sans-serif;
+  --font-jura: 'Jura', var(--system-sans);
+  --font-roboto: 'Roboto', var(--system-sans);
+
+  // color vars
+  --color-black: #000;
+  --color-black-950: #091830; 
+  --color-yellow: #F4B400;
+  --color-yellow-400: #F8D676;
+  --color-blue: #4285F4;
+  --color-blue-light: #92B5F3;
+  --color-blue-medium: #174EA6;
+  --color-blue-950: #091830;
+  --color-white: #fff;
+  --color-white-800: #E6E0E9;
+  --color-green: #58A55D;
+  --color-green-light: #91C799;
+  --color-green-medium: #35713A;
+  --color-grey: #666;
+  --color-grey-light: #F2F2F2;
+  --color-grey-400: #CCC;
+  --color-grey-dark: #666666;
+  --color-grey-950: #0F0F0F;
+  --color-text: var(--color-blue-950);
+
+  // spacing vars
+  --spacing: 0.8rem;
+  --spacing-2: 1.6rem;
+  --spacing-3: 2.4rem;
+  --spacing-4: 3.2rem;
+  --spacing-5: 4.8rem;
+  --spacing-6: 6.4rem;
+
+  // wrappers
+  --wrapper-width: 102.4rem;
+  --wrapper-padding: var(--spacing-3);
+
+  // transition vars
+  --td: .1s;
+  --tt: linear;
+
+  // borders
+  --border-radius-sm: .4rem;
+  --border-radius-md: .6rem;
+  --border-radius: .8rem;
+  --border-radius-full: 99rem;
+}

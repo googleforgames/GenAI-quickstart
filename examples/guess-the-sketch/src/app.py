@@ -25,7 +25,8 @@ import os
 import swagger_client as Agones
 import threading
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder="static")
 app.config['SECRET_KEY'] = f'{int(random.random()*100000000)}'
 socketio = SocketIO(app)
 
@@ -80,7 +81,7 @@ def index():
 game_round = 3
 embedding_endpoint = 'http://embeddings-api'
 
-@socketio.on('guess1')
+@socketio.on('guess')
 def handle_message(data):
     player_id = request.sid
     message = data['message']
@@ -100,7 +101,7 @@ def handle_message(data):
         next_round = round + 1
         while player_prompt[oppontent_id][next_round]['picture'] is None:
             time.sleep(0.1)
-        emit('llm_response', {'image': player_prompt[oppontent_id][next_round]['picture'], 'opponentId': oppontent_id, 'round': next_round}, room=player_id)
+        emit('llm_response', {'image': player_prompt[oppontent_id][next_round]['picture'], 'prompt': player_prompt[oppontent_id][next_round]['prompt'], 'opponentId': oppontent_id, 'round': next_round}, room=player_id)
         logger.info('Sent image %s to %s', str(next_round), player_id)
 
     # Generate and store the picture for the guess
@@ -114,6 +115,9 @@ def handle_message(data):
     logger.info('Encoded guess image %s for player %s: %s', str(round), player_id, encoded_image)
 
     player_guess[player_id][round]['guess_picture'] = encoded_image
+    # Send the guess picture to both the players
+    emit('guess_response', {'image': encoded_image, 'guess': message, 'round': round, 'from': 'myself'}, room=player_id)
+    emit('guess_response', {'image': encoded_image, 'guess': message, 'round': round, 'from': 'other'}, room=oppontent_id)
 
     # Generate and store the similarity score
     # embedding_req = requests.post(
@@ -154,7 +158,7 @@ def handle_message(data):
             for round in player_guess[player]:
                 logger.debug('Sending guess picture of Player %s round %s to player %s', player, round, player_id)
                 try:
-                    emit('guess_response', {'image': player_guess[player][round]['guess_picture'], 'round': round}, room=player_id)
+                    emit('guess_input_finish', {'image': player_guess[player][round]['guess_picture'], 'round': round}, room=player_id)
                 except:
                     logger.exception('Error sending guess picture of Player %s round %s to player %s', player, round, player_id)
 
@@ -187,6 +191,8 @@ def handle_message(data):
 
     player_prompt[player_id][round]['picture'] = encoded_image
     logger.info('Stored image %s for player %s: ', str(round), player_id)
+
+    emit('prompt_response', {'image': encoded_image, 'prompt': message, 'round': round}, room=player_id)
     
     # The first picture should be displayed if both players have entered all their prompts
     # The first picture page should be displayed only if the picture is generated
@@ -204,7 +210,7 @@ def handle_message(data):
             while 'picture' not in player_prompt[player][1]:
                 time.sleep(0.25)
                 logger.info('Waiting for image 1')
-            emit('llm_response', {'image': player_prompt[player][1]['picture'], 'opponentId': player, 'round': 1}, room=player_id)
+            emit('llm_response', {'image': player_prompt[player][1]['picture'], 'prompt': player_prompt[player][1]['prompt'], 'opponentId': player, 'round': 1}, room=player_id)
             logger.info('Sent image 1 to %s', player_id)
 
 if __name__ == '__main__':

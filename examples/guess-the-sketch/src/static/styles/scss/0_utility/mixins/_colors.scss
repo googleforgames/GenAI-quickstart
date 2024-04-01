@@ -1,0 +1,26 @@
+// ================================== //
+//    #UTILITY - COLORS
+// ================================== //
+
+
+// ================================== //
+// COLOR CONTRAST
+//
+// Returns a light (#fff) or dark (#000) contrast color based on the specified base color
+// https://getbootstrap.com/docs/4.0/getting-started/theming/#color-contrast
+// ================================== //
+
+@function color-contrast($color, $dark: #000, $light: #fff) {
+  $r: color.red($color);
+  $g: color.green($color);
+  $b: color.blue($color);
+  $yiq: math.div($r * 299 + $g * 587 + $b * 114, 1000);
+
+  // The yiq lightness value that determines when the lightness of color changes from "dark" to "light".
+  // Acceptable values are between 0 and 255.
+  @if $yiq >= 150 {
+    @return $dark;
+  } @else {
+    @return $light;
+  }
+}
