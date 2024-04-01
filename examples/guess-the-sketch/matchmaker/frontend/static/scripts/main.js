@@ -36,10 +36,15 @@ if(startGameBtn) {
     // Socket message
     socket.emit('startGame', 'true')
 
-    // Set redirect
-    setTimeout(() => {
-      window.location.href = './index.html'
-    }, 2000)
+    socket.on('MatchMakeResponse', (resp) => {
+      console.log('MatchMakeResponse: '+resp);
+      try {
+        // Redirect to game server connection (address:port)
+        window.location.replace("http://"+resp.connection)
+      } catch (e) {
+        // On error redirect to start page
+        window.location.href = '/static/index.html'
+    }});
   })
 }
 
@@ -137,7 +142,7 @@ if(promptsForms?.length > 0) {
           loaderContainer.classList.remove('hidden')
 
           // NOTE: Will need to update based on actual callback
-          // Remove of loading state, goes to next phase 
+          // Remove of loading state, goes to next phase
           setTimeout(() => {
             document.querySelector('body').classList.remove('prompts-submitted')
             loaderContainer.classList.add('hidden')
@@ -195,9 +200,9 @@ if(guessesForms?.length > 0) {
         pageHero.classList.add('hidden')
         loaderContainer.querySelector('p').innerHTML = 'Calculating results...'
         loaderContainer.classList.remove('hidden')
-        
+
         // NOTE: Will need to update based on actual callback
-        // Remove of loading state, goes to next phase 
+        // Remove of loading state, goes to next phase
         setTimeout(() => {
           document.querySelector('body').classList.remove('guesses-submitted')
           document.querySelector('body').classList.add('has-results')
@@ -206,7 +211,7 @@ if(guessesForms?.length > 0) {
           results.classList.remove('hidden')
         }, 2000);
       }
-      
+
     })
 
   })

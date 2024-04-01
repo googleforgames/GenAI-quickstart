@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"os"
 
-	"golang.org/x/net/websocket"
+	"github.com/googollee/go-socket.io"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"open-match.dev/open-match/pkg/pb"
@@ -34,6 +34,29 @@ const (
 )
 
 func main() {
+	server := socketio.NewServer(nil)
+	server.OnConnect("/", func(s socketio.Conn) error {
+		fmt.Println("connected:", s.ID())
+		return nil
+	})
+
+	server.OnEvent("/", "startGame", func(s socketio.Conn, msg string) {
+		fmt.Println("myEvent:", msg)
+		matchmake(s)
+	})
+
+	server.OnError("/", func(s socketio.Conn, e error) {
+			fmt.Println("error:", e)
+	})
+
+	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+			fmt.Println("closed", reason)
+	})
+
+	go server.Serve()
+	defer server.Close()
+
+	http.Handle("/socket.io/", server)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/app/static/"))))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -46,38 +69,31 @@ func main() {
 		}
 	})
 
-	http.Handle("/matchmake/", websocket.Handler(matchmake))
-
 	log.Println("Starting server")
 	log.Fatal(http.ListenAndServe(":8001", nil))
 }
 
-func matchmake(ws *websocket.Conn) {
+func matchmake(s socketio.Conn) {
 
-	ctx, cancel := context.WithCancel(ws.Request().Context())
-	defer cancel()
+	// TODO: Do we need context.WithCancel? "cannot use s.Context() (value of type interface{}) as context.Context
+	// value in argument to context.WithCancel: interface{} does not implement context.Context (missing method Deadline)"
+	// ctx, cancel := context.WithCancel(ws.Context())
+	// defer cancel()
 	assignments := make(chan *pb.Assignment)
 	errs := make(chan error)
 
-	go streamAssignments(ctx, assignments, errs)
+	// Using context.Background() as s.Context() does not implement context.Contextk
+	go streamAssignments(context.Background(), assignments, errs)
 
 	for {
 		select {
 		case err := <-errs:
 			log.Println("Error getting assignment:", err)
-			err = websocket.JSON.Send(ws, MatchMakeResponse{Err: err})
-			if err != nil {
-				log.Println("Error sending error:", err)
-			}
+			s.Emit("MatchMakeResponse", MatchMakeResponse{Err: err})
 			return
 		case assigment := <-assignments:
 			log.Println("assigment.Connection:", assigment.Connection)
-			err := websocket.JSON.Send(ws, MatchMakeResponse{Connection: assigment.Connection})
-			if err != nil {
-				log.Println("Error sending updated assignment:", err)
-				cancel()
-				return
-			}
+			s.Emit("MatchMakeResponse", MatchMakeResponse{Connection: assigment.Connection})
 		}
 	}
 }
