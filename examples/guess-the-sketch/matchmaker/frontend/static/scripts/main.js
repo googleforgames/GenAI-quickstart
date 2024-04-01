@@ -40,7 +40,7 @@ if(startGameBtn) {
       console.log('MatchMakeResponse: '+resp);
       try {
         // Redirect to game server connection (address:port)
-        window.location.replace("http://"+resp.connection)
+        window.location.replace('http://'+resp.connection)
       } catch (e) {
         // On error redirect to start page
         window.location.href = '/static/index.html'

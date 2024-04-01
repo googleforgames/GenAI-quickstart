@@ -1,51 +1,31 @@
 .guesses {
   align-items: center;
-  background: var(--color-blue);
+  background: var(--color-blue-medium);
   border-radius: 2rem;
   border: .6rem solid var(--color-blue-medium);
   position: relative;
   overflow: hidden;
 
   > form {
-    align-items: center;
-    display: grid;
-    grid-column-gap: var(--spacing-3);
-    grid-template-columns: 1fr;
-    padding: 4.8rem 3.2rem 6.4rem;
+    display: block;
+    padding: 0;
     inline-size: 100%;
     text-align: center;
-    grid-template-columns: 1fr 4.8rem;
-    grid-template-areas:
-    'input submit'
-    'note note';
-
-    @media(width >= $tablet) {
-      grid-column-gap: var(--spacing-4);
-    }
   }
 
   &__header {
-    background: var(--color-grey-light);
+    background: var(--color-blue-medium);
     border-start-end-radius: .6rem;
     border-start-start-radius: .6rem;
-    padding: 3.2rem 5.4rem;
+    padding: 2.4rem 1.6rem;
+    text-align: center;
 
-    span {
-      @include font-size(32,40);
+    p {
+      @include font-size(24);
+      color: var(--color-white);
       font-family: var(--font-jura);
       font-weight: 700;
       letter-spacing: .05rem;
-
-      + p {
-        margin-block-start: 1rem;
-      }
-    }
-
-    p {
-      @include font-size(19,30);
-      color: var(--color-grey-dark);
-      letter-spacing: .05rem;
-      font-weight: 500;
     }
   }
 
@@ -84,32 +64,37 @@
 
       &[disabled] {
         background: transparent;
-        border: .1rem solid var(--color-blue-medium);
-        color: var(--color-blue-medium);
+        border: .1rem solid var(--color-blue-light);
+        color: var(--color-blue-light);
       }
     }
   }
 
   &__img {
     aspect-ratio: 4/3;
+    grid-area: img;
 
     img {
       block-size: 100%;
-      border-radius: var(--border-radius-sm);
       inline-size: 100%;
       object-fit: cover;
     }
   }
 
   &__input {
+    background-color: var(--color-blue);
     color: var(--color-black);
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 1.2rem;
     grid-area: input;
+    padding: 2.4rem 1.6rem;
     position: relative;
     text-align: left;
     transition: all var(--td) var(--tt);
+    grid-template-areas: 
+    'input submit'
+    'note note';
+    grid-template-columns: 1fr 4.8rem;
 
     button[id="keyboard"] {
       background: transparent;
@@ -134,6 +119,7 @@
       padding: var(--spacing-2) var(--spacing-4) var(--spacing-4);
       position: relative;
       overflow: hidden;
+      grid-area: input;
 
       &:after {
         background: var(--color-blue-medium);

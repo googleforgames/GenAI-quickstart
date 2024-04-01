@@ -41,7 +41,7 @@ func main() {
 	})
 
 	server.OnEvent("/", "startGame", func(s socketio.Conn, msg string) {
-		fmt.Println("myEvent:", msg)
+		fmt.Println("handling startGame event")
 		matchmake(s)
 	})
 

@@ -21,10 +21,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-
-    .has-results & {
-      padding-inline: var(--spacing);
-    }
   }
 
   &-narrow {
