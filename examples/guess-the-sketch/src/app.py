@@ -63,9 +63,9 @@ while retry != 0:
 def agones_health():
     while True:
         try:
-            agones.health(body)
-            time.sleep(0.3)
-            logger.debug('health check passed')
+            api_response = agones.health(body)
+            logger.debug('health check reponse: %s', api_response)
+            time.sleep(2)
         except ApiException as exc:
             logger.error('health check failed')
             logger.info(exc)
