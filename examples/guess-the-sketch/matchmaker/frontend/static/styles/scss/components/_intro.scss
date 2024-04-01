@@ -1,0 +1,79 @@
+.intro {
+  align-items: center;
+  background: var(--color-yellow);
+  border-radius: 2rem;
+  border: .6rem solid var(--color-blue-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 6.4rem;
+  margin-block-start: 7rem;
+  padding: var(--spacing-6) var(--spacing-4);
+  text-align: center;
+
+  &__img {
+    block-size: 23.2rem;
+    inline-size: 49.6rem;
+    position: relative;
+    margin-block-start: -14rem;
+  }
+
+  &__content {
+    p {
+      @include font-size(24,36);
+      color: var(--color-text);
+      font-weight: 500;
+      max-inline-size: 76.8rem;
+    }
+  }
+
+  .loader {
+    margin-block-start: -12rem;  
+  }
+
+  &__container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+  }
+
+  &__content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+  }
+
+  &__steps {
+    display: grid;
+    gap: .4rem;
+    grid-template-columns: 1fr 1fr;
+    margin-block-start: .8rem;
+  }
+
+  &__step {
+    background: var(--color-yellow-400);
+    border-radius: .8rem;
+    padding: 4rem 2.4rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+
+    span {
+      @include font-size(19,30);
+      font-weight: 700;
+      letter-spacing: 0.05rem;
+      font-family: var(--font-jura);
+    }
+
+    p {
+      @include font-size(14,20);
+      color: var(--color-text);
+      font-family: var(--font-roboto);
+      font-weight: 400;
+      letter-spacing: 0.025rem;
+    }
+  }
+}

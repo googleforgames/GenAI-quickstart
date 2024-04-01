@@ -1,8 +1,62 @@
- <html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Guess the Sketch</title>
+    <meta name="description" content="" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta http-equiv="cleartype" content="on" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/static/styles/styles.css" />
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   </head>
-  <body>
-    <h1>Static Placeholder</h1>
+
+  <body class="front">
+    <main id="maincontent">
+      <section class="wrapper wrapper-center">
+        <!-- Intro component -->
+        <div class="intro">
+          <div class="intro__container">
+            <img class="intro__img" src="/static/imgs/logo.svg" alt="Guess the sketch graphic" />
+            <!-- Intro content -->
+            <div class="intro__content">
+              <p>Etiam porta sem malesuada magna mollis euismod. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
+              <a href="/" class="button" id="startGame">Start Game</a>
+            </div>
+            <!-- Loading state -->
+            <div class="loader hidden">
+              <img src="/static/imgs/drawing.gif" alt="pencil drawing" />
+              <p>Looking for other players...</p>
+            </div>
+            <!-- Reveal what player you are -->
+            <div class="player-tag hidden">
+              You're player
+              <span>1</span>
+            </div>
+          </div>
+        </div>
+        <div class="intro__steps">
+          <div class="intro__step">
+            <span>Step 1</span>
+            <p>Laborum eiusmod dolor et non enim nisi ut officia est dolor pariatur qui laboris.</p>
+          </div>
+          <div class="intro__step">
+            <span>Step 1</span>
+            <p>Laborum eiusmod dolor et non enim nisi ut officia est dolor pariatur qui laboris.</p>
+          </div>
+        </div>
+      </section>
+      <p class="demo">For demo purpose only</p>
+    </main>
+    <!-- main script include -->
+    <script src="/static/scripts/main.js"></script>
   </body>
 </html>

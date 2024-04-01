@@ -1,0 +1,27 @@
+// ================================== //
+//    #UTILITY - LISTS
+// ================================== //
+
+// =============================================================================
+// Unstyled List
+// =============================================================================
+@mixin list-unstyled {
+  list-style: none;
+  padding-left: 0;
+}
+
+@mixin list-inline {
+  @include list-unstyled;
+
+  li {
+    display: inline;
+  }
+}
+
+@mixin list-inline-block {
+  @include list-unstyled;
+
+  li {
+    display: inline-block;
+  }
+}

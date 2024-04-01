@@ -1,0 +1,52 @@
+.hero {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-2) 0;
+  padding-inline-end: var(--spacing-2);
+  position: relative;
+  text-align: center;
+
+  .has-results & {
+    justify-content: center;
+    .hero__logo {
+      block-size: auto;
+      inline-size: 19rem;
+    }
+    .player-tag {
+      display: none;
+    }
+  }
+
+  &__logo {
+    block-size: auto;
+    inline-size: 32rem;
+  }
+
+  &__exit {
+    background-color: var(--color-white);
+    border: .1rem solid var(--color-white);
+    border-radius: .4rem;
+    padding: 1.2rem;
+    padding-inline-end: .4rem;
+    position: absolute;
+    inset-block-start: 0rem;
+    inset-inline-end: 2rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-text);
+    font-weight: 600;
+    gap: .8rem;
+
+    &:is(:hover, :focus) {
+      text-decoration: none;
+      background-color: var(--color-grey-light);
+      border-color: var(--color-grey);
+    }
+
+    img {
+      block-size: 1.8rem;
+      inline-size: 1.8rem;
+    }
+  }
+}
