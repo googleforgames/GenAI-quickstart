@@ -1,0 +1,202 @@
+.prompts {
+  $self: &;
+  background: var(--color-green-medium);
+  border-radius: 2rem;
+  border: .6rem solid var(--color-green-medium);
+  margin-block-start: .4rem;
+  position: relative;
+  overflow: hidden;
+
+  &.loading {
+    align-items: center;
+    background: var(--color-green);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding: 8rem;
+  }
+
+  .loader {
+    background-color: var(--color-green-light);
+  }
+
+  &__header {
+    background: var(--color-green-medium);
+    border-start-end-radius: .6rem;
+    border-start-start-radius: .6rem;
+    color: var(--color-white);
+    padding: 2.4rem 1.6rem;
+
+    span {
+      @include font-size(18);
+      font-family: var(--font-jura);
+      font-weight: 700;
+      letter-spacing: .05rem;
+
+      + p {
+        margin-block-start: 1rem;
+      }
+    }
+
+    p {
+      @include font-size(18);
+      color: var(--color-white);
+      font-family: var(--font-jura);
+      font-weight: 700;
+      letter-spacing: .05rem;
+      letter-spacing: .05rem;
+    }
+  }
+
+  &__caption {
+    align-items: center;
+    background: var(--color-green);
+    padding: 2.4rem 1.6rem;
+    display: grid;
+    grid-column-gap: var(--spacing-2);
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+    'input submit'
+    'note note';
+    inline-size: 100%;
+    text-align: center;
+
+    & + #{$self}__caption {
+      border-block-start: .1rem solid var(--color-green-light);
+    }
+
+    &:has(input[type="text"][disabled]) {
+      background: var(--color-white);
+      pointer-events: none;
+      grid-column-gap: 2rem;
+
+      #{$self}__caption-input {
+        background: var(--color-white);
+        border-color: var(--color-green-light);
+
+        button[id="keyboard"] {
+          display: none;
+        }
+      }
+
+      #{$self}__caption-submit {
+        .button {
+          background: var(--color-white);
+          box-shadow: none;
+          border: .1rem solid var(--color-green-light);
+          color: var(--color-green-medium);
+        }
+      }
+    }
+
+    &-submit {
+      block-size: 100%;
+      grid-area: submit;
+
+      .button {
+        background: var(--color-yellow);
+        border: .1rem solid var(--color-green-medium);
+        color: var(--colot-text);
+        block-size: 100%;
+        padding-inline: var(--spacing);
+
+        &[disabled] {
+          background: var(--color-white);
+          box-shadow: none;
+          border: .1rem solid var(--color-green-medium);
+          color: var(--color-green-medium);
+          opacity: .6;
+        }
+
+        img {
+          pointer-events: none;
+        }
+      }
+    }
+
+    &-note {
+      @include font-size(12,16);
+      color: var(--color-white);
+      font-weight: 300;
+      grid-area: note;
+      justify-self: flex-start;
+      margin-block-start: 1.2rem;
+      padding-inline-start: 2.4rem;
+    }
+
+    &-input {
+      background: var(--color-white);
+      border: .1rem solid var(--color-green-medium);
+      border-radius: var(--border-radius-md);
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      grid-area: input;
+      overflow: hidden;
+      padding: var(--spacing-2) var(--spacing-3);
+      position: relative;
+      text-align: left;
+      transition: all var(--td) var(--tt);
+
+      &.active {
+        &:after {
+          content:'';
+          position: absolute;
+          bottom: 0;
+          block-size: .4rem;
+          background: var(--color-green-medium);
+          inline-size: 100%;
+          left: 0;
+        }
+      }
+
+      button[id="keyboard"] {
+        background: transparent;
+        border-radius: 50%;
+        border: 0;
+        cursor: pointer;
+        position: absolute;
+        right: 1.6rem;
+        top: 50%;
+        transform: translateY(-50%);
+
+        img {
+          pointer-events: none;
+        }
+      }
+
+      input[type="text"] {
+        @include font-size(19);
+        background: transparent;
+        border: 0;
+        color: var(--color-text);
+        display: block;
+        font-weight: 500;
+        inline-size: 100%;
+        line-height: 1.5em;
+        padding-inline-end: var(--spacing-6);
+
+        form:not(.submitted) & {
+          color: var(--color-green);
+        }
+
+        &:focus {
+          outline: none;
+        }
+
+        &::placeholder {
+          color: var(--color-green);
+        }
+      }
+
+      label {
+        @include font-size(12,16);
+        color: var(--color-grey);
+        pointer-events: none;
+        position: relative;
+        transition: 0.2s ease all;
+      }
+    }
+  }
+}

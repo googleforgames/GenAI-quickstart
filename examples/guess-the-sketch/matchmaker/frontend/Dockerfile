@@ -23,7 +23,7 @@ RUN go mod download
 
 # Copy source code into the image
 COPY *.go ./
-COPY static/index.html /app/static/
+COPY static/ /app/static/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/frontend

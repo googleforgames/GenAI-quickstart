@@ -1,0 +1,22 @@
+// =======================================
+//    #UTILITY - VISUALLY-HIDDEN
+//
+// To be used on links (etc) that should not
+// display their text, ex. a icon button.
+//
+// https://a11yproject.com/posts/how-to-hide-content/
+// =======================================
+
+@mixin visually-hidden {
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  position: absolute !important;
+  width: 1px;
+}
+
+%hidden,
+.hidden,
+.visually-hidden {
+  @include visually-hidden;
+}
