@@ -12,23 +12,17 @@ The gameplay is:
 
 ### To run the demo
 
-Follow the top-level README. At least the `http://genai-api.genai.svc/genai/text` and
-`http://genai-api.genai.svc/genai/image` endpoints need to be running.
-
-Then Follow the [instruction](https://agones.dev/site/docs/installation/install-agones/yaml/#installing-agones)
-to install Agones in your cluster
-
-Then run:
-
+1. Follow the top-level README (ensure that the http://genai-api.genai.svc/genai/text 
+   and http://genai-api.genai.svc/genai/image endpoints are running).
+2. [Install Agones](https://agones.dev/site/docs/installation/install-agones/yaml/#installing-agones) in your cluster.
+3. Install Guess the Sketch into your cluster:
 ```
 cd ~/GenAI-quickstart/examples/guess-the-sketch
 skaffold run --build-concurrency=0 --cache-artifacts=false
 ```
-
-You can run the following to check the GameServer status
+4. You can run the following to check the GameServer status
 ```
 kubectl get gs
 ```
-
-Once the GameServer is Ready, you can connect to the game through its IP Address and PORT using web browser,
+5. Once the GameServer is Ready, you can connect to the game through its IP Address and PORT using web browser,
 and open two pages to mock two players.

@@ -16,6 +16,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install curl
+RUN apt-get update; apt-get install -y curl
+
+# download and installs Node.js (Need npm to install wscat)
+RUN curl -fsSL https://deb.nodesource.com/setup_21.x | bash
+RUN apt-get install -y nodejs
+# Install websocket cat (for testing websocket connections)
+RUN npm install -g wscat
+
 # Allow statements and log messages to immediately appear in the Knative logs
 ENV PYTHONUNBUFFERED True
 

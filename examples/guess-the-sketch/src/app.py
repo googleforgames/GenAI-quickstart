@@ -30,7 +30,7 @@ app.config['SECRET_KEY'] = f'{int(random.random()*100000000)}'
 socketio = SocketIO(app)
 
 # create an instance of the API class
-PORT=os.environ.get("AGONES_SDK_HTTP_PORT","8080")
+PORT=os.environ.get("AGONES_SDK_HTTP_PORT","9358")
 conf = Agones.Configuration()
 conf.host = "http://localhost:"+PORT
 
@@ -42,13 +42,14 @@ logger = logging.getLogger(__name__)  # Get a logger for your application
 
 headers = {"Content-Type": "application/json"}
 
-logger.info('gameserver started')
-logger.info('Agones SDK port: %s', PORT)
+logger.debug('gameserver started')
+logger.debug('Agones SDK port: %s', PORT)
 
 body = Agones.SdkEmpty() # SdkEmpty
 agones = Agones.SDKApi(Agones.ApiClient(conf))
 agones.health(body)
 
+# Retry connection to Agones SDK for 5 times if it fails
 retry = 5
 while retry != 0:
     try:
@@ -57,17 +58,16 @@ while retry != 0:
         break
     except:
         time.sleep(2)
-        logger.info('retry connection')
+        logger.debug('retry connection')
 
 def agones_health():
     while True:
         try:
             agones.health(body)
             time.sleep(0.3)
-            logger.info('health check passed')
-            print(datetime.now())
+            logger.debug('health check passed')
         except ApiException as exc:
-            logger.info('health check failed')
+            logger.error('health check failed')
             logger.info(exc)
 
 health_thread = threading.Thread(target=agones_health)
