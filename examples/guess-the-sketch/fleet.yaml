@@ -21,10 +21,8 @@ spec:
   template:
     spec:
       health:
-        disabled: false
         initialDelaySeconds: 20
         periodSeconds: 10
-        failureThreshold: 5
       ports:
         - name: default
           containerPort: 7654

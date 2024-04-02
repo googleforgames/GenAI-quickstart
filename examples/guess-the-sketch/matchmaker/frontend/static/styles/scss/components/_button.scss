@@ -1,0 +1,36 @@
+.button {
+  @include font-size(32, 40);
+  background: var(--color-blue);
+  border-radius: .8rem;
+  border: .3rem solid var(--color-black-950);
+  box-shadow: -2px 4px 0px 0px var(--color-black-950);
+  color: var(--color-white);
+  display: inline-block;
+  font-family: var(--font-jura);
+  font-weight: 700;
+  padding: var(--spacing-2) var(--spacing-4);
+  position: relative;
+  text-transform: uppercase;
+
+  &:is(:hover,:focus):not([disabled]) {
+    text-decoration: none;
+    box-shadow: -.1rem .2rem 0 0 var(--color-black-950);
+    transform: translateY(.2rem);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:is(:active):not([disabled]) {
+    box-shadow: 0 0 0 0 var(--color-black-950);
+    transform: translateY(.4rem);
+  }
+
+  &[disabled],
+  [disabled] & {
+    background: rgba(230, 224, 233, 0.12);
+    box-shadow: 0 0 0 0 var(--color-black-950);
+    color: rgba(230,224,233,.38);
+  }
+}

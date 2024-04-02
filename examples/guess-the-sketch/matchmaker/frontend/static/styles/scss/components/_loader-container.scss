@@ -1,0 +1,38 @@
+.loader-container {
+  align-items: center;
+  background: var(--color-green);
+  border-radius: 2rem;
+  border: .6rem solid var(--color-black-950);
+  display: flex;
+  flex-direction: column;
+  gap: 3.2rem;
+  margin-block-start: 7rem;
+  padding: 8rem;
+
+  .prompts-submitted & {
+    background: var(--color-green);
+
+    .loader {
+      background: var(--color-green-light);
+    }
+  }
+
+  .guesses-submitted & {
+    background: var(--color-blue);
+
+    .loader {
+      background: var(--color-blue-light);
+    }
+  }
+
+  > img {
+    block-size: 23.2rem;
+    inline-size: 49.6rem;
+    position: relative;
+    margin-block-start: -16rem;
+  }
+
+  .loader {
+    margin-block-start: -15rem;
+  }
+}

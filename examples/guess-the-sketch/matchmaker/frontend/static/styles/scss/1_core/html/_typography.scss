@@ -1,0 +1,23 @@
+// =======================================
+//    #CORE/HTML - TYPOGRAPHY
+// =======================================
+
+strong {
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+
+  &.demo {
+    @include font-size(12,60);
+    display: block;
+    font-weight: 400;
+    padding: 0 0 var(--spacing-2);
+    text-align: center;
+  }
+}
+
+// blockquote {}
+
+// cite {}
