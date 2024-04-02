@@ -1,0 +1,183 @@
+.results {
+  $self: &;
+  text-align: center;
+  margin-block-start: 1.6rem;
+
+  #playAgain {
+    display: inline-block;
+    margin-block: var(--spacing-6) 0;
+    margin-inline: auto;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: 8.8rem;
+  }
+
+  &__guesses {
+    position: relative;
+
+    &--opponent {
+      --results-color-text: var(--color-green-medium);
+      --results-color-border: var(--color-green);
+
+      .results__guess-prompt-bubble:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='58' height='16' viewBox='0 0 58 16' fill='none'%3E%3Cpath d='M9 -10H4.55016L7.50432 -6.67224L23.7673 11.6474C26.5519 14.7842 31.4481 14.7842 34.2327 11.6474L50.4957 -6.67224L53.4498 -10H49L9 -10Z' fill='white' stroke='#58A55D' stroke-width='4'/%3E%3C/svg%3E");
+      }
+    }
+
+    &--current {
+      --results-color-text: var(--color-blue-medium);
+      --results-color-border: var(--color-blue);
+
+      .results__guess-prompt-bubble:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='58' height='16' viewBox='0 0 58 16' fill='none'%3E%3Cpath d='M9 -10H4.55016L7.50432 -6.67224L23.7673 11.6474C26.5519 14.7842 31.4481 14.7842 34.2327 11.6474L50.4957 -6.67224L53.4498 -10H49L9 -10Z' fill='white' stroke='#4285F4' stroke-width='4'/%3E%3C/svg%3E");
+      }
+
+      .results__guess-prompt-percentage {
+        background: var(--color-yellow-400);
+      }
+    }
+
+    &-header {
+      @include font-size(24,24);
+      background-color: var(--results-color-border);
+      border-radius: .8rem;
+      color: var(--color-white);
+      display: flex;
+      font-family: var(--font-jura);
+      font-weight: 700;
+      letter-spacing: .05rem;
+      padding: 1.6rem;
+      position: sticky;
+      justify-content: center;
+      top: 0;
+      z-index: 2;
+    }
+  }
+
+  &__guess {
+    color: var(--results-color-text);
+    display: flex;
+    flex-direction: column;
+    gap: 8.8rem;
+    margin-block-start: 3.2rem;
+  }
+
+  &__guess-prompt {
+    display: block;
+    inline-size: 100%;
+    padding-inline: 1.6rem;
+    position: relative;
+
+    &:not(:last-child):after {
+      background: var(--color-white);
+      border: 0;
+      border-top: 1rem dotted var(--results-color-border);
+      bottom: -5.6rem;
+      color: var(--results-color-border);
+      content: '';
+      inline-size: min(100%, 44rem);
+      left: 50%;
+      opacity: .4;
+      outline: .6rem solid var(--color-white);
+      position: absolute;
+      transform: translateX(-50%);
+    }
+
+    & > .results__guess-prompt-bubble:after {
+      content:'';
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      block-size: 2rem;
+      bottom: 0;
+      inline-size: 4rem;
+      inset-block-end: -1.6rem;
+      inset-inline-start: 4rem;
+      position: absolute;
+    }
+
+    &-imgs {
+      align-items: flex-end;
+      display: grid;
+      gap: 1.6rem;
+      grid-template-columns: 1fr 1fr;
+      margin: 2.4rem 0;
+
+      img {
+        border-radius: .8rem;
+        border: .4rem solid var(--results-color-border);
+
+        &:first-child {
+          margin-block-end: 2.4rem;
+        }
+      }
+    }
+
+    &-result {
+      display: grid;
+      grid-template-columns: 1fr 10rem;
+      gap: 1.6rem;
+
+      .results__guess-prompt-bubble {
+        max-inline-size: 100%;
+
+        &:after {
+          content:'';
+          background-position: center bottom;
+          background-repeat: no-repeat;
+          block-size: 2rem;
+          bottom: 0;
+          inline-size: 4rem;
+          inset-block-start: -1.6rem;
+          inset-inline-end: 4rem;
+          position: absolute;
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    &-percentage {
+      @include font-size(12,16);
+      border-radius: .8rem;
+      border: .4rem solid var(--results-color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      inline-size: 10rem;
+      padding: 2.4rem .4rem 1.6rem;
+
+      span {
+        @include font-size(32,32);
+        font-family: var(--font-jura);
+        letter-spacing: .05rem;
+        font-weight: 700;
+      }
+    }
+
+    &-bubble {
+      padding: 1.6rem 2.4rem;
+      border: .4rem solid var(--results-color-border);
+      border-radius: .8rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      max-inline-size: calc(100% - 4rem);
+      position: relative;
+      
+      span {
+        @include font-size(12,16);
+        font-weight: 400;
+      }
+
+      p {
+        @include font-size(19,30);
+        font-weight: 500;
+        letter-spacing: .05rem;
+      }
+    }
+    
+  }
+}

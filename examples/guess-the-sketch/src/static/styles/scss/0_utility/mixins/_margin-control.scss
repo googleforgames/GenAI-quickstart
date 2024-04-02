@@ -1,0 +1,18 @@
+// ================================== //
+//    #UTILITY - MARGIN CONTROL
+//
+// Note: this keeps the margins consistent on the text elements between mobile and desktop
+// Adding a breakpoint will create unified control across breakpoints
+// ================================== //
+
+$spacing-unit: 1.5rem;
+
+@mixin margin-control($center: false, $override: false) {
+  @if $center == true {
+    margin: $spacing-unit auto;
+  } @else if $override == true {
+    margin: 0 !important;
+  } @else {
+    margin: $spacing-unit 0;
+  }
+}

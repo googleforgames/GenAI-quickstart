@@ -19,6 +19,7 @@ WORKDIR /workspace/frontend
 COPY src/app.py /workspace/frontend
 COPY src/requirements.txt /workspace/frontend
 COPY src/templates/index.html /workspace/frontend/templates/
+COPY src/static /workspace/frontend/static
 COPY src/agones /workspace/frontend/agones
 
 

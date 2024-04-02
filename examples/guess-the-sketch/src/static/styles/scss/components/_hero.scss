@@ -1,0 +1,88 @@
+.hero {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-2) 0;
+  padding-inline-end: var(--spacing-2);
+  position: relative;
+  text-align: center;
+
+  .has-results & {
+    .hero__logo {
+      inline-size: 29rem;
+    }
+
+    .hero__exit {
+      inset-block-start: 0;
+    }
+
+    #currentPlayerResultsText {
+      display: block;
+    }
+    
+    .player-tag {
+      bottom: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      font-size: 3.2rem;
+      gap: 1.2rem;
+      padding: 1.6rem;
+      padding-inline-start: 6rem;
+      position: absolute;
+      right: 0;
+      width: calc(100% - 21rem);
+      z-index: -1;
+
+      p#heroResultText {
+        text-transform: uppercase;
+        line-height: 1;
+      }
+
+      span {
+        font-size: 2.4rem;
+        line-height: 1;
+      }
+    }
+  }
+
+  #currentPlayerResultsText {
+    display: none;
+    line-height: 1;
+  }
+
+  .player-tag {
+    align-self: flex-end;
+  }
+
+  &__logo {
+    block-size: auto;
+    inline-size: 32rem;
+  }
+
+  &__exit {
+    background-color: var(--color-white);
+    border: .1rem solid var(--color-white);
+    border-radius: .4rem;
+    padding: 1.2rem;
+    padding-inline-end: .4rem;
+    position: absolute;
+    inset-block-start: 2rem;
+    inset-inline-end: 2rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-text);
+    font-weight: 600;
+    gap: .8rem;
+
+    &:is(:hover, :focus) {
+      text-decoration: none;
+      background-color: var(--color-grey-light);
+      border-color: var(--color-grey);
+    }
+
+    img {
+      block-size: 1.8rem;
+      inline-size: 1.8rem;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+// =======================================
+//    #UTILITY - Z-INDEX MANAGEMENT
+//
+// Note: Manage a comma delimited list of variables that relate to the z-index
+// stacking order of elements on the page, ordered from lowest to highest.
+// This allows us to easily change this order by moving the associated variable in the list instead of CSS in multiple locations.
+// Find some documentation on this technique on [Smashing Magazine](http://www.smashingmagazine.com/2014/06/12/sassy-z-index-management-for-complex-layouts/).
+//
+// Ex. Usage
+//    .example {
+//      z-index: index($globalIndex, variable);
+//    }
+// =======================================
+
+$globalIndex: element, variable;

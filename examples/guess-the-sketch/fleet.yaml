@@ -34,8 +34,8 @@ spec:
               image: guess-the-sketch-app
               resources:
                 requests:
-                  memory: 64Mi
-                  cpu: 20m
+                  memory: 256Mi
+                  cpu: 80m
                 limits:
-                  memory: 64Mi
-                  cpu: 20m
+                  memory: 256Mi
+                  cpu: 80m
