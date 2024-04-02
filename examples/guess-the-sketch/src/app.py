@@ -24,6 +24,13 @@ import os
 import swagger_client as Agones
 import threading
 
+# Uncomment to use Stable Diffusion explicitly - requires the Stable Diffusion backend, which uses a GPU:
+#   kubectl scale deployment/stable-diffusion-endpt --replicas=1 -ngenai
+# IMAGE_GENERATION_ENDPOINT="http://stable-diffusion-api.genai.svc"
+
+# Use whatever the GenAI API is routing to (default Vertex)
+IMAGE_GENERATION_ENDPOINT="http://genai-api.genai.svc/genai/image"
+
 app = Flask(__name__,
             static_folder="static")
 app.config['SECRET_KEY'] = f'{int(random.random()*100000000)}'
@@ -127,9 +134,7 @@ def handle_message(data):
     guess_payload = {
         'prompt': f'''{message}''',
     }
-    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=guess_payload)
-    # stable diffusion
-    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=payload_cur)
+    model_response = requests.post(IMAGE_GENERATION_ENDPOINT, headers=headers, json=guess_payload)
     encoded_image = base64.b64encode(model_response.content).decode('utf-8')
     player_guess[player_id][round]['guess_picture'] = encoded_image
     # Send the guess picture to both the players, they will be shown in summary page
@@ -169,9 +174,7 @@ def handle_message(data):
     picture_generate_payload = {
         'prompt': f'''{message}''',
     }
-    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=picture_generate_payload)
-    # stable diffusion
-    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=picture_generate_payload)
+    model_response = requests.post(IMAGE_GENERATION_ENDPOINT, headers=headers, json=picture_generate_payload)
     encoded_image = base64.b64encode(model_response.content).decode('utf-8')
     player_prompt[player_id][round]['picture'] = encoded_image
 

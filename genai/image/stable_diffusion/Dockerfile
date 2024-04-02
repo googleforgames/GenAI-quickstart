@@ -26,10 +26,11 @@ WORKDIR /app
 # ENV vars should be passed in when starting container
 ENV MODEL_TYPE=""
 
-COPY src /app/
-
-# Install production dependencies
+# Install production dependencies. (Copy/pull requirements early to cache this layer.)
+COPY src/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src /app/
 
 EXPOSE 8080
 

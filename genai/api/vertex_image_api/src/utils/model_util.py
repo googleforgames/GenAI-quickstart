@@ -141,4 +141,4 @@ class Google_Cloud_Imagen:
         self.GCP_REGION = GCP_REGION
 
         self.vertexai = vertexai.init(project=GCP_PROJECT_ID, location=GCP_REGION)
-        self.model = ImageGenerationModel.from_pretrained("imagegeneration@002")
+        self.model = ImageGenerationModel.from_pretrained("imagegeneration@005")

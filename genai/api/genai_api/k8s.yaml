@@ -56,6 +56,9 @@ spec:
           value: http://vertex-code-api.genai.svc
         - name: GENAI_IMAGE_ENDPOINT
           value: http://vertex-image-api.genai.svc
+        # If you want to route /genai/image to Stable Diffusion, use this instead:
+        # - name: GENAI_IMAGE_ENDPOINT
+        #   value: http://stable-diffusion-api.genai.svc
         - name: GENAI_NPC_CHAT_ENDPOINT
           value: http://npc-chat-api.genai.svc
         resources:
