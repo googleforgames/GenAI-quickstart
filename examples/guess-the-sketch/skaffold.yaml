@@ -25,7 +25,6 @@ build:
     context: .
 manifests:
   rawYaml:
-  - ./k8s.yaml
+  - ./fleet.yaml
 deploy:
   kubectl:
-    defaultNamespace: genai

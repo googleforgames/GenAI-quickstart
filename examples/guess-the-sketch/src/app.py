@@ -14,17 +14,25 @@
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
+from datetime import datetime
+from swagger_client.rest import ApiException
 import time
 import logging  # Import the logging module
 import random
 import requests
 import base64
-import re
 import os
+import swagger_client as Agones
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = f'{int(random.random()*100000000)}'
 socketio = SocketIO(app)
+
+# create an instance of the API class
+PORT=os.environ.get("AGONES_SDK_HTTP_PORT","9358")
+conf = Agones.Configuration()
+conf.host = "http://localhost:"+PORT
 
 pending_requests = {}
 original_prompts = {}
@@ -34,8 +42,35 @@ logger = logging.getLogger(__name__)  # Get a logger for your application
 
 headers = {"Content-Type": "application/json"}
 
-print("working directory: " + os.getcwd())
-print("files in cwd: " +  ', '.join(os.listdir(os.getcwd())))
+logger.debug('gameserver started')
+logger.debug('Agones SDK port: %s', PORT)
+
+body = Agones.SdkEmpty() # SdkEmpty
+agones = Agones.SDKApi(Agones.ApiClient(conf))
+agones.health(body)
+
+# Retry connection to Agones SDK for 5 times if it fails
+retry = 5
+while retry != 0:
+    try:
+        retry = retry - 1
+        agones.ready(body)
+        break
+    except:
+        time.sleep(2)
+        logger.debug('retry connection')
+
+def agones_health():
+    while True:
+        try:
+            api_response = agones.health(body)
+            logger.debug('health check reponse: %s', api_response)
+            time.sleep(2)
+        except ApiException as exc:
+            logger.error('health check failed: %s', exc)
+
+health_thread = threading.Thread(target=agones_health)
+health_thread.start()
 
 @app.route('/')
 def index():
@@ -143,4 +178,4 @@ def handle_message(message):
             emit('llm_response', {'image': encoded_image_pre}, room=request.sid)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=7654)
