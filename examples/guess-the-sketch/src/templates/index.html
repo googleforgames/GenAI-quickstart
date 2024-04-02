@@ -13,184 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Game Client</title>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-</head>
-<body>
-    <input type="text" placeholder="Enter your description" id="textInput1">
-    <button id="sendBtn1">Send</button>
-    <input style="display: none;" type="text" placeholder="Enter your description" id="textInput2">
-    <button style="display: none;" id="sendBtn2">Send</button>
-    <input style="display: none;" type="text" placeholder="Enter your description" id="textInput3">
-    <button style="display: none;" id="sendBtn3">Send</button>
-    <div id="llmResponse"></div>
-    <div id="llmImage"></div>
-    <input style="display: none;" type="text" placeholder="Enter your guess" id="guessInput1"> <button style="display: none;" id="guessSendBtn1">Send</button>
-    <input style="display: none;" type="text" placeholder="Enter your guess" id="guessInput2"> <button style="display: none;" id="guessSendBtn2">Send</button>
-    <input style="display: none;" type="text" placeholder="Enter your guess" id="guessInput3"> <button style="display: none;" id="guessSendBtn3">Send</button>
-
-    <div id="guessImage"></div>
-    <div id="guessResponse"></div>
-    <div id="winner"></div>
-    <div id="opponentId"></div>
-    <div id="round"></div>
-
-    <script>
-        const socket = io();
-        const promptSendBtn1 = document.getElementById('sendBtn1');
-        const promptInput1 = document.getElementById('textInput1');
-        const promptSendBtn2 = document.getElementById('sendBtn2');
-        const promptInput2 = document.getElementById('textInput2');
-        const promptSendBtn3 = document.getElementById('sendBtn3');
-        const promptInput3 = document.getElementById('textInput3');
-        const guessSendBtn1 = document.getElementById('guessSendBtn1');
-        const guessInput1 = document.getElementById('guessInput1');
-        const guessSendBtn2 = document.getElementById('guessSendBtn2');
-        const guessInput2 = document.getElementById('guessInput2');
-        const guessSendBtn3 = document.getElementById('guessSendBtn3');
-        const guessInput3 = document.getElementById('guessInput3');
-
-        promptSendBtn1.addEventListener('click', () => {
-            sendMessage1();
-            // cleanUp();
-        });
-
-        promptInput1.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-               sendMessage1();
-            //    cleanUp();
-            }
-        });
-
-        promptSendBtn2.addEventListener('click', () => {
-            sendMessage2();
-            // cleanUp();
-        });
-
-        promptInput2.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-               sendMessage2();
-            //    cleanUp();
-            }
-        });
-
-        promptSendBtn3.addEventListener('click', () => {
-            sendMessage3();
-            // cleanUp();
-        });
-
-        promptInput3.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-               sendMessage3();
-            //    cleanUp();
-            }
-        });
-
-        guessSendBtn1.addEventListener('click', () => {
-            const message = guessInput1.value;
-            guessInput1.value = '';
-            socket.emit('guess1', { message: message, opponentId: document.getElementById('opponentId').textContent, round: document.getElementById('round').textContent});
-            guessSendBtn1.style.display = 'none';
-            guessInput1.style.display = 'none';
-        });
-
-        guessSendBtn2.addEventListener('click', () => {
-            const message = guessInput1.value;
-            guessInput1.value = '';
-            socket.emit('guess2', { message: message, opponentId: document.getElementById('opponentId').textContent });
-            guessSendBtn2.style.display = 'none';
-            guessInput2.style.display = 'none';
-        });
-
-        guessSendBtn3.addEventListener('click', () => {
-            const message = guessInput1.value;
-            guessInput1.value = '';
-            socket.emit('guess3', { message: message, opponentId: document.getElementById('opponentId').textContent });
-            guessSendBtn3.style.display = 'none';
-            guessInput3.style.display = 'none';
-
-        });
-
-        function cleanUp() {
-            llmResponse.textContent = '';
-            llmImage.innerHTML = '';
-            guessResponse.textContent = '';
-            winner.textContent = '';
-        }
-
-        function sendMessage1(round) {
-            const message = promptInput1.value;
-            promptInput1.value = '';
-            socket.emit('prompt', { message: message, round: 1 });
-            promptSendBtn1.disabled = true;
-            promptInput1.disabled = true;
-            promptSendBtn2.style.display = 'block';
-            promptInput2.style.display = 'block';
-        }
-
-        function sendMessage2() {
-            const message = promptInput2.value;
-            promptInput2.value = '';
-            socket.emit('prompt', { message: message, round: 2 });
-            promptSendBtn2.disabled = true;
-            promptInput2.disabled = true;
-            promptSendBtn3.style.display = 'block';
-            promptInput3.style.display = 'block';
-        }
-
-        function sendMessage3() {
-            const message = promptInput3.value;
-            promptInput3.value = '';
-            socket.emit('prompt', { message: message, round: 3 });
-            promptSendBtn3.disabled = true;
-            promptInput3.disabled = true;
-        }
-
-        socket.on('llm_response', (data) => {
-            const img = new Image();
-            llmResponse.textContent = "Your partner's picture:";
-            img.src = 'data:image/jpeg;base64,' + data.image;
-            img.style.width = '200px';  // Example - adjust as needed
-            img.style.height = 'auto';  // Optionally maintain aspect ratio
-            llmImage.appendChild(img);
-            
-            guessSendBtn1.style.display = 'block';
-            guessInput1.style.display = 'block';
-            
-            document.getElementById('opponentId').textContent = data.opponentId;
-            document.getElementById('round').textContent = data.round;
-        });
-
-        socket.on('guess_response', (data) => {
-            const img = new Image();
-            img.src = 'data:image/jpeg;base64,' + data.image;
-            img.style.width = '200px';  // Example - adjust as needed
-            img.style.height = 'auto';  // Optionally maintain aspect ratio
-            guessImage.appendChild(img);
-        });
-
-        socket.on('guess_response', (data) => {
-            guessResponse.textContent = data.message;
-        });
-
-        socket.on('winner', (data) => {
-            winner.textContent = data.message;
-            // enableOldInput();
-        });
-
-        // function enableOldInput() {
-        //     promptInput.disabled = false;
-        //     promptSendBtn.disabled = false;
-        // }
-    </script>
-</body>
-</html> -->
-
-
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
@@ -207,13 +29,22 @@ limitations under the License.
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/static/favicon.io" />
     <link rel="stylesheet" href="/static/styles/styles.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   </head>
 
   <body>
     <main id="maincontent">
+      <div style="display: none;" id="getAllMyPrompts"></div>
+      <div style="display: none;" id="getAllOpponentPrompts"></div>
+      <div style="display: none;" id="getAllMyGuesses"></div>
+      <div style="display: none;" id="getAllOpponentGuesses"></div>
+      <div style="display: none;" id="getAllMyScores"></div>
+      <div style="display: none;" id="getAllOpponentScores"></div>
+      <div style="display: none;" id="myTotalScore"></div>
+      <div style="display: none;" id="opponentTotalScore"></div>
+
       <section class="wrapper wrapper-center">
         <!-- hero -->
         <div class="hero">
@@ -222,22 +53,21 @@ limitations under the License.
             <img src="/static/imgs/exit.svg" alt="exit icon" />
           </a>
           <img class="hero__logo" src="/static/imgs/logo.svg" alt="Guess the sketch graphic" />
-          <!-- <div class="player-tag">
-            Player
-            <span>1</span>
-          </div> -->
+          <div class="player-tag">
+            <p id="currentPlayerResultsText">You Win!</p>
+            <span>Player 1</span>
+          </div>
         </div>
         <!-- prompts -->
         <div class="prompts" id="prompts">
           <div class="prompts__header">
-            <span>Step 1</span>
-            <p>Use prompts to create your own AI Sketches</p>
+            <p>Step 1: Use prompts to create your own AI Sketches</p>
           </div>
           <form class="prompts__caption" id="caption1">
             <div class="prompts__caption-input">
               <label for="prompt1">1st prompt</label>
               <button type="button" id="keyboard">
-                <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
               <input id="prompt1" type="text" value="cute baby pig sitting on sandy beach at sunset" required />
             </div>
@@ -254,7 +84,7 @@ limitations under the License.
             <div class="prompts__caption-input">
               <label for="prompt2">2nd prompt</label>
               <button type="button" id="keyboard">
-                <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
               <input id="prompt2" type="text" value="five cinnamon and cream donuts in slow-motion descent" required disabled />
             </div>
@@ -271,7 +101,7 @@ limitations under the License.
             <div class="prompts__caption-input">
               <label for="prompt3">3rd prompt</label>
               <button type="button" id="keyboard">
-                <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
               <input id="prompt3" type="text" value="cute baby pig sitting on sandy beach at sunset" required disabled />
             </div>
@@ -290,202 +120,215 @@ limitations under the License.
           <div style="display: none;" id="opponentId"></div>
           <div style="display: none;" id="round"></div>
           <div class="guesses__header">
-            <span>Step 2</span>
-            <p>Guess the prompt your opponent used for this sketch</p>
+            <p>Your Prompt</p>
           </div>
           <form id="guess1">
+            <div class="guesses__img">
+              <img />
+            </div>
             <div class="guesses__input">
-              <div class="guesses__img">
-                <!-- <img src="https://placehold.co/600x400" alt="placeholder" /> -->
-              </div>
               <div class="guesses__input-grp">
                 <label for="guessPrompt1">1st prompt</label>
                 <button type="button" id="keyboard">
-                  <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                  <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt1" type="text" required />
               </div>
+              <div class="guesses__submit">
+                <button type="submit" aria-label="Submit" class="button" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
             </div>
-            <div class="guesses__submit">
-              <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
-                </svg>
-              </button>
-            </div>
-            <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
           </form>
           <form id="guess2" class="hidden">
+            <div class="guesses__img">
+              <img />
+            </div>
             <div class="guesses__input">
-              <div class="guesses__img">
-                <!-- <img src="https://placehold.co/600x400" alt="placeholder" /> -->
-              </div>
               <div class="guesses__input-grp">
                 <label for="guessPrompt2">2nd prompt</label>
                 <button type="button" id="keyboard">
-                  <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                  <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt2" type="text" required />
               </div>
+              <div class="guesses__submit">
+                <button type="submit" aria-label="Submit" class="button" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
             </div>
-            <div class="guesses__submit">
-              <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
-                </svg>
-              </button>
-            </div>
-            <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
           </form>
           <form id="guess3" class="hidden">
+            <div class="guesses__img">
+              <img />
+            </div>
             <div class="guesses__input">
-              <div class="guesses__img">
-                <!-- <img src="https://placehold.co/600x400" alt="placeholder" /> -->
-              </div>
               <div class="guesses__input-grp">
                 <label for="guessPrompt3">3rd prompt</label>
                 <button type="button" id="keyboard">
-                  <img src="/static/imgs/keyboard-icon.png" alt="keyboard" />
+                  <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt3" type="text" required />
               </div>
+              <div class="guesses__submit">
+                <button type="submit" aria-label="Submit" class="button" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
             </div>
-            <div class="guesses__submit">
-              <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
-                </svg>
-              </button>
-            </div>
-            <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
           </form>
         </div>
         <!-- results -->
         <div class="results hidden" id="results">
-          <div class="results__header">
-            <div class="results__player winner">
-              <span id="winner">You won!</span>
-              <div class="player-tag">Player 1</div>
-              <span id="percentage">88%</span>
-            </div>
-            <span>keyword match</span>
-            <div class="results__player">
-              <div class="player-tag">Player 2</div>
-              <span id="percentage">26%</span>
-            </div>
-          </div>
           <div class="results__container">
-            <!-- prompts section -->
-            <div class="results__prompts">
-              <div class="results__prompts-you">
-                <span>Your Prompt</span>
-                <div class="results__item1">
-                  <span class="results__item-title">1st Prompt</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+            <div class="results__guesses results__guesses--opponent">
+              <div class="results__guesses-header">
+                Your Sketches
+              </div>
+              <div class="results__guess">
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="currentPlayer">Player 1</span>
+                    <p id="currentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="currentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="opponnentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="opponentPlayer">Player 2</span>
+                      <p id="opponnentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="opponnentPlayerGuessPercentage1">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
-                <div class="results__item2">
-                  <span class="results__item-title">2nd Prompt</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="currentPlayer">Player 1</span>
+                    <p id="currentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="currentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="opponnentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="opponentPlayer">Player 2</span>
+                      <p id="opponnentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="opponnentPlayerGuessPercentage2">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
-                <div class="results__item3">
-                  <span class="results__item-title">2nd Prompt</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="currentPlayer">Player 1</span>
+                    <p id="currentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="currentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="opponnentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="opponentPlayer">Player 2</span>
+                      <p id="opponnentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="opponnentPlayerGuessPercentage3">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="results__guesses-them">
-                <span>Their Guess</span>
-                <div class="results__item1">
-                  <span class="results__item-title">1st Guess</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+            </div> 
+            <div class="results__guesses results__guesses--current">
+              <div class="results__guesses-header">
+                Their Sketches
+              </div>
+              <div class="results__guess">
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="opponentPlayer">Player 2</span>
+                    <p id="opponentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="opponnentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="currentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="currentPlayer">Player 1</span>
+                      <p id="currentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="currentPlayerGuessPercentage1">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
-                <div class="results__item2">
-                  <span class="results__item-title">2nd Guess</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="opponentPlayer">Player 2</span>
+                    <p id="opponentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="opponnentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="currentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="currentPlayer">Player 1</span>
+                      <p id="currentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="currentPlayerGuessPercentage2">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
-                <div class="results__item3">
-                  <span class="results__item-title">2nd Guess</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
+                <div class="results__guess-prompt">
+                  <div class="results__guess-prompt-bubble">
+                    <span id="opponentPlayer">Player 2</span>
+                    <p id="opponentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <div class="results__guess-prompt-imgs">
+                    <img id="opponnentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                    <img id="currentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  </div>
+                  <div class="results__guess-prompt-result">
+                    <div class="results__guess-prompt-bubble">
+                      <span id="currentPlayer">Player 1</span>
+                      <p id="currentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                    </div>
+                    <div class="results__guess-prompt-percentage">
+                      <span id="currentPlayerGuessPercentage3">25%</span>
+                      Match
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- guess section -->
-            <div class="results__guesses">
-              <div class="results__guesses-you">
-                <span>Your Guess</span>
-                <div class="results__item1">
-                  <span class="results__item-title">1st Prompt</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-                <div class="results__item2">
-                  <span class="results__item-title">2nd Prompt</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-                <div class="results__item3">
-                  <span class="results__item-title">2nd Prompt</span>
-                  <span class="results__item-percentage">26%</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-              </div>
-              <div class="results__prompts-them">
-                <span>Their Prompt</span>
-                <div class="results__item1">
-                  <span class="results__item-title">1st Guess</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-                <div class="results__item2">
-                  <span class="results__item-title">2nd Guess</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-                <div class="results__item3">
-                  <span class="results__item-title">2nd Guess</span>
-                  <div class="results__item-img">
-                    <p>cute baby pig sitting on sandy beach at sunset</p>
-                    <img src="https://placehold.co/600x400" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            </div> 
           </div>
           <a type="button" href="#" id="playAgain" class="button">
-            Play again
+            New Game
           </a>
         </div>
         <!-- loader -->
@@ -494,7 +337,7 @@ limitations under the License.
           <!-- Loading state -->
           <div class="loader loader--green">
             <img src="/static/imgs/drawing.gif" alt="pencil drawing" />
-            <p>Sketching...</p>
+            <p>Sketching and waiting for the other player ...</p>
           </div>
           <!-- Reveal what player you are -->
           <div class="player-tag">
