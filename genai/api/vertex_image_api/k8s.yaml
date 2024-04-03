@@ -46,6 +46,10 @@ spec:
         env:
         - name: ENV
           value: dev
+        - name: VERTEX_IMAGE_GENERATION_MODEL
+          value: imagegeneration@005 # Imagen 2
+          # Uncomment for original Imagen
+          # value: imagegeneration@002
         resources:
           requests:
             cpu: 100m
