@@ -36,11 +36,11 @@ if(startGameBtn) {
     // Socket message
     socket.emit('startGame', 'true')
 
-    socket.on('MatchMakeResponse', (resp) => {
+    socket.on('MatchMakeResponse', (resp, localAddr) => {
       console.log('MatchMakeResponse: '+resp);
       try {
         // Redirect to game server connection (address:port)
-        window.location.replace('http://'+resp.connection)
+        window.location.replace('http://' + resp.connection + "?originalIP=" + localAddr)
       } catch (e) {
         // On error redirect to start page
         window.location.href = '/static/index.html'

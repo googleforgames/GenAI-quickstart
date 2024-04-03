@@ -14,7 +14,6 @@
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
-from datetime import datetime
 from swagger_client.rest import ApiException
 import time
 import logging  # Import the logging module
@@ -81,6 +80,8 @@ health_thread.start()
 
 @app.route('/')
 def index():
+    global frontend_url
+    frontend_url = request.args.get('originalIP')
     return render_template('index.html')
 
 game_round = 3
@@ -92,6 +93,7 @@ def handle_message(data):
     player_id = request.sid
     logger.debug('Received playAgain from player %s', player_id)
     dropped_players.add(player_id)
+    emit('frontend_url', {'frontendURL': frontend_url}, room=player_id)
     # If both players have clicked the "New Game" button, shutdown the gameserver
     if len(dropped_players) == 2:
         agones.shutdown(body)

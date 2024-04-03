@@ -59,9 +59,7 @@ if(playAgainBtn) {
   playAgainBtn.addEventListener('click', (e) => {
     e.preventDefault();
     // Socket message
-    socket.emit('playAgain', 'true')
-    // Redirect to start page
-    // window.location.href = './start.html'
+    socket.emit('playAgain', 'true') 
   })
 }
 
@@ -335,4 +333,9 @@ socket.on('score_response', (data) => {
       document.getElementById('opponentTotalScore').textContent = opponentTotalScore;
     }
   }
+});
+
+socket.on('frontend_url', (data) => {
+  // Redirect to start page
+  window.location.href = "http://" + data.frontendURL; 
 });
