@@ -14,6 +14,8 @@
 
 from io import BytesIO
 from diffusers import StableDiffusionPipeline
+from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
+from transformers import CLIPImageProcessor
 import torch
 
 
@@ -26,13 +28,19 @@ class Stable_Diffusion:
         self.model_type = model_type
 
         # Load Model
-        self.pipe = StableDiffusionPipeline.from_pretrained(self.model_type, torch_dtype=torch.float16)
+        self.pipe = StableDiffusionPipeline.from_pretrained(
+            self.model_type,
+            safety_checker=StableDiffusionSafetyChecker.from_pretrained("CompVis/stable-diffusion-safety-checker"),
+            feature_extractor=CLIPImageProcessor.from_pretrained("openai/clip-vit-base-patch32"),
+            torch_dtype=torch.float16)
         self.pipe = self.pipe.to("cuda")
 
 
     def get_image(self, prompt, num_inference_steps=50, guidance_scale=7.5):
         try:
-            image = self.pipe(prompt, num_inference_steps=num_inference_steps, guidance_scale=guidance_scale).images[0]
+            results = self.pipe(prompt, num_inference_steps=num_inference_steps, guidance_scale=guidance_scale)
+            print(results)
+            image = results.images[0]
 
             # Process and format image
             buffer = BytesIO()

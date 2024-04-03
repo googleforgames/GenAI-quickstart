@@ -35,9 +35,10 @@ STABLE_DIFFUSION_ENDPOINT = os.environ['STABLE_DIFFUSION_ENDPOINT']
 
 headers = {"Content-Type": "application/json"}
 
-
-class Payload_General(BaseModel):
+class Payload_StableDiffusion(BaseModel):
     prompt: str
+    number_of_images: int | None = 1
+    seed: int | None = None
 
 
 # Routes
@@ -51,8 +52,12 @@ async def health_check():
 @app.get("/")
 def image_gen_open_source_x_get(
         prompt: str,
+        number_of_images: int = 1,
+        seed: int = None,
     ):
     try:
+        if number_of_images > 1 or seed:
+            print('parameters seed and number_of_images not supported, ignored')
         request_payload = {
             'prompt': prompt,
         }
@@ -64,7 +69,7 @@ def image_gen_open_source_x_get(
 
 
 @app.post("/")
-def image_gen_open_source_x_post(payload: Payload_General):
+def image_gen_open_source_x_post(payload: Payload_StableDiffusion):
     try:
         request_payload = {
             'prompt': payload.prompt,
