@@ -33,10 +33,14 @@ const (
 	defaultFrontendAddress = "open-match-frontend.open-match.svc.cluster.local:50504"
 )
 
+var (
+	localAddr string
+)
+
 func main() {
 	server := socketio.NewServer(nil)
 	server.OnConnect("/", func(s socketio.Conn) error {
-		fmt.Println("connected:", s.ID())
+		localAddr = s.LocalAddr().String()
 		return nil
 	})
 
@@ -89,11 +93,11 @@ func matchmake(s socketio.Conn) {
 		select {
 		case err := <-errs:
 			log.Println("Error getting assignment:", err)
-			s.Emit("MatchMakeResponse", MatchMakeResponse{Err: err})
+			s.Emit("MatchMakeResponse", MatchMakeResponse{Err: err}, localAddr)
 			return
 		case assigment := <-assignments:
 			log.Println("assigment.Connection:", assigment.Connection)
-			s.Emit("MatchMakeResponse", MatchMakeResponse{Connection: assigment.Connection})
+			s.Emit("MatchMakeResponse", MatchMakeResponse{Connection: assigment.Connection}, localAddr)
 		}
 	}
 }

@@ -41,8 +41,6 @@ metadata:
   labels:
     name: guess-the-sketch-frontend
   name: guess-the-sketch-frontend
-  annotations:
-    networking.gke.io/load-balancer-type: "Internal"
 spec:
   selector:
     app: guess-the-sketch-frontend
