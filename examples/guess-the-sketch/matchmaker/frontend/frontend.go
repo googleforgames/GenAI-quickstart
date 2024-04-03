@@ -33,9 +33,7 @@ const (
 	defaultFrontendAddress = "open-match-frontend.open-match.svc.cluster.local:50504"
 )
 
-var (
-	localAddr string
-)
+var localAddr string
 
 func main() {
 	server := socketio.NewServer(nil)
