@@ -2,37 +2,40 @@
   align-items: center;
   background: var(--color-green);
   border-radius: 2rem;
-  border: .6rem solid var(--color-black-950);
+  border: .8rem solid var(--color-black);
   display: flex;
   flex-direction: column;
   gap: 3.2rem;
   margin-block-start: 7rem;
   padding: 8rem;
+  position: relative;
+  transition: all var(--td) var(--tt);
 
-  .prompts-submitted & {
+  .loading & {
+    transform: translateY(-15rem);
+  }
+
+  &--prompts {
     background: var(--color-green);
+
+    &:after {
+      background: var(--color-green-medium);
+    }
 
     .loader {
       background: var(--color-green-light);
     }
   }
 
-  .guesses-submitted & {
+  &--guesses {
     background: var(--color-blue);
+
+    &:after {
+      background: var(--color-blue-medium);
+    }
 
     .loader {
       background: var(--color-blue-light);
     }
-  }
-
-  > img {
-    block-size: 23.2rem;
-    inline-size: 49.6rem;
-    position: relative;
-    margin-block-start: -16rem;
-  }
-
-  .loader {
-    margin-block-start: -15rem;
   }
 }

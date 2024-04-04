@@ -3,17 +3,39 @@
   display: flex;
   justify-content: space-between;
   padding: var(--spacing-2) 0;
-  padding-inline-end: var(--spacing-2);
   position: relative;
   text-align: center;
+  display: grid;
+  grid-row-gap: .8rem;
+  grid-template-areas:
+      'logo exit'
+      'logo player';
+  grid-template-columns: 1fr 1fr;
+  transition: all var(--td) var(--tt);
+  z-index: 1;
+
+  .loading & {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'logo';
+    gap: 0;
+  }
 
   .has-results & {
+    display: grid;
+    grid-template-areas:
+        'logo exit'
+        'logo player';
+    grid-template-columns: 1fr 1fr;
+
     .hero__logo {
-      inline-size: 29rem;
+      align-self: flex-end;
+      inline-size: min(32rem, 100%);
     }
 
     .hero__exit {
       inset-block-start: 0;
+      position: relative;
+      justify-self: flex-end;
     }
 
     #currentPlayerResultsText {
@@ -21,16 +43,15 @@
     }
     
     .player-tag {
-      bottom: 1.6rem;
       display: flex;
       flex-direction: column;
       font-size: 3.2rem;
       gap: 1.2rem;
       padding: 1.6rem;
       padding-inline-start: 6rem;
-      position: absolute;
-      right: 0;
-      width: calc(100% - 21rem);
+      position: relative;
+      margin-inline-start: -30%;
+      inline-size: calc(100% + 30%);
       z-index: -1;
 
       p#heroResultText {
@@ -51,33 +72,45 @@
   }
 
   .player-tag {
+    justify-self: flex-end;
     align-self: flex-end;
+    grid-area: player;
+    transition: all var(--td) var(--tt);
   }
 
   &__logo {
     block-size: auto;
     inline-size: 32rem;
+    grid-area: logo;
+    transition: all var(--td) var(--tt);
+
+    .loading & {
+      inline-size: min(48rem, 100%);
+      margin-inline: auto;
+      margin-block-end: -9rem;
+    }
   }
 
   &__exit {
+    @include font-size(14,20);
+    justify-self: flex-end;
     background-color: var(--color-white);
     border: .1rem solid var(--color-white);
     border-radius: .4rem;
-    padding: 1.2rem;
-    padding-inline-end: .4rem;
-    position: absolute;
-    inset-block-start: 2rem;
-    inset-inline-end: 2rem;
+    grid-area: exit;
+    padding: .8rem 1.6rem;
+    padding-inline-end: .8rem;
     display: flex;
     align-items: center;
     color: var(--color-text);
     font-weight: 600;
     gap: .8rem;
+    transition: all var(--td) var(--tt);
 
     &:is(:hover, :focus) {
       text-decoration: none;
       background-color: var(--color-grey-light);
-      border-color: var(--color-grey);
+      border-color: var(--color-grey-400);
     }
 
     img {
