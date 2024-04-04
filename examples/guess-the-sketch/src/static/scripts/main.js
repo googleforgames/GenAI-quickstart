@@ -557,7 +557,7 @@ socket.on('score_response', (data) => {
     guessPercentDiv = document.getElementById(opponentPlayerGuessPercentageDivId);
   }
 
-  const constPerctage = data.score * 100;
+  const constPerctage = Math.round(data.score * 100);
   guessPercentDiv.textContent = constPerctage + "%";
 
   if (data.from === 'myself') {

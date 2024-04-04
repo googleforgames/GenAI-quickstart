@@ -14,6 +14,7 @@
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room
+from json import loads
 from swagger_client.rest import ApiException
 import time
 import logging  # Import the logging module
@@ -30,6 +31,8 @@ import threading
 
 # Use whatever the GenAI API is routing to (default Vertex)
 IMAGE_GENERATION_ENDPOINT="http://genai-api.genai.svc/genai/image"
+EMBEDDINGS_ENDPOINT="http://embeddings-api.genai.svc/"
+EMBEDDINGS_MODEL="sentence-transformers/multi-qa-MiniLM-L6-cos-v1"
 
 app = Flask(__name__,
             static_folder="static")
@@ -206,17 +209,15 @@ def handle_message(data):
     emit('guess_response', {'image': encoded_image, 'guess': message, 'round': round, 'from': 'myself'}, room=player_id)
     emit('guess_response', {'image': encoded_image, 'guess': message, 'round': round, 'from': 'other'}, room=oppontent_id)
 
-    # Generate and send the similarity score
-    similarity_prompt = f'''calculate the vector similarity number between '{player_prompt[oppontent_id][round]['prompt']}' and '{player_guess[player_id][round]['guess']}' as number A,
-                            Return number A in the format: A = '''
-    similarity_payload = {
-        'prompt': f'''{similarity_prompt}''',
-    }
-    similarity_response = requests.post(f'http://genai-api.genai.svc/genai/text', headers=headers, json=similarity_payload)
-    similarity_response_without_quota = similarity_response.text.strip('"')
-    score = float(similarity_response_without_quota.split()[-1])
+    # Generate the similarity score and send to both players; they will be shown in summary page
+    try:
+        score = similarity(player_prompt[oppontent_id][round]['prompt'], player_guess[player_id][round]['guess'])
+    except:
+        logging.exception("similarity() failed")
+        score = -0.99   # "-99%" still fits in the text box, but it's obviously a weird number.
     player_prompt[player_id][round]['guess_score'] = score
-    # Send the score to both the players, they will be shown in summary page
+
+    # Send the score to both the players,
     emit('score_response', {'score': score, 'round': round, 'from': 'myself'}, room=player_id)
     emit('score_response', {'score': score, 'round': round, 'from': 'other'}, room=oppontent_id)
 
@@ -265,6 +266,23 @@ def handle_message(data):
                 time.sleep(0.1)
             # Send the first picture to the opponent for guessing
             emit('guess_sketch_response', {'image': player_prompt[player][1]['picture'], 'prompt': player_prompt[player][1]['prompt'], 'opponentId': player, 'round': 1}, room=player_id)
+
+def similarity(p1, p2):
+    '''Calculate dot product distance between two prompts'''
+
+    resp = requests.post(
+        url = EMBEDDINGS_ENDPOINT,
+        headers = {"Content-Type": "application/json"},
+        json = {'prompts': [p1, p2], 'model': EMBEDDINGS_MODEL},
+        timeout=0.5,
+    )
+    resp.raise_for_status()
+
+    embeddings = loads(resp.text)['embeddings']
+    return dot(embeddings[0], embeddings[1])
+
+def dot(v1, v2):
+   return sum(i[0] * i[1] for i in zip(v1, v2))
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=7654)
