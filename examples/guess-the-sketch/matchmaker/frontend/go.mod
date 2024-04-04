@@ -3,6 +3,7 @@ module main
 go 1.22
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/googollee/go-socket.io v1.7.0
 	google.golang.org/grpc v1.62.1
 	open-match.dev/open-match v1.8.1
