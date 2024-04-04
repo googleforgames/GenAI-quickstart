@@ -56,12 +56,19 @@ def get_gcp_metadata():
     return project_id, region, zone
 
 GCP_PROJECT_ID, GCP_REGION, GCP_ZONE = get_gcp_metadata()
-logging.debug(f'GCP_PROJECT_ID: {GCP_PROJECT_ID}')
-logging.debug(f'GCP_REGION:     {GCP_REGION}')
-logging.debug(f'GCP_ZONE:       {GCP_ZONE}')
+VERTEX_IMAGE_GENERATION_MODEL = os.environ['VERTEX_IMAGE_GENERATION_MODEL']
+
+logging.debug(f'GCP_PROJECT_ID:                  {GCP_PROJECT_ID}')
+logging.debug(f'GCP_REGION:                      {GCP_REGION}')
+logging.debug(f'GCP_ZONE:                        {GCP_ZONE}')
+logging.debug(f'VERTEX_IMAGE_GENERATION_MODEL:   {VERTEX_IMAGE_GENERATION_MODEL}')
+
 
 # Initialize Vertex LLM Model
-model_vertex_imagen   = Google_Cloud_Imagen(GCP_PROJECT_ID, GCP_REGION=GCP_REGION)
+model_vertex_imagen   = Google_Cloud_Imagen(
+    GCP_PROJECT_ID,
+    GCP_REGION=GCP_REGION,
+    VERTEX_IMAGE_GENERATION_MODEL=VERTEX_IMAGE_GENERATION_MODEL)
 
 headers = {"Content-Type": "application/json"}
 

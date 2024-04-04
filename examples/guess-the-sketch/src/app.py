@@ -24,6 +24,13 @@ import os
 import swagger_client as Agones
 import threading
 
+# Uncomment to use Stable Diffusion explicitly - requires the Stable Diffusion backend, which uses a GPU:
+#   kubectl scale deployment/stable-diffusion-endpt --replicas=1 -ngenai
+# IMAGE_GENERATION_ENDPOINT="http://stable-diffusion-api.genai.svc"
+
+# Use whatever the GenAI API is routing to (default Vertex)
+IMAGE_GENERATION_ENDPOINT="http://genai-api.genai.svc/genai/image"
+
 app = Flask(__name__,
             static_folder="static")
 app.config['SECRET_KEY'] = f'{int(random.random()*100000000)}'
@@ -112,9 +119,7 @@ def handle_message(data):
     guess_payload = {
         'prompt': f'''{message}''',
     }
-    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=guess_payload)
-    # stable diffusion
-    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=payload_cur)
+    model_response = requests.post(IMAGE_GENERATION_ENDPOINT, headers=headers, json=guess_payload)
     if model_response.content == b'{}':
         emit('guess_image_generation_response', {'response': 'failure', 'round': round}, room=player_id)
         return
@@ -166,15 +171,11 @@ def handle_message(data):
     picture_generate_payload = {
         'prompt': f'''{message}''',
     }
-    model_response = requests.post(f'http://genai-api.genai.svc/genai/image', headers=headers, json=picture_generate_payload)
-    # stable diffusion
-    #model_response_cur = requests.post(f'http://stable-diffusion-api.genai.svc/generate', headers=headers, json=picture_generate_payload)
-    
+    model_response = requests.post(IMAGE_GENERATION_ENDPOINT, headers=headers, json=picture_generate_payload)
     # Send an empty image to indicate the picture generation failure
     if model_response.content == b'{}':
         emit('prompt_response', {'image': '', 'prompt': message, 'round': round}, room=player_id)
         return
-        
     encoded_image = base64.b64encode(model_response.content).decode('utf-8')
     # Store the prompt and generated picture
     if player_prompt.get(player_id) is None:
