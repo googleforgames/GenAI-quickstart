@@ -61,7 +61,8 @@ limitations under the License.
         <!-- prompts -->
         <div class="prompts" id="prompts">
           <div class="prompts__header">
-            <p>Step 1: Use prompts to create your own AI Sketches</p>
+            <span>Step 1:</span>
+            <p>Use prompts to create your own AI sketches</p>
           </div>
           <form class="prompts__caption" id="caption1">
             <div class="prompts__caption-input">
@@ -69,10 +70,11 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt1" type="text" value="cute baby pig sitting on sandy beach at sunset" required />
+              <input id="prompt1" type="text" required />
+              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
             <div class="prompts__caption-submit">
-              <button type="submit" aria-label="Submit" class="button">
+              <button type="submit" aria-label="Submit" class="button" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
                 </svg>
@@ -86,7 +88,8 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt2" type="text" value="five cinnamon and cream donuts in slow-motion descent" required disabled />
+              <input id="prompt2" type="text" required disabled />
+              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
             <div class="prompts__caption-submit">
               <button type="submit" aria-label="Submit" class="button" disabled>
@@ -103,9 +106,10 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt3" type="text" value="cute baby pig sitting on sandy beach at sunset" required disabled />
+              <input id="prompt3" type="text" required disabled />
+              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
-            <div class="prompts__caption-submit">
+            <div class="prompts__caption-submit" >
               <button type="submit" aria-label="Submit" class="button" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
@@ -120,7 +124,8 @@ limitations under the License.
           <div style="display: none;" id="opponentId"></div>
           <div style="display: none;" id="round"></div>
           <div class="guesses__header">
-            <p>Step 2: Guess the prompt your opponent used for this sketch</p>
+            <span>Step 2:</span>
+            <p>Guess the prompt your partner used for this sketch</p>
           </div>
           <form id="guess1">
             <div class="guesses__img">
@@ -133,6 +138,7 @@ limitations under the License.
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt1" type="text" required />
+                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
               </div>
               <div class="guesses__submit">
                 <button type="submit" aria-label="Submit" class="button" disabled>
@@ -155,6 +161,7 @@ limitations under the License.
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt2" type="text" required />
+                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
               </div>
               <div class="guesses__submit">
                 <button type="submit" aria-label="Submit" class="button" disabled>
@@ -177,6 +184,7 @@ limitations under the License.
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt3" type="text" required />
+                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
               </div>
               <div class="guesses__submit">
                 <button type="submit" aria-label="Submit" class="button" disabled>
