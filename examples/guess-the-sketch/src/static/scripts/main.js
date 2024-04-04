@@ -21,7 +21,11 @@ const searchParams = new URLSearchParams(window.location.search)
 const playerId = searchParams.get('playerId')
 console.log("playerId = %s", playerId)
 
-socket.emit('syncSession', playerId) // TODO: Sync state back here?
+// get Frontend URL
+const frontendURL = searchParams.get('originalIP')
+console.log("frontendURL = %s", frontendURL)
+
+socket.emit('syncSession', {playerId: playerId, frontendURL: frontendURL}) // TODO: Sync state back here?
 
 // disable prompt form, set classes and attributes
 const disablePrompt = (form, value) => {
@@ -280,7 +284,7 @@ if (exitBtn) {
     // Socket message
     socket.emit('exitGame', 'true')
     // Redirect to start page
-    // window.location.href = './start.html'
+    window.location.href = "http://" + frontendURL;
   })
 }
 
@@ -290,6 +294,7 @@ if (playAgainBtn) {
     e.preventDefault()
     // Socket message
     socket.emit('playAgain', 'true') 
+    window.location.href = "http://" + frontendURL;
   })
 }
 
@@ -582,9 +587,9 @@ socket.on('score_response', (data) => {
   }
 });
 
-socket.on('frontend_url', (data) => {
+socket.on('redirect', (data) => {
   // Redirect to start page
-  window.location.href = "http://" + data.frontendURL; 
+  window.location.href = "http://" + frontendURL; 
 });
 
 // REFRESH STATES //
