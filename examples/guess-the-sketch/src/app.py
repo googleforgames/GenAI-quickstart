@@ -210,7 +210,11 @@ def handle_message(data):
     emit('guess_response', {'image': encoded_image, 'guess': message, 'round': round, 'from': 'other'}, room=oppontent_id)
 
     # Generate the similarity score and send to both players; they will be shown in summary page
-    score = similarity(player_prompt[oppontent_id][round]['prompt'], player_guess[player_id][round]['guess'])
+    try:
+        score = similarity(player_prompt[oppontent_id][round]['prompt'], player_guess[player_id][round]['guess'])
+    except:
+        logging.exception("similarity() failed")
+        score = -0.99   # "-99%" still fits in the text box, but it's obviously a weird number.
     player_prompt[player_id][round]['guess_score'] = score
 
     # Send the score to both the players,
@@ -270,6 +274,7 @@ def similarity(p1, p2):
         url = EMBEDDINGS_ENDPOINT,
         headers = {"Content-Type": "application/json"},
         json = {'prompts': [p1, p2], 'model': EMBEDDINGS_MODEL},
+        timeout=0.5,
     )
     resp.raise_for_status()
 
