@@ -2,7 +2,7 @@
   $self: &;
   background: var(--color-green-medium);
   border-radius: 2rem;
-  border: .6rem solid var(--color-green-medium);
+  border: .8rem solid var(--color-black);
   margin-block-start: .4rem;
   position: relative;
   overflow: hidden;
@@ -21,21 +21,21 @@
   }
 
   &__header {
+    -webkit-font-smoothing: antialiased;
     background: var(--color-green-medium);
     border-start-end-radius: .6rem;
     border-start-start-radius: .6rem;
     color: var(--color-white);
+    display: grid;
+    gap: 1.6rem;
+    grid-template-columns: auto 1fr;
     padding: 2.4rem 1.6rem;
 
-    span {
+    p, span {
       @include font-size(18);
       font-family: var(--font-jura);
       font-weight: 700;
       letter-spacing: .05rem;
-
-      + p {
-        margin-block-start: 1rem;
-      }
     }
 
     p {
@@ -49,8 +49,15 @@
   }
 
   &__caption {
+    --prompt-bg: var(--color-green);
+    --prompt-brd: var(--color-green-medium);
+    --prompt-text: var(--color-green-medium);
+    --prompt-brd-inbetween: var(--color-green-light);
+    --prompt-button-bg: var(--color-yellow);
+    --prompt-button-text: var(--color-black);
+    --prompt-button-brd: var(--color-green-medium);
     align-items: center;
-    background: var(--color-green);
+    background: var(--prompt-bg);
     padding: 2.4rem 1.6rem;
     display: grid;
     grid-column-gap: var(--spacing-2);
@@ -61,30 +68,52 @@
     inline-size: 100%;
     text-align: center;
 
+    &.error {
+      --prompt-bg: var(--color-red-light);
+      --prompt-brd: var(--color-red);
+      --prompt-text: var(--color-red);
+      --prompt-brd-inbetween: var(--color-green-light);
+      --prompt-button-bg: var(--color-red-light);
+      --prompt-button-text: var(--color-red);
+      --prompt-button-brd: var(--color-red);
+
+      &:has(input[type="text"][disabled]) {
+        --prompt-button-bg: var(--color-red-light);
+        --prompt-button-text: var(--color-red);
+        --prompt-button-brd: var(--color-red);
+      }
+
+      #{$self}__caption-submit {
+        .button {
+          box-shadow: none;
+        }
+      }
+    }
+
     & + #{$self}__caption {
-      border-block-start: .1rem solid var(--color-green-light);
+      border-block-start: .1rem solid var(--prompt-brd-inbetween);
     }
 
     &:has(input[type="text"][disabled]) {
       background: var(--color-white);
       pointer-events: none;
       grid-column-gap: 2rem;
+      --prompt-button-bg: var(--color-white);
+      --prompt-button-text: var(--color-green-medium);
+      --prompt-button-brd: var(--color-green-light);
 
       #{$self}__caption-input {
-        background: var(--color-white);
-        border-color: var(--color-green-light);
+        background: var(--prompt-button-bg);
+        border-color: var(--prompt-button-brd);
 
         button[id="keyboard"] {
-          display: none;
+          opacity: .4;
         }
       }
 
       #{$self}__caption-submit {
         .button {
-          background: var(--color-white);
           box-shadow: none;
-          border: .1rem solid var(--color-green-light);
-          color: var(--color-green-medium);
         }
       }
     }
@@ -94,18 +123,24 @@
       grid-area: submit;
 
       .button {
-        background: var(--color-yellow);
-        border: .1rem solid var(--color-green-medium);
-        color: var(--colot-text);
-        block-size: 100%;
+        background: var(--prompt-button-bg);
+        border: .1rem solid var(--prompt-button-brd);
+        color: var(--prompt-button-text);
+        block-size: calc(100% - .4rem);
         padding-inline: var(--spacing);
 
         &[disabled] {
-          background: var(--color-white);
+          --prompt-button-bg: var(--color-white);
+          --prompt-button-text: var(--color-green-medium);
+          --prompt-button-brd: var(--color-green-medium);
           box-shadow: none;
-          border: .1rem solid var(--color-green-medium);
-          color: var(--color-green-medium);
           opacity: .6;
+
+          .error & {
+            --prompt-button-bg: var(--color-red-light);
+            --prompt-button-text: var(--color-red);
+            --prompt-button-brd: var(--color-red);
+          }
         }
 
         img {
@@ -126,9 +161,9 @@
 
     &-input {
       background: var(--color-white);
-      border: .1rem solid var(--color-green-medium);
+      border: .1rem solid var(--prompt-brd);
       border-radius: var(--border-radius-md);
-      color: var(--color-text);
+      color: var(--prompt-text);
       display: flex;
       flex-direction: column;
       gap: 1.2rem;
@@ -141,13 +176,13 @@
 
       &.active {
         &:after {
-          content:'';
-          position: absolute;
+          background: var(--prompt-brd);
+          block-size: .8rem;
           bottom: 0;
-          block-size: .4rem;
-          background: var(--color-green-medium);
+          content:'';
           inline-size: 100%;
           left: 0;
+          position: absolute;
         }
       }
 
@@ -167,32 +202,37 @@
       }
 
       input[type="text"] {
-        @include font-size(19);
+        @include font-size(24, 34);
         background: transparent;
         border: 0;
-        color: var(--color-text);
+        color: var(--prompt-text);
         display: block;
         font-weight: 500;
         inline-size: 100%;
+        letter-spacing: .05rem;
         line-height: 1.5em;
         padding-inline-end: var(--spacing-6);
-
-        form:not(.submitted) & {
-          color: var(--color-green);
-        }
+        text-overflow: ellipsis;
 
         &:focus {
           outline: none;
         }
 
         &::placeholder {
-          color: var(--color-green);
+          color: var(--prompt-text);
         }
+      }
+
+      .error-message {
+        @include font-size(12,16);
+        color: var(--color-black);
+        font-weight: 500;
+        padding-inline-end: var(--spacing-6);
       }
 
       label {
         @include font-size(12,16);
-        color: var(--color-grey);
+        color: var(--prompt-text);
         pointer-events: none;
         position: relative;
         transition: 0.2s ease all;

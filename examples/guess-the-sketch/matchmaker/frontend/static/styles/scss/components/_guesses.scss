@@ -1,8 +1,15 @@
 .guesses {
+  --guess-bg: var(--color-blue);
+  --guess-brd: var(--color-blue-medium);
+  --guess-text: var(--color-blue-medium);
+  --guess-brd-inbetween: var(--color-blue-light);
+  --guess-button-bg: var(--color-yellow);
+  --guess-button-text: var(--color-black);
+  --guess-button-brd: var(--color-blue-medium);
   align-items: center;
   background: var(--color-blue-medium);
   border-radius: 2rem;
-  border: .6rem solid var(--color-blue-medium);
+  border: .8rem solid var(--color-black);
   position: relative;
   overflow: hidden;
 
@@ -14,14 +21,18 @@
   }
 
   &__header {
+    -webkit-font-smoothing: antialiased;
     background: var(--color-blue-medium);
     border-start-end-radius: .6rem;
     border-start-start-radius: .6rem;
+    display: grid;
+    gap: 1.6rem;
+    grid-template-columns: auto 1fr;
     padding: 2.4rem 1.6rem;
-    text-align: center;
+    text-align: left;
 
-    p {
-      @include font-size(24);
+    p, span {
+      @include font-size(18);
       color: var(--color-white);
       font-family: var(--font-jura);
       font-weight: 700;
@@ -55,23 +66,35 @@
 
   &__submit {
     grid-area: submit;
+
     .button {
-      background: var(--color-yellow);
-      border: .1rem solid var(--color-blue-medium);
-      block-size: 9.6rem;
-      color: var(--color-text);
+      background: var(--guess-button-bg);
+      block-size: calc(100% - .4rem);
+      border: .1rem solid var(--guess-button-brd);
+      color: var(--guess-button-text);
       padding-inline: var(--spacing);
 
+      .error & {
+        box-shadow: none;
+      }
+
       &[disabled] {
+        --guess-button-brd: var(--color-blue-light);
+        --guess-button-text: var(--color-blue-light);
         background: transparent;
-        border: .1rem solid var(--color-blue-light);
-        color: var(--color-blue-light);
+
+        .error & {
+          --guess-button-bg: var(--color-red-light);
+          --guess-button-text: var(--color-red);
+          --guess-button-brd: var(--color-red);
+        }
       }
     }
   }
 
   &__img {
     aspect-ratio: 4/3;
+    border-inline: .6rem solid var(--guess-brd);
     grid-area: img;
 
     img {
@@ -82,7 +105,10 @@
   }
 
   &__input {
-    background-color: var(--color-blue);
+    background-color: var(--guess-bg);
+    border: .6rem solid var(--color-blue-medium);
+    border-radius: 0 0 1.6rem 1.6rem;
+    border-block-start: 0;
     color: var(--color-black);
     display: grid;
     gap: 1.2rem;
@@ -95,6 +121,16 @@
     'input submit'
     'note note';
     grid-template-columns: 1fr 4.8rem;
+
+    &.error {
+      --guess-bg: var(--color-red-light);
+      --guess-brd: var(--color-red);
+      --guess-text: var(--color-red);
+      --guess-brd-inbetween: var(--color-green-light);
+      --guess-button-bg: var(--color-red-light);
+      --guess-button-text: var(--color-red);
+      --guess-button-brd: var(--color-red);
+    }
 
     button[id="keyboard"] {
       background: transparent;
@@ -116,14 +152,15 @@
       border-radius: var(--border-radius-sm);
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
+      grid-area: input;
+      min-block-size: 12rem;
+      overflow: hidden;
       padding: var(--spacing-2) var(--spacing-4) var(--spacing-4);
       position: relative;
-      overflow: hidden;
-      grid-area: input;
 
       &:after {
-        background: var(--color-blue-medium);
-        block-size: .5rem;
+        background: var(--guess-brd);
+        block-size: .8rem;
         bottom: 0;
         content: '';
         inline-size: 100%;
@@ -137,12 +174,12 @@
     input[type="text"] {
       @include font-size(19);
       background: transparent;
-      border-bottom: 1px solid var(--color-yellow);
       border: 0;
-      color: var(--color-text);
+      color: var(--guess-text);
       display: block;
-      line-height: 1.5em;
       font-weight: 500;
+      line-height: 1.5em;
+      min-block-size: 4.8rem;
       padding-inline-end: var(--spacing-6);
       transition: 0.3s cubic-bezier(0.64, 0.09, 0.08, 1) all;
       width: 100%;
@@ -152,9 +189,16 @@
       }
     }
 
+    .error-message {
+      @include font-size(12,16);
+      color: var(--color-black);
+      font-weight: 500;
+      padding-inline-end: var(--spacing-6);
+    }
+
     label {
       @include font-size(12,16);
-      color: var(--color-grey);
+      color: var(--guess-text);
       pointer-events: none;
       position: relative;
       transition: 0.2s ease all;

@@ -1,5 +1,5 @@
 .loader {
-  @include font-size(18,30);
+  @include font-size(24,34);
   align-items: center;
   background: var(--color-yellow-400);
   block-size: 48rem;
@@ -7,6 +7,7 @@
   color: var(--color-text);
   display: flex;
   flex-direction: column;
+  font-weight: 500;
   gap: 1.2rem;
   inline-size: 48rem;
   justify-content: center;
