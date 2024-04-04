@@ -70,7 +70,7 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt1" type="text" required />
+              <input id="prompt1" type="text" placeholder="cute baby pig sitting on sandy beach at sunset" required />
               <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
             <div class="prompts__caption-submit">
@@ -88,7 +88,7 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt2" type="text" required disabled />
+              <input id="prompt2" type="text" placeholder="five cinnamon and cream donuts in slow-motion descent" required disabled />
               <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
             <div class="prompts__caption-submit">
@@ -106,7 +106,7 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt3" type="text" required disabled />
+              <input id="prompt3" type="text" placeholder="cute baby pig sitting on sandy beach at sunset" required disabled />
               <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
             </div>
             <div class="prompts__caption-submit" >
@@ -199,149 +199,189 @@ limitations under the License.
         </div>
         <!-- results -->
         <div class="results hidden" id="results">
-          <div class="results__container">
-            <div class="results__guesses results__guesses--opponent">
-              <div class="results__guesses-header">
-                Your Sketches
-              </div>
-              <div class="results__guess">
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="currentPlayer">Player 1</span>
+          <!-- Results opponent -->
+          <div class="results__container results__container--opponent">
+            <div class="results__header">
+              Results: <span id="opponentPlayer">Player 2</span>
+            </div>
+
+            <div class="results__list">
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="currentPlayer">Player 1</span>
+                      Prompt
+                    </div>
                     <p id="currentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="currentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="opponnentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
+                  <img id="currentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
                       <span id="opponentPlayer">Player 2</span>
-                      <p id="opponnentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                      Guess
                     </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="opponnentPlayerGuessPercentage1">25%</span>
-                      Match
-                    </div>
+                    <p id="opponnentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
                 </div>
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="currentPlayer">Player 1</span>
+                <div class="results__item-match">
+                  <img id="opponnentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="opponnentPlayerGuessPercentage1">25%</span>
+                    Match
+                  </div>
+                </div>
+              </div>
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="currentPlayer">Player 1</span>
+                      Prompt
+                    </div>
                     <p id="currentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="currentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="opponnentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
+                  <img id="currentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
                       <span id="opponentPlayer">Player 2</span>
-                      <p id="opponnentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                      Guess
                     </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="opponnentPlayerGuessPercentage2">25%</span>
-                      Match
-                    </div>
+                    <p id="opponnentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
                 </div>
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="currentPlayer">Player 1</span>
+                <div class="results__item-match">
+                  <img id="opponnentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="opponnentPlayerGuessPercentage2">25%</span>
+                    Match
+                  </div>
+                </div>
+              </div>
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="currentPlayer">Player 1</span>
+                      Prompt
+                    </div>
                     <p id="currentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="currentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="opponnentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
+                  <img id="currentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
                       <span id="opponentPlayer">Player 2</span>
-                      <p id="opponnentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                      Guess
                     </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="opponnentPlayerGuessPercentage3">25%</span>
-                      Match
-                    </div>
+                    <p id="opponnentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                </div>
+                <div class="results__item-match">
+                  <img id="opponnentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="opponnentPlayerGuessPercentage3">25%</span>
+                    Match
                   </div>
                 </div>
               </div>
-            </div> 
-            <div class="results__guesses results__guesses--current">
-              <div class="results__guesses-header">
-                Their Sketches
-              </div>
-              <div class="results__guess">
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="opponentPlayer">Player 2</span>
+            </div>
+          </div>
+
+          <!-- Results current player -->
+          <div class="results__container results__container--current">
+            <div class="results__header">
+              Results: <span id="currentPlayer">Player 1</span>
+            </div>
+
+            <div class="results__list">
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="opponentPlayer">Player 2</span>
+                      Prompt
+                    </div>
                     <p id="opponentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="opponnentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="currentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
+                  <img id="opponentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
                       <span id="currentPlayer">Player 1</span>
-                      <p id="currentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                      Guess
                     </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="currentPlayerGuessPercentage1">25%</span>
-                      Match
-                    </div>
+                    <p id="currentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
                   </div>
                 </div>
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="opponentPlayer">Player 2</span>
-                    <p id="opponentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
-                  </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="opponnentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="currentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
-                      <span id="currentPlayer">Player 1</span>
-                      <p id="currentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
-                    </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="currentPlayerGuessPercentage2">25%</span>
-                      Match
-                    </div>
-                  </div>
-                </div>
-                <div class="results__guess-prompt">
-                  <div class="results__guess-prompt-bubble">
-                    <span id="opponentPlayer">Player 2</span>
-                    <p id="opponentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
-                  </div>
-                  <div class="results__guess-prompt-imgs">
-                    <img id="opponnentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
-                    <img id="currentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
-                  </div>
-                  <div class="results__guess-prompt-result">
-                    <div class="results__guess-prompt-bubble">
-                      <span id="currentPlayer">Player 1</span>
-                      <p id="currentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
-                    </div>
-                    <div class="results__guess-prompt-percentage">
-                      <span id="currentPlayerGuessPercentage3">25%</span>
-                      Match
-                    </div>
+                <div class="results__item-match">
+                  <img id="currentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="currentPlayerGuessPercentage1">25%</span>
+                    Match
                   </div>
                 </div>
               </div>
-            </div> 
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="opponentPlayer">Player 2</span>
+                      Prompt
+                    </div>
+                    <p id="opponentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <img id="opponentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
+                      <span id="currentPlayer">Player 1</span>
+                      Guess
+                    </div>
+                    <p id="currentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                </div>
+                <div class="results__item-match">
+                  <img id="currentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="currentPlayerGuessPercentage2">25%</span>
+                    Match
+                  </div>
+                </div>
+              </div>
+              <div class="results__item">
+                <div class="results__item-container">
+                  <div class="results__item-prompt">
+                    <div class="results__item-player">
+                      <span id="opponentPlayer">Player 2</span>
+                      Prompt
+                    </div>
+                    <p id="opponentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                  <img id="opponentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-guess">
+                    <div class="results__item-player">
+                      <span id="currentPlayer">Player 1</span>
+                      Guess
+                    </div>
+                    <p id="currentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                  </div>
+                </div>
+                <div class="results__item-match">
+                  <img id="currentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <div class="results__item-match-percentage">
+                    <span id="currentPlayerGuessPercentage3">25%</span>
+                    Match
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <!-- New game button -->
           <a type="button" href="#" id="playAgain" class="button">
             New Game
           </a>
         </div>
         <!-- loader -->
         <div class="loader-container hidden">
-          <img class="hero__logo" src="/static/imgs/logo.svg" alt="Guess the sketch graphic" />
           <!-- Loading state -->
           <div class="loader loader--green">
             <img src="/static/imgs/drawing.gif" alt="pencil drawing" />

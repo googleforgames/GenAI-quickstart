@@ -1,18 +1,21 @@
 .loader {
-  @include font-size(18,30);
+  @include font-size(24,34);
   align-items: center;
   background: var(--color-yellow-400);
-  block-size: 48rem;
+  block-size: 36rem;
   border-radius: 100%;
   color: var(--color-text);
   display: flex;
   flex-direction: column;
+  font-weight: 500;
   gap: 1.2rem;
-  inline-size: 48rem;
+  inline-size: 36rem;
   justify-content: center;
   letter-spacing: .05rem;
   padding-block: var(--spacing-4);
+  padding-inline: 4.8rem;
   text-align: center;
+  position: relative;
 
   img {
     block-size: 4.8rem;

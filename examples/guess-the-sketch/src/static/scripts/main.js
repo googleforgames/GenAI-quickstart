@@ -78,7 +78,6 @@ const enableNextPrompt = (nextEl) => {
   // Remove disable attributes
   nextEl.removeAttribute('disabled')
   nextInputField?.removeAttribute('disabled')
-  nextSubmitBtn?.removeAttribute('disabled')
   nextCaptionNote?.classList.remove('hidden')
 }
 
@@ -241,6 +240,12 @@ const setResultsState = (promptsEntered, guessesEntered) => {
   results.classList.remove('hidden')
 }
 
+const setErrorState = (inputForm) => {
+  inputForm.classList.add('error')
+  inputForm.querySelector('.error-message').classList.remove('hidden')
+  inputForm.querySelector('button[type="submit"]').setAttribute('disabled', '')
+}
+
 // If Start Game btn exists, run click event
 if (startGameBtn) {
   startGameBtn.addEventListener('click', (e) => {
@@ -297,7 +302,7 @@ if (promptsForms?.length > 0) {
     const input = form?.querySelector('.prompts__caption-input input[type="text"]')
 
     // text input control
-    input.addEventListener('keyup', (e) => {
+    input.addEventListener('input', (e) => {
       if (e.target.value.length > 0) {
         input.parentNode.classList.add('active')
         if (input.closest('.prompts__caption').classList.contains('error')) {
@@ -353,7 +358,7 @@ if (guessesForms?.length > 0) {
     }
 
     // text input control
-    input.addEventListener('keyup', (e) => {
+    input.addEventListener('input', (e) => {
       if(e.target.value.length > 0) {
         button.removeAttribute('disabled')
         input.parentNode.classList.add('active')
@@ -399,7 +404,7 @@ socket.on('guess_sketch_response', (data) => {
 
   // polulate the prompt image for opponent
   const promptDivId = 'opponentPlayerPrompt' + data.round;
-  const promptImgDivId = 'opponnentPlayerPromptImg' + data.round;
+  const promptImgDivId = 'opponentPlayerPromptImg' + data.round;
   const promptDiv = document.getElementById(promptDivId);
   const promptImgDiv = document.getElementById(promptImgDivId);
 
@@ -427,8 +432,7 @@ socket.on('prompt_response', (data) => {
     captionNote?.classList.remove('hidden')
 
     // Set error state
-    promptForm.classList.add('error')
-    promptForm.querySelector('.error-message').classList.remove('hidden')
+    setErrorState(promptForm)
   } else {
     // First handle the prompt form state transfer
     promptForm.classList.add('submitted');
@@ -491,8 +495,7 @@ socket.on('guess_image_generation_response', (data) => {
   const guessFrom = document.getElementById(guessFormId);
   if (data.response === "failure") {
     // Set error state
-    guessFrom.querySelector('.guesses__input').classList.add('error')
-    guessFrom.querySelector('.error-message').classList.remove('hidden')
+    setErrorState(guessFrom)
     // Enable the form to allow re-submission
     enableGuess(guessFrom)
   } else {
@@ -583,3 +586,71 @@ socket.on('frontend_url', (data) => {
   // Redirect to start page
   window.location.href = "http://" + data.frontendURL; 
 });
+
+// REFRESH STATES //
+// Note: replace sample strings with values already submitted
+
+// State For One Prompt Entered
+// setPromptState1(['Sample value of input1'])
+
+// State For Two Prompts Entered
+// setPromptState2(['Sample value of input1', 'Sample value of input2'])
+
+// State For Three Prompts Entered
+// setPromptState3([
+//   'Sample value of input1',
+//   'Sample value of input 2',
+//   'Sample value of input 3',
+// ])
+
+// State For One Guess Entered
+// setGuessState1(
+//   [
+//     'Sample value of input1',
+//     'Sample value of input2',
+//     'Sample value of input3',
+//   ],
+//   ['Sample guess entered value']
+// )
+
+// State For Two Guess Entered
+// setGuessState2(
+//   [
+//     'Sample value of input1',
+//     'Sample value of input2',
+//     'Sample value of input3',
+//   ],
+//   ['Sample guess entered value 1', 'Sample guess entered value 2']
+// )
+
+// State For Three Guess Entered
+// setGuessState3(
+//   [
+//     'Sample value of input1',
+//     'Sample value of input2',
+//     'Sample value of input3',
+//   ],
+//   [
+//     'Sample guess entered value 1',
+//     'Sample guess entered value 2',
+//     'Sample guess entered value 3',
+//   ]
+// )
+
+// State For Results
+// setResultsState(
+//   [
+//     'Sample value of input1',
+//     'Sample value of input2',
+//     'Sample value of input3',
+//   ],
+//   [
+//     'Sample guess entered value 1',
+//     'Sample guess entered value 2',
+//     'Sample guess entered value 3',
+//   ]
+// )
+
+// Set error state, here is an example below to set an error state
+// based on the input ID
+// setErrorState('prompt1')

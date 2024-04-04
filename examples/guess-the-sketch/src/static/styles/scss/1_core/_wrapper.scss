@@ -15,12 +15,11 @@
 .wrapper {
   @include container(var(--wrapper-width));
   padding-block: var(--spacing-4);
-  min-height: 100vh;
 
   &-center {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   &-narrow {

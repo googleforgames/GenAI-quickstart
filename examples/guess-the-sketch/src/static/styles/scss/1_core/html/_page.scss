@@ -3,6 +3,7 @@
 // ================================== //
 
 * {
+  @extend %font-smoothing;
   box-sizing: border-box; // establishes border-box model for all elements
   -webkit-tap-highlight-color: rgb(0 0 0 / 0%); // Remove default tappable touch color in iOS
   word-wrap: normal;
