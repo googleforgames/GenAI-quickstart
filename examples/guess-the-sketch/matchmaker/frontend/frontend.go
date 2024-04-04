@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/googollee/go-socket.io"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -48,11 +49,11 @@ func main() {
 	})
 
 	server.OnError("/", func(s socketio.Conn, e error) {
-			fmt.Println("error:", e)
+		fmt.Println("error:", e)
 	})
 
 	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
-			fmt.Println("closed", reason)
+		fmt.Println("closed", reason)
 	})
 
 	go server.Serve()
@@ -95,7 +96,7 @@ func matchmake(s socketio.Conn) {
 			return
 		case assigment := <-assignments:
 			log.Println("assigment.Connection:", assigment.Connection)
-			s.Emit("MatchMakeResponse", MatchMakeResponse{Connection: assigment.Connection}, localAddr)
+			s.Emit("MatchMakeResponse", MatchMakeResponse{Connection: assigment.Connection}, uuid.NewString(), localAddr)
 		}
 	}
 }

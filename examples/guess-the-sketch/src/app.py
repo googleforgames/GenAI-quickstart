@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from swagger_client.rest import ApiException
 import time
 import logging  # Import the logging module
@@ -50,7 +50,7 @@ player_guess = {}
 # The set to store the players who have clicked the "New Game" button
 dropped_players = set()
 
-logging.basicConfig(level=logging.INFO)  # Set to logging.DEBUG for more verbose logs 
+logging.basicConfig(level=logging.DEBUG)  # Set to logging.INFO for less verbose logs
 logger = logging.getLogger(__name__)  # Get a logger for your application
 
 headers = {"Content-Type": "application/json"}
@@ -77,7 +77,7 @@ def agones_health():
     while True:
         try:
             api_response = agones.health(body)
-            logger.debug('health check reponse: %s', api_response)
+            # logger.debug('health check reponse: %s', api_response)
             time.sleep(2)
         except ApiException as exc:
             logger.error('health check failed: %s', exc)
@@ -94,11 +94,19 @@ def index():
 game_round = 3
 embedding_endpoint = 'http://embeddings-api'
 
+sid_to_player_id = {}
+
+@socketio.on('syncSession')
+def handle_sync_session(player_id):
+    logger.debug('Player %s: Received syncSession from sid %s', player_id, request.sid)
+    sid_to_player_id[request.sid] = player_id
+    join_room(player_id)
+
 # When player click "New Game" button
 @socketio.on('playAgain')
 def handle_message(data):
-    player_id = request.sid
-    logger.debug('Received playAgain from player %s', player_id)
+    player_id = sid_to_player_id[request.sid]
+    logger.debug('Player: %s: Received playAgain', player_id)
     dropped_players.add(player_id)
     emit('frontend_url', {'frontendURL': frontend_url}, room=player_id)
     # If both players have clicked the "New Game" button, shutdown the gameserver
@@ -108,12 +116,12 @@ def handle_message(data):
 # When player submit the guess
 @socketio.on('guess')
 def handle_message(data):
-    player_id = request.sid
+    player_id = sid_to_player_id[request.sid]
     message = data['message']
     oppontent_id = data['opponentId']
     round = int(data['round'])
 
-    logger.debug('Received guess %s from player %s for oppontent %s: %s', str(round), player_id, oppontent_id, message)
+    logger.debug('Player %s: Received guess %s for opponent %s: %s', player_id, str(round), oppontent_id, message)
 
     # Generate and store the picture for the guess
     guess_payload = {
@@ -131,7 +139,7 @@ def handle_message(data):
         while player_prompt[oppontent_id][next_round]['picture'] is None:
             time.sleep(0.1)
         emit('guess_sketch_response', {'image': player_prompt[oppontent_id][next_round]['picture'], 'prompt': player_prompt[oppontent_id][next_round]['prompt'], 'opponentId': oppontent_id, 'round': next_round}, room=player_id)
-        logger.debug('Sent image %s to %s', str(next_round), player_id)
+        logger.debug('Player %s: Sent image %s', player_id, str(next_round))
 
     # Store the guess
     if player_guess.get(player_id) is None:
@@ -162,10 +170,10 @@ def handle_message(data):
 # When player submit the prompt for generating Sketch
 @socketio.on('prompt')
 def handle_message(data):
-    player_id = request.sid
+    player_id = sid_to_player_id[request.sid]
     message = data['message']
     round = int(data['round'])
-    logger.debug('Received prompt %s from player %s: %s', str(round), player_id, message)
+    logger.debug('Player %s: Received prompt %s: %s', player_id, str(round), message)
 
     # Generate and store the picture for the prompt\
     picture_generate_payload = {
@@ -193,6 +201,7 @@ def handle_message(data):
     # The first picture page should be displayed only if the picture is generated
     if round != game_round:
         return
+    logger.debug('Player %s: All prompts received', player_id)
     while len(player_prompt) != 2:
         time.sleep(0.1)
     for player in player_prompt:

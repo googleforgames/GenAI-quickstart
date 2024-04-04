@@ -16,6 +16,13 @@ const guessesHeader = guesses?.querySelector('.guesses__header')
 const results = document?.getElementById('results')
 const playAgainBtn = document?.getElementById('playAgain')
 
+// get playerId
+const searchParams = new URLSearchParams(window.location.search)
+const playerId = searchParams.get('playerId')
+console.log("playerId = %s", playerId)
+
+socket.emit('syncSession', playerId) // TODO: Sync state back here?
+
 // disable prompt form, set classes and attributes
 const disablePrompt = (form, value) => {
   const inputField = form.querySelector('input[type="text"]')
