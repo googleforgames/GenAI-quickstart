@@ -41,15 +41,6 @@ PORT=os.environ.get("AGONES_SDK_HTTP_PORT","9358")
 conf = Agones.Configuration()
 conf.host = "http://localhost:"+PORT
 
-# The nested dictionary to store the prompts and pictures for each round of each player
-# The outer dictionary is indexed by the player id, and the inner dictionary is indexed by the round number
-player_prompt = {}
-# The nested dictionary to store the guesses and pictures for each round of each player
-# The outer dictionary is indexed by the player id, and the inner dictionary is indexed by the round number
-player_guess = {}
-# The set to store the players who have clicked the "New Game" button
-dropped_players = set()
-
 logging.basicConfig(level=logging.DEBUG)  # Set to logging.INFO for less verbose logs
 logger = logging.getLogger(__name__)  # Get a logger for your application
 
@@ -87,20 +78,83 @@ health_thread.start()
 
 @app.route('/')
 def index():
-    global frontend_url
-    frontend_url = request.args.get('originalIP')
     return render_template('index.html')
 
 game_round = 3
 embedding_endpoint = 'http://embeddings-api'
-
+# The nested dictionary to store the prompts and pictures for each round of each player
+# The outer dictionary is indexed by the player id, and the inner dictionary is indexed by the round number
+player_prompt = {}
+# The nested dictionary to store the guesses and pictures for each round of each player
+# The outer dictionary is indexed by the player id, and the inner dictionary is indexed by the round number
+player_guess = {}
+# The set to store the players who have clicked the "New Game" button or disconnected for more than 30 seconds
+dropped_players = set()
+# The set to store the players who was assigned to the gameserver
+connected_players = set()
+# The set to store the assigned players who were disconnected
+disconnected_players = set()
 sid_to_player_id = {}
 
 @socketio.on('syncSession')
-def handle_sync_session(player_id):
+def handle_sync_session(data):
+    player_id = data['playerId']
     logger.debug('Player %s: Received syncSession from sid %s', player_id, request.sid)
-    sid_to_player_id[request.sid] = player_id
-    join_room(player_id)
+    if player_id in connected_players:
+        # A known player reconnected, remove it from disconnected_player set if it's in
+        disconnected_players.discard(player_id)
+        # Reset the socket id for the player
+        sid_to_player_id[request.sid] = player_id
+        join_room(player_id)
+    else:
+        # New player
+        if len(connected_players) == 2:
+            logger.debug("too many players on this server, redirecting to frontend")
+            emit('redirect', room=player_id)
+        else:
+            logger.debug('Player %s added into connected_players', player_id)
+            connected_players.add(player_id)
+            sid_to_player_id[request.sid] = player_id
+            join_room(player_id)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    player_id = sid_to_player_id[request.sid]
+    if player_id == None:
+        return
+    logger.debug('Player %s disconnected', player_id)
+    if player_id in connected_players:
+        # We know this player, add it to disconnected_player set for future check
+        disconnected_players.add(player_id)
+        check_connection_thread = threading.Thread(target=check_connection, args=(player_id,))
+        logger.debug('Starting check_connection_thread for player %s', player_id)
+        check_connection_thread.start()
+
+def check_connection(player_id):
+    logger.debug('Checking connection for player %s', player_id)
+    start_time = time.time()  # Get the current time
+    end_time = start_time + 30  # Calculate 30 seconds into the future
+    while time.time() < end_time:
+        if player_id not in disconnected_players:
+            # player reconnected, return
+            logger.debug('Player %s reconnected', player_id)
+            return
+        time.sleep(1)
+    # player did not reconnect within 30s, add it into dropped_player set
+    dropped_players.add(player_id)
+    if len(dropped_players) == 2:
+        logger.debug('Both players have dropped, shutdown the gameserver')
+        # Both players have dropped, shutdown the gameserver
+        agones.shutdown(body)
+
+@socketio.on('exitGame')
+def handle_message(data):
+    player_id = sid_to_player_id[request.sid]
+    logger.debug('Player %s: Received exitGame', player_id)
+    dropped_players.add(player_id)
+    # If both players have dropped, shutdown the gameserver
+    if len(dropped_players) == 2:
+        agones.shutdown(body)
 
 # When player click "New Game" button
 @socketio.on('playAgain')
@@ -108,8 +162,7 @@ def handle_message(data):
     player_id = sid_to_player_id[request.sid]
     logger.debug('Player: %s: Received playAgain', player_id)
     dropped_players.add(player_id)
-    emit('frontend_url', {'frontendURL': frontend_url}, room=player_id)
-    # If both players have clicked the "New Game" button, shutdown the gameserver
+    # If both players have dropped, shutdown the gameserver
     if len(dropped_players) == 2:
         agones.shutdown(body)
 

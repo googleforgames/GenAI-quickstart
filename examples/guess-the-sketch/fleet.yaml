@@ -17,7 +17,7 @@ kind: Fleet
 metadata:
   name: guess-the-sketch-app
 spec:
-  replicas: 2
+  replicas: 10
   template:
     spec:
       health:
@@ -39,3 +39,16 @@ spec:
                 limits:
                   memory: 256Mi
                   cpu: 80m
+---
+apiVersion: "autoscaling.agones.dev/v1"
+kind: FleetAutoscaler
+metadata:
+  name: fleet-autoscaler-guess-the-sketch-app
+spec:
+  fleetName: guess-the-sketch-app
+  policy:
+    type: Buffer
+    buffer:
+      bufferSize: 5
+      minReplicas: 10
+      maxReplicas: 15
