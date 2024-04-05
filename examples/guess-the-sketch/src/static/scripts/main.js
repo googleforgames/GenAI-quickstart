@@ -1,13 +1,15 @@
 const socket = io()
 // global
 const pageHero = document?.querySelector('.hero')
+const pageHeroPlayer = pageHero.querySelector('.player-tag')
 const exitBtn = document?.getElementById('exitGame')
 const startGameBtn = document?.getElementById('startGame')
 const loaderContainer = document?.querySelector('.loader-container')
 // prompts vars
 const prompts = document?.getElementById('prompts')
+const promptsPreCompiled = document?.getElementById('promptsPreCompiled')
 const promptsForms = prompts?.querySelectorAll('form')
-const promptsHeader = prompts?.querySelector('.prompts__header')
+const promptsPreCompiledForms = promptsPreCompiled.querySelectorAll('form')
 // guesses vars
 const guesses = document?.getElementById('guesses')
 const guessesForms = guesses?.querySelectorAll('form')
@@ -29,7 +31,7 @@ socket.emit('syncSession', {playerId: playerId, frontendURL: frontendURL}) // TO
 
 // disable prompt form, set classes and attributes
 const disablePrompt = (form, value) => {
-  const inputField = form.querySelector('input[type="text"]')
+  const inputField = form?.querySelector('input[type="text"]')
   const submitBtn = form.querySelector('button[type="submit"]')
   const captionNote = form.querySelector('.prompts__caption-note')
 
@@ -85,28 +87,47 @@ const enableNextPrompt = (nextEl) => {
   nextCaptionNote?.classList.remove('hidden')
 }
 
+// look for radio value and check it
+const checkRadioValue = (form, value) => {
+  form.querySelectorAll('input[type="radio"]').forEach((radio) => {
+    if (radio.value == value) {
+      radio.setAttribute('checked', '')
+    } else {
+      radio.removeAttribute('checked')
+    }
+  })
+}
+
 // set loading state for prompt when completed
 const setLoadingStatePrompt = (text) => {
   // Set loading state
-  document.querySelector('body').classList.add('prompts-submitted')
-  prompts.classList.add('hidden')
-  pageHero.classList.add('hidden')
+  document.querySelector('body').classList.add('loading')
+  prompts?.classList.add('hidden')
+  promptsPreCompiled?.classList.add('hidden')
+  exitBtn.classList.add('hidden')
+  pageHeroPlayer.classList.add('hidden')
+  loaderContainer.classList.add('loader-container--prompt')
   loaderContainer.querySelector('p').innerHTML = text
   loaderContainer.classList.remove('hidden')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // set loading state for when guesses are completed
 const setLoadingStateGuesses = (text) => {
   // set loading state
-  document.querySelector('body').classList.add('guesses-submitted')
+  document.querySelector('body').classList.add('loading')
   guesses.classList.add('hidden')
-  pageHero.classList.add('hidden')
+  exitBtn.classList.add('hidden')
+  pageHeroPlayer.classList.add('hidden')
   loaderContainer.querySelector('p').innerHTML = text
+  loaderContainer.classList.add('loader-container--guesses')
   loaderContainer.classList.remove('hidden')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 // set state for prompt 1
 const setPromptState1 = (values) => {
+  // if free form prompt
   if (promptsForms?.length > 0) {
     const prompt1 = promptsForms[0]
     const inputField = prompt1.querySelector('input[type="text"]')
@@ -119,10 +140,22 @@ const setPromptState1 = (values) => {
     // enable next state
     enableNextPrompt(nextEl)
   }
+
+  // if pre-compiled prompts
+  if (promptsPreCompiledForms.length > 0) {
+    const form = promptsPreCompiledForms[0]
+    const nextEl = form.nextElementSibling
+
+    form.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(form, values[0])
+    nextEl.classList.remove('hidden')
+  }
 }
 
 // set state for prompt 2
 const setPromptState2 = (values) => {
+  // if free form prompt
   if (promptsForms?.length > 0) {
     const prompt1 = promptsForms[0]
     const prompt2 = promptsForms[1]
@@ -137,6 +170,25 @@ const setPromptState2 = (values) => {
     disablePrompt(prompt2, values[1])
     // enable next state
     enableNextPrompt(nextEl)
+  }
+
+  // if pre-compiled prompts
+  // if pre-compiled prompts
+  if (promptsPreCompiledForms.length > 0) {
+    const prompt1 = promptsPreCompiledForms[0]
+    const prompt2 = promptsPreCompiledForms[1]
+    const nextEl = prompt2.nextElementSibling
+
+    // hide prompt1 form
+    prompt1.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(prompt1, values[0])
+    // hide prompt2 form
+    prompt2.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(prompt2, values[1])
+    // enable next state
+    nextEl.classList.remove('hidden')
   }
 }
 
@@ -155,6 +207,28 @@ const setPromptState3 = (values) => {
     // add third state
     disablePrompt(prompt3, values[2])
 
+    // Set loading state
+    setLoadingStatePrompt('Waiting for other players to finish...')
+  }
+
+  // if pre-compiled prompts
+  if (promptsPreCompiledForms.length > 0) {
+    const prompt1 = promptsPreCompiledForms[0]
+    const prompt2 = promptsPreCompiledForms[1]
+    const prompt3 = promptsPreCompiledForms[2]
+
+    // hide prompt1 form
+    prompt1.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(prompt1, values[0])
+    // hide prompt2 form
+    prompt2.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(prompt2, values[1])
+    // hide prompt3 form
+    prompt3.classList.add('hidden')
+    // set correct radio value
+    checkRadioValue(prompt3, values[2])
     // Set loading state
     setLoadingStatePrompt('Waiting for other players to finish...')
   }
@@ -244,6 +318,7 @@ const setResultsState = (promptsEntered, guessesEntered) => {
   results.classList.remove('hidden')
 }
 
+// set Error state based on input id
 const setErrorState = (inputForm) => {
   inputForm.classList.add('error')
   inputForm.querySelector('.error-message').classList.remove('hidden')
@@ -393,10 +468,13 @@ if (guessesForms?.length > 0) {
 }
 
 socket.on('guess_sketch_response', (data) => {
-  document.querySelector('body').classList.remove('prompts-submitted')
+  document.querySelector('body').classList.remove('loading')
   loaderContainer.classList.add('hidden')
-  pageHero.classList.remove('hidden')
+  loaderContainer.classList.remove('loader-container--prompt')
+  exitBtn.classList.remove('hidden')
+  pageHeroPlayer.classList.remove('hidden')
   guesses.classList.remove('hidden')
+
   document.getElementById('opponentId').textContent = data.opponentId;
   document.getElementById('round').textContent = data.round;
   const formId = 'guess' + data.round;
@@ -425,44 +503,62 @@ socket.on('guess_sketch_response', (data) => {
 
 socket.on('prompt_response', (data) => {
   const promptForm = document.getElementById('caption' + data.round);
-  if (data.image === "") {
-    // Failed to generate image, show error message and re-enable form input
-    const inputField = promptForm.querySelector('input[type="text"]')
-    const submitBtn = promptForm.querySelector('button[type="submit"]')
-    const captionNote = promptForm.querySelector('.prompts__caption-note')
-
-    promptForm.removeAttribute('disabled')
-    inputField.removeAttribute('disabled')
-    submitBtn.removeAttribute('disabled')
-    captionNote?.classList.remove('hidden')
-
-    // Set error state
-    setErrorState(promptForm)
-  } else {
-    // First handle the prompt form state transfer
-    promptForm.classList.add('submitted');
-    const nextEl = promptForm.nextElementSibling  
-    // If next for is not submitted, remove disable
-    if (nextEl !== null && !nextEl.classList.contains('submitted')) {
-      enableNextPrompt(nextEl)
+  const limitedPrompts = document.getElementById('limitedPrompts').textContent;
+  if (limitedPrompts === 'false') {
+    if (data.image === "") {
+      // Failed to generate image, show error message and re-enable form input
+      const inputField = promptForm.querySelector('input[type="text"]')
+      const submitBtn = promptForm.querySelector('button[type="submit"]')
+      const captionNote = promptForm.querySelector('.prompts__caption-note')
+  
+      promptForm.removeAttribute('disabled')
+      inputField.removeAttribute('disabled')
+      submitBtn.removeAttribute('disabled')
+      captionNote?.classList.remove('hidden')
+  
+      // Set error state
+      setErrorState(promptForm.closest('.prompts__caption'))
     } else {
-      setLoadingStatePrompt('Waiting for other players to finish...')
+      // First handle the prompt form state transfer
+      promptForm.classList.add('submitted');
+      const nextEl = promptForm.nextElementSibling  
+      // If next for is not submitted, remove disable
+      if (nextEl !== null && !nextEl.classList.contains('submitted')) {
+        enableNextPrompt(nextEl)
+      } else {
+        setLoadingStatePrompt('Waiting for other players to finish...')
+      }
+  
+      // Then store the prompt image
+      const promptDivId = 'currentPlayerPrompt' + data.round;
+      const promptImgDivId = 'currentPlayerPromptImg' + data.round;
+      const promptDiv = document.getElementById(promptDivId);
+      const promptImgDiv = document.getElementById(promptImgDivId);
+  
+      promptDiv.textContent = data.prompt;
+      promptImgDiv.style.width = 'auto';  // Example - adjust as needed
+      promptImgDiv.style.height = 'auto';  // Optionally maintain aspect ratio
+      promptImgDiv.style.margin = '0 auto';  // Center the image
+      promptImgDiv.src = 'data:image/jpeg;base64,' + data.image;
+      if (data.round === 3) {
+        document.getElementById('getAllMyPrompts').value = 'true';
+      }
     }
-
-    // Then store the prompt image
-    const promptDivId = 'currentPlayerPrompt' + data.round;
-    const promptImgDivId = 'currentPlayerPromptImg' + data.round;
-    const promptDiv = document.getElementById(promptDivId);
-    const promptImgDiv = document.getElementById(promptImgDivId);
-
-    promptDiv.textContent = data.prompt;
-    promptImgDiv.style.width = 'auto';  // Example - adjust as needed
-    promptImgDiv.style.height = 'auto';  // Optionally maintain aspect ratio
-    promptImgDiv.style.margin = '0 auto';  // Center the image
-    promptImgDiv.src = 'data:image/jpeg;base64,' + data.image;
-    if (data.round === 3) {
-      document.getElementById('getAllMyPrompts').value = 'true';
-    }
+  } else {
+      // Then store the prompt image
+      const promptDivId = 'currentPlayerPrompt' + data.round;
+      const promptImgDivId = 'currentPlayerPromptImg' + data.round;
+      const promptDiv = document.getElementById(promptDivId);
+      const promptImgDiv = document.getElementById(promptImgDivId);
+  
+      promptDiv.textContent = data.prompt;
+      promptImgDiv.style.width = 'auto';  // Example - adjust as needed
+      promptImgDiv.style.height = 'auto';  // Optionally maintain aspect ratio
+      promptImgDiv.style.margin = '0 auto';  // Center the image
+      promptImgDiv.src = 'data:image/jpeg;base64,' + data.image;
+      if (data.round === 3) {
+        document.getElementById('getAllMyPrompts').value = 'true';
+      }
   }
 });
 
@@ -489,23 +585,31 @@ socket.on('guess_response', (data) => {
   }
 
   guessParagraphDiv.textContent = data.guess;
-  guessImgDiv.style.width = 'auto';  // Example - adjust as needed
-  guessImgDiv.style.height = 'auto';  // Optionally maintain aspect ratio
   guessImgDiv.style.margin = '0 auto';  // Center the image
-  guessImgDiv.src = 'data:image/jpeg;base64,' + data.image;
+  const limitedPrompts = document.getElementById('limitedPrompts').textContent;
+  if (limitedPrompts === 'true') {
+    guessImgDiv.style.width = '450px';  // Example - adjust as needed
+    guessImgDiv.style.height = '200px';  // Optionally maintain aspect ratio
+    guessImgDiv.src = '/static/imgs/logo.svg';
+  } else {
+    guessImgDiv.style.width = 'auto';  // Example - adjust as needed
+    guessImgDiv.style.height = 'auto';  // Optionally maintain aspect ratio
+    guessImgDiv.src = 'data:image/jpeg;base64,' + data.image;
+  }
 });
 
 socket.on('guess_image_generation_response', (data) => {
   const guessFormId = 'guess' + data.round;
-  const guessFrom = document.getElementById(guessFormId);
+  const guessForm = document.getElementById(guessFormId);
+  const guessInputForm = document.getElementById('guesses__input' + data.round);
   if (data.response === "failure") {
     // Set error state
-    setErrorState(guessFrom)
+    setErrorState(guessInputForm.closest('.guesses__input'))
     // Enable the form to allow re-submission
-    enableGuess(guessFrom)
+    enableGuess(guessForm)
   } else {
-    guessFrom.classList.add('hidden');
-    const nextEl = guessFrom.nextElementSibling
+    guessForm.classList.add('hidden');
+    const nextEl = guessForm.nextElementSibling
     if (nextEl !== null && nextEl.classList.contains('hidden')) {
       nextEl.classList.remove('hidden')
     } else {
@@ -533,12 +637,15 @@ socket.on('guess_image_generation_response', (data) => {
             document.getElementById('currentPlayerResultsText').textContent = 'It\'s a tie!';
           }
 
-          document.querySelector('body').classList.remove('guesses-submitted')
+          document.querySelector('body').classList.remove('loading')
           document.querySelector('body').classList.add('has-results')
           loaderContainer.classList.add('hidden')
-          pageHero.classList.remove('hidden')
+          loaderContainer.classList.remove('loader-container--guesses')
+          exitBtn.classList.remove('hidden')
+          pageHeroPlayer.classList.remove('hidden')
+          pageHeroPlayer.style.transition = 'none'
           results.classList.remove('hidden')
-          
+
           clearInterval(intervalId)
         }
       }
@@ -592,21 +699,95 @@ socket.on('redirect', (data) => {
   window.location.href = "http://" + frontendURL; 
 });
 
+socket.on('limited_prompts', (data) => {
+  if (data.limited === true) {
+    const radioGrpSets = promptsPreCompiled.querySelectorAll(
+      '.prompts__caption-radio-group'
+    )
+  
+    switch (data.prompts_set) {
+      case 1:
+        // show firstset for prompts
+        radioGrpSets.forEach((radioGrp) => {
+          const radioInputsChecked = radioGrp.querySelectorAll('.prompts__caption-radio-input:checked')
+          if(radioGrp.getAttribute('id').indexOf('Set1') !== -1) {
+            radioGrp.classList.remove('hidden')
+            if(radioInputsChecked?.length == 0) {
+              radioGrp.querySelectorAll('.prompts__caption-radio-input')[0].setAttribute('checked', '')
+            }
+          } else {
+            radioGrp.classList.add('hidden')
+            radioGrp.querySelector('.prompts__caption-radio-input').removeAttribute('checked')
+          }
+        })
+        break;
+      case 2:
+        // show second set for prompts
+        radioGrpSets.forEach((radioGrp) => {
+          const radioInputsChecked = radioGrp.querySelectorAll('.prompts__caption-radio-input:checked')
+          if(radioGrp.getAttribute('id').indexOf('Set2') !== -1) {
+            radioGrp.classList.remove('hidden')
+            if(radioInputsChecked?.length == 0) {
+              radioGrp.querySelectorAll('.prompts__caption-radio-input')[0].setAttribute('checked', '')
+            }
+          } else {
+            radioGrp.classList.add('hidden')
+            radioGrp.querySelector('.prompts__caption-radio-input').removeAttribute('checked')
+          }
+        })
+        break;
+      default:
+        break;
+    }
+    document.getElementById('limitedPrompts').textContent = "true";
+    promptsPreCompiled.classList.remove('hidden')
+  } else {
+    document.getElementById('limitedPrompts').textContent = "false";
+    prompts.classList.remove('hidden')
+  }
+});
+
+// If promptsPreCompiled exists, run submit event for each
+if (promptsPreCompiledForms?.length > 0) {  
+  promptsPreCompiledForms.forEach((form, index) => {
+    // form submit event
+    form?.addEventListener('submit', (e) => {
+      const nextEl = form.nextElementSibling
+      const value = form.querySelector('input[type="radio"]:checked').value
+      e.preventDefault()
+      // set current to hidden and show next form
+      e.target.classList.add('hidden')
+      // emit socket message
+      socket.emit('prompt', { message: value, round: index + 1 })
+      // if next element is hidden, show it
+      // else show loading state
+      if (nextEl !== null && nextEl.classList.contains('hidden')) {
+        nextEl.classList.remove('hidden')
+      } else {
+        // set loading state
+        setLoadingStatePrompt('Generating and waiting for other players to finish...')
+      }
+    })
+  })
+}
+
 // REFRESH STATES //
 // Note: replace sample strings with values already submitted
 
 // State For One Prompt Entered
-// setPromptState1(['Sample value of input1'])
+// setPromptState1(['rollerskater in action'])
 
 // State For Two Prompts Entered
-// setPromptState2(['Sample value of input1', 'Sample value of input2'])
+// setPromptState2([
+//   'serene yoga poses in natural settings',
+//   'dark forest with ancient, towering trees. Capture the mysterious atmosphere with twisted branches casting eerie shadows on the forest floor',
+// ])
 
 // State For Three Prompts Entered
 // setPromptState3([
-//   'Sample value of input1',
-//   'Sample value of input 2',
-//   'Sample value of input 3',
-// ])
+  //   'rollerskater in action',
+  //   'portrait image showcasing a person’s expressions, features, and emotions in a close-up shot',
+  //   '
 
 // State For One Guess Entered
 // setGuessState1(

@@ -25,10 +25,16 @@ limitations under the License.
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta http-equiv="cleartype" content="on" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="shortcut icon" href="/static/favicon.io" />
     <link rel="stylesheet" href="/static/styles/styles.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
@@ -44,6 +50,7 @@ limitations under the License.
       <div style="display: none;" id="getAllOpponentScores"></div>
       <div style="display: none;" id="myTotalScore"></div>
       <div style="display: none;" id="opponentTotalScore"></div>
+      <div style="display: none;" id="limitedPrompts"></div>
 
       <section class="wrapper wrapper-center">
         <!-- hero -->
@@ -52,14 +59,18 @@ limitations under the License.
             Exit game
             <img src="/static/imgs/exit.svg" alt="exit icon" />
           </a>
-          <img class="hero__logo" src="/static/imgs/logo.svg" alt="Guess the sketch graphic" />
+          <img
+            class="hero__logo"
+            src="/static/imgs/logo.svg"
+            alt="Guess the sketch graphic"
+          />
           <div class="player-tag">
             <p id="currentPlayerResultsText">You Win!</p>
             <span>Player 1</span>
           </div>
         </div>
-        <!-- prompts -->
-        <div class="prompts" id="prompts">
+        <!-- Prompts free form -->
+        <div class="prompts prompts--free-form hidden" id="prompts">
           <div class="prompts__header">
             <span>Step 1:</span>
             <p>Use prompts to create your own AI sketches</p>
@@ -70,17 +81,38 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt1" type="text" placeholder="cute baby pig sitting on sandy beach at sunset" required />
-              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+              <input
+                id="prompt1"
+                type="text"
+                placeholder="cute pig sitting on sandy beach at sunset"
+                required
+              />
+              <p class="error-message hidden">
+                The prompt could not be submitted because it contains one or
+                more words that violate Google's Responsible AI practices. Try
+                rephrasing the prompt.
+              </p>
             </div>
             <div class="prompts__caption-submit">
               <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
                 </svg>
               </button>
             </div>
-            <p class="prompts__caption-note">Note: Once you submit the prompt it can no longer be edited.</p>
+            <p class="prompts__caption-note">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
           </form>
           <form class="prompts__caption" id="caption2" disabled>
             <div class="prompts__caption-input">
@@ -88,17 +120,39 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt2" type="text" placeholder="five cinnamon and cream donuts in slow-motion descent" required disabled />
-              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+              <input
+                id="prompt2"
+                type="text"
+                placeholder="five cinnamon and cream donuts in slow-motion descent"
+                required
+                disabled
+              />
+              <p class="error-message hidden">
+                The prompt could not be submitted because it contains one or
+                more words that violate Google's Responsible AI practices. Try
+                rephrasing the prompt.
+              </p>
             </div>
             <div class="prompts__caption-submit">
               <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
                 </svg>
               </button>
             </div>
-            <p class="prompts__caption-note hidden">Note: Once you submit the prompt it can no longer be edited.</p>
+            <p class="prompts__caption-note hidden">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
           </form>
           <form class="prompts__caption" id="caption3" disabled>
             <div class="prompts__caption-input">
@@ -106,17 +160,313 @@ limitations under the License.
               <button type="button" id="keyboard">
                 <img src="/static/imgs/keyboard-icon--green.png" alt="keyboard" />
               </button>
-              <input id="prompt3" type="text" placeholder="cute baby pig sitting on sandy beach at sunset" required disabled />
-              <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+              <input
+                id="prompt3"
+                type="text"
+                placeholder="cute baby pig sitting on sandy beach at sunset"
+                required
+                disabled
+              />
+              <p class="error-message hidden">
+                The prompt could not be submitted because it contains one or
+                more words that violate Google's Responsible AI practices. Try
+                rephrasing the prompt.
+              </p>
             </div>
-            <div class="prompts__caption-submit" >
+            <div class="prompts__caption-submit">
               <button type="submit" aria-label="Submit" class="button" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
                 </svg>
               </button>
             </div>
-            <p class="prompts__caption-note hidden">Note: Once you submit the prompt it can no longer be edited.</p>
+            <p class="prompts__caption-note hidden">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
+          </form>
+        </div>
+
+        <!-- Prompts pre compiled -->
+        <div class="prompts prompts--pre-compiled hidden" id="promptsPreCompiled">
+          <div class="prompts__header">
+            <span>Step 1:</span>
+            <p>Use prompts to create your own AI sketches</p>
+          </div>
+          <form class="prompts__caption prompts__caption--radio" id="caption1">
+            <div class="prompts__caption-label">1st prompt</div>
+            <!-- Set one -->
+            <div
+              role="radiogroup"
+              class="prompts__caption-radio-group"
+              id="prompt1Set1"
+            >
+              <label class="prompts__caption-radio-label"
+                >sunsets casting a warm glow on pyramids<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  checked
+                  name="prompt1"
+                  value="sunsets casting a warm glow on pyramids"
+              /></label>
+              <label class="prompts__caption-radio-label"
+                >rollerskater in action<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt1"
+                  value="rollerskater in action"
+              /></label>
+              <label class="prompts__caption-radio-label"
+                >executive team in a strategic retreat setting, fostering a
+                sense of unity and vision<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt1"
+                  value="executive team in a strategic retreat setting, fostering a sense of unity and vision"
+              /></label>
+            </div>
+            <!-- Set two -->
+            <div
+              role="radiogroup"
+              class="prompts__caption-radio-group hidden"
+              id="prompt1Set2"
+            >
+              <label class="prompts__caption-radio-label">
+                students actively participating in a charity race
+                <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt1"
+                  checked
+                  value="students actively participating in a charity race"
+              /></label>
+              <label class="prompts__caption-radio-label"
+                >serene yoga poses in natural settings<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt1"
+                  value="serene yoga poses in natural settings"
+              /></label>
+              <label class="prompts__caption-radio-label"
+              >cityscape image featuring a bustling, futuristic metropolis
+              with towering skyscrapers with unique, intricate designs<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt1"
+                  value="cityscape image featuring a bustling, futuristic metropolis with towering skyscrapers with unique, intricate designs"
+              /></label>
+            </div>
+            <div class="prompts__caption-radio-submit">
+              <button type="submit" aria-label="Submit" class="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <p class="guesses__note">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
+          </form>
+          <form
+            class="prompts__caption prompts__caption--radio hidden"
+            id="caption2"
+          >
+            <div class="prompts__caption-label">2nd prompt</div>
+            <div
+              role="radiogroup"
+              class="prompts__caption-radio-group"
+              id="prompt2Set1"
+            >
+            <label class="prompts__caption-radio-label">
+              image bursting with vibrant colors and gradients, forming an
+              abstract and visually striking composition. The colors should
+              blend, conveying a sense of movement and energy
+              <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  checked
+                  name="prompt2"
+                  value="image bursting with vibrant colors and gradients, forming an abstract and visually striking composition. The colors should blend, conveying a sense of movement and energy"
+                  />
+                </label>
+                <label class="prompts__caption-radio-label">
+                  surreal landscape image featuring floating islands, upside-down
+                  mountains, and unconventional flora. Include a dreamlike
+                  quality, pushing the boundaries of reality
+                  <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt2"
+                  value="surreal landscape image featuring floating islands, upside-down mountains, and unconventional flora. Include a dreamlike quality, pushing the boundaries of reality"
+              /></label>
+              <label class="prompts__caption-radio-label"
+                >portrait image showcasing a person's expressions, features, and
+                emotions in a close-up shot
+                <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt2"
+                  value="portrait image showcasing a person's expressions, features, and emotions in a close-up shot"
+              /></label>
+            </div>
+            <div
+              role="radiogroup"
+              class="prompts__caption-radio-group hidden"
+              id="prompt2Set2"
+            >
+              <label class="prompts__caption-radio-label">
+                image featuring celestial bodies in the vastness of space.
+                Include planets, stars, and galaxies to create a captivating
+                cosmic scene
+                <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt2"
+                  value="image featuring celestial bodies in the vastness of space. Include planets, stars, and galaxies to create a captivating cosmic scene"
+                  />
+                </label>
+                <label class="prompts__caption-radio-label">
+                  dark forest with ancient, towering trees. Capture the mysterious
+                  atmosphere with twisted branches casting eerie shadows on the
+                  forest floor<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt2"
+                  value="dark forest with ancient, towering trees. Capture the mysterious atmosphere with twisted branches casting eerie shadows on the forest floor"
+              /></label>
+              <label class="prompts__caption-radio-label">
+                diverse geographical features, including towering mountains,
+                winding rivers, expansive deserts, and lush valleys
+                <input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt2"
+                  value="diverse geographical features, including towering mountains, winding rivers, expansive deserts, and lush valleys"
+                  />
+                </label>
+            </div>
+            <div class="prompts__caption-radio-submit">
+              <button type="submit" aria-label="Submit" class="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <p class="guesses__note">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
+          </form>
+          <form
+            class="prompts__caption prompts__caption--radio hidden"
+            id="caption3"
+          >
+            <div class="prompts__caption-label">3rd prompt</div>
+            <div
+              role="radiogroup"
+              class="prompts__caption-radio-group"
+              id="prompt3Set1"
+            >
+              <label class="prompts__caption-radio-label"
+                >seascape image capturing the beauty of the ocean depths<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  checked
+                  name="prompt3"
+                  value="seascape image capturing the beauty of the ocean depths"
+              /></label>
+              <label class="prompts__caption-radio-label">
+                modern city’s business and commerce scene. Showcase towering
+                skyscrapers, bustling streets filled with professionals<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt3"
+                  value=" modern city’s business and commerce scene. Showcase towering skyscrapers, bustling streets filled with professionals"
+              /></label>
+              <label class="prompts__caption-radio-label"
+                >seascape image capturing the beauty of the ocean depths<input
+                  type="radio"
+                  class="prompts__caption-radio-input"
+                  name="prompt3"
+                  value="seascape image capturing the beauty of the ocean depths"
+              /></label>
+            </div><div
+            role="radiogroup"
+            class="prompts__caption-radio-group hidden"
+            id="prompt3Set2"
+          >
+            <label class="prompts__caption-radio-label"
+              >seascape image capturing the beauty of the ocean depths<input
+                type="radio"
+                class="prompts__caption-radio-input"
+                name="prompt3"
+                checked
+                value="seascape image capturing the beauty of the ocean depths"
+            /></label>
+            <label class="prompts__caption-radio-label"
+              >image capturing the moon landing, featuring a lone astronaut
+              standing on the lunar surface<input
+                type="radio"
+                class="prompts__caption-radio-input"
+                name="prompt3"
+                value="image capturing the moon landing, featuring a lone astronaut standing on the lunar surface"
+            /></label>
+            <label class="prompts__caption-radio-label"
+              >image that encapsulates the essence of Uzbekistan<input
+                type="radio"
+                class="prompts__caption-radio-input"
+                name="prompt3"
+                value="image that encapsulates the essence of Uzbekistan"
+            /></label>
+          </div>
+            <div class="prompts__caption-radio-submit">
+              <button type="submit" aria-label="Submit" class="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </div>
+            <p class="guesses__note">
+              Note: Once you submit the prompt it can no longer be edited.
+            </p>
           </form>
         </div>
         <!-- guesses -->
@@ -131,69 +481,132 @@ limitations under the License.
             <div class="guesses__img">
               <img />
             </div>
-            <div class="guesses__input">
+            <div class="guesses__input" id="guesses__input1">
               <div class="guesses__input-grp">
                 <label for="guessPrompt1">1st prompt</label>
                 <button type="button" id="keyboard">
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt1" type="text" required />
-                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+                <p class="error-message hidden">
+                  The prompt could not be submitted because it contains one or
+                  more words that violate Google's Responsible AI practices. Try
+                  rephrasing the prompt.
+                </p>
               </div>
               <div class="guesses__submit">
-                <button type="submit" aria-label="Submit" class="button" disabled>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <button
+                  type="submit"
+                  aria-label="Submit"
+                  class="button"
+                  disabled
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                      fill="currentColor"
+                    />
                   </svg>
                 </button>
               </div>
-              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
+              <p class="guesses__note">
+                Note: Once you submit the prompt it can no longer be edited.
+              </p>
             </div>
           </form>
           <form id="guess2" class="hidden">
             <div class="guesses__img">
               <img />
             </div>
-            <div class="guesses__input">
+            <div class="guesses__input" id="guesses__input2">
               <div class="guesses__input-grp">
                 <label for="guessPrompt2">2nd prompt</label>
                 <button type="button" id="keyboard">
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt2" type="text" required />
-                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+                <p class="error-message hidden">
+                  The prompt could not be submitted because it contains one or
+                  more words that violate Google's Responsible AI practices. Try
+                  rephrasing the prompt.
+                </p>
               </div>
               <div class="guesses__submit">
-                <button type="submit" aria-label="Submit" class="button" disabled>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <button
+                  type="submit"
+                  aria-label="Submit"
+                  class="button"
+                  disabled
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                      fill="currentColor"
+                    />
                   </svg>
                 </button>
               </div>
-              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
+              <p class="guesses__note">
+                Note: Once you submit the prompt it can no longer be edited.
+              </p>
             </div>
           </form>
           <form id="guess3" class="hidden">
             <div class="guesses__img">
               <img />
             </div>
-            <div class="guesses__input">
+            <div class="guesses__input" id="guesses__input3">
               <div class="guesses__input-grp">
                 <label for="guessPrompt3">3rd prompt</label>
                 <button type="button" id="keyboard">
                   <img src="/static/imgs/keyboard-icon--blue.png" alt="keyboard" />
                 </button>
                 <input id="guessPrompt3" type="text" required />
-                <p class="error-message hidden">The prompt could not be submitted because it contains one or more words that violate Google's Responsible AI practices. Try rephrasing the prompt.</p>
+                <p class="error-message hidden">
+                  The prompt could not be submitted because it contains one or
+                  more words that violate Google's Responsible AI practices. Try
+                  rephrasing the prompt.
+                </p>
               </div>
               <div class="guesses__submit">
-                <button type="submit" aria-label="Submit" class="button" disabled>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z" fill="currentColor"/>
+                <button
+                  type="submit"
+                  aria-label="Submit"
+                  class="button"
+                  disabled
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M19 7V11H6.83L10.41 7.41L9 6L3 12L9 18L10.41 16.59L6.83 13H21V7H19Z"
+                      fill="currentColor"
+                    />
                   </svg>
                 </button>
               </div>
-              <p class="guesses__note">Note: Once you submit the prompt it can no longer be edited.</p>
+              <p class="guesses__note">
+                Note: Once you submit the prompt it can no longer be edited.
+              </p>
             </div>
           </form>
         </div>
@@ -213,15 +626,23 @@ limitations under the License.
                       <span id="currentPlayer">Player 1</span>
                       Prompt
                     </div>
-                    <p id="currentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerPrompt1">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
-                  <img id="currentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="currentPlayerPromptImg1"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-guess">
                     <div class="results__item-player">
                       <span id="opponentPlayer">Player 2</span>
                       Guess
                     </div>
-                    <p id="opponnentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponnentPlayerGuess1">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
@@ -239,19 +660,31 @@ limitations under the License.
                       <span id="currentPlayer">Player 1</span>
                       Prompt
                     </div>
-                    <p id="currentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerPrompt2">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
-                  <img id="currentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="currentPlayerPromptImg2"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-guess">
                     <div class="results__item-player">
                       <span id="opponentPlayer">Player 2</span>
                       Guess
                     </div>
-                    <p id="opponnentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponnentPlayerGuess2">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
-                  <img id="opponnentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="opponnentPlayerGuessImg2"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-match-percentage">
                     <span id="opponnentPlayerGuessPercentage2">25%</span>
                     Match
@@ -265,7 +698,9 @@ limitations under the License.
                       <span id="currentPlayer">Player 1</span>
                       Prompt
                     </div>
-                    <p id="currentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerPrompt3">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                   <img id="currentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
                   <div class="results__item-guess">
@@ -273,11 +708,17 @@ limitations under the License.
                       <span id="opponentPlayer">Player 2</span>
                       Guess
                     </div>
-                    <p id="opponnentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponnentPlayerGuess3">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
-                  <img id="opponnentPlayerGuessImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="opponnentPlayerGuessImg3"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-match-percentage">
                     <span id="opponnentPlayerGuessPercentage3">25%</span>
                     Match
@@ -301,19 +742,31 @@ limitations under the License.
                       <span id="opponentPlayer">Player 2</span>
                       Prompt
                     </div>
-                    <p id="opponentPlayerPrompt1">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponentPlayerPrompt1">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
-                  <img id="opponentPlayerPromptImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="opponentPlayerPromptImg1"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-guess">
                     <div class="results__item-player">
                       <span id="currentPlayer">Player 1</span>
                       Guess
                     </div>
-                    <p id="currentPlayerGuess1">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerGuess1">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
-                  <img id="currentPlayerGuessImg1" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="currentPlayerGuessImg1"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-match-percentage">
                     <span id="currentPlayerGuessPercentage1">25%</span>
                     Match
@@ -327,19 +780,31 @@ limitations under the License.
                       <span id="opponentPlayer">Player 2</span>
                       Prompt
                     </div>
-                    <p id="opponentPlayerPrompt2">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponentPlayerPrompt2">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
-                  <img id="opponentPlayerPromptImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="opponentPlayerPromptImg2"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-guess">
                     <div class="results__item-player">
                       <span id="currentPlayer">Player 1</span>
                       Guess
                     </div>
-                    <p id="currentPlayerGuess2">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerGuess2">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
-                  <img id="currentPlayerGuessImg2" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="currentPlayerGuessImg2"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-match-percentage">
                     <span id="currentPlayerGuessPercentage2">25%</span>
                     Match
@@ -353,15 +818,23 @@ limitations under the License.
                       <span id="opponentPlayer">Player 2</span>
                       Prompt
                     </div>
-                    <p id="opponentPlayerPrompt3">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="opponentPlayerPrompt3">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
-                  <img id="opponentPlayerPromptImg3" src="https://placehold.co/600x400" alt="placeholder" />
+                  <img
+                    id="opponentPlayerPromptImg3"
+                    src="https://placehold.co/600x400"
+                    alt="placeholder"
+                  />
                   <div class="results__item-guess">
                     <div class="results__item-player">
                       <span id="currentPlayer">Player 1</span>
                       Guess
                     </div>
-                    <p id="currentPlayerGuess3">cute baby pig sitting on sandy beach at sunset</p>
+                    <p id="currentPlayerGuess3">
+                      cute pig sitting on sandy beach at sunset
+                    </p>
                   </div>
                 </div>
                 <div class="results__item-match">
@@ -376,9 +849,7 @@ limitations under the License.
           </div>
 
           <!-- New game button -->
-          <a type="button" href="#" id="playAgain" class="button">
-            New Game
-          </a>
+          <a type="button" href="#" id="playAgain" class="button"> New Game </a>
         </div>
         <!-- loader -->
         <div class="loader-container hidden">
@@ -388,9 +859,7 @@ limitations under the License.
             <p>Sketching and waiting for the other player ...</p>
           </div>
           <!-- Reveal what player you are -->
-          <div class="player-tag">
-            You're player 1
-          </div>
+          <div class="player-tag">You're player 1</div>
         </div>
       </section>
       <p class="demo">For demo use purpose only</p>
