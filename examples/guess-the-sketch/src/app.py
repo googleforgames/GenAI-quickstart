@@ -288,7 +288,7 @@ def similarity(p1, p2):
         url = EMBEDDINGS_ENDPOINT,
         headers = {"Content-Type": "application/json"},
         json = {'prompts': [p1, p2], 'model': EMBEDDINGS_MODEL},
-        timeout=0.5,
+        timeout=1,
     )
     resp.raise_for_status()
 
