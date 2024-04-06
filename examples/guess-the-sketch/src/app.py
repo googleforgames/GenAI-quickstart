@@ -113,9 +113,6 @@ def check_connection():
             logger.debug("GameServer status: %s", api_response.status.state)
             now = time.time()
             if api_response.status.state == "Allocated":
-                logger.debug("Checking connection")
-                logger.debug("Connected players: %s", len(connected_players))
-                logger.debug("full_connection_time: %s", full_connection_time)
                 if len(connected_players) != 2:
                     if now - full_connection_time > 60:
                         logger.debug("Not enough players on this server, shutdown the server")
