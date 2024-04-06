@@ -700,12 +700,14 @@ socket.on('redirect', (data) => {
 });
 
 socket.on('limited_prompts', (data) => {
-  if (data.limited === true) {
+  if (data.limited == "true") {
     const radioGrpSets = promptsPreCompiled.querySelectorAll(
       '.prompts__caption-radio-group'
     )
-  
-    switch (data.prompts_set) {
+    const currentPlayerNums = document.getElementsByClassName('currentPlayer'); 
+    const opponentPlayerNums = document.getElementsByClassName('opponentPlayer'); 
+
+    switch (data.player_num) {
       case 1:
         // show firstset for prompts
         radioGrpSets.forEach((radioGrp) => {
@@ -720,6 +722,13 @@ socket.on('limited_prompts', (data) => {
             radioGrp.querySelector('.prompts__caption-radio-input').removeAttribute('checked')
           }
         })
+        for (let i = 0; i < currentPlayerNums.length; i++) {
+            currentPlayerNums[i].textContent = 'Player 1'; 
+        }
+        for (let i = 0; i < opponentPlayerNums.length; i++) {
+          opponentPlayerNums[i].textContent = 'Player 2'; 
+        }
+
         break;
       case 2:
         // show second set for prompts
@@ -735,6 +744,12 @@ socket.on('limited_prompts', (data) => {
             radioGrp.querySelector('.prompts__caption-radio-input').removeAttribute('checked')
           }
         })
+        for (let i = 0; i < currentPlayerNums.length; i++) {
+            currentPlayerNums[i].textContent = 'Player 2'; 
+        }
+        for (let i = 0; i < opponentPlayerNums.length; i++) {
+          opponentPlayerNums[i].textContent = 'Player 1'; 
+        }
         break;
       default:
         break;

@@ -83,7 +83,9 @@ health_thread.start()
 def index():
     return render_template('index.html')
 
-limited_prompts = True
+LIMITED_PROMPTS = os.environ.get("LIMITED_PROMPTS", "false")
+logger.debug('LIMITED_PROMPTS: %s', LIMITED_PROMPTS)
+
 game_round = 3
 embedding_endpoint = 'http://embeddings-api'
 # The nested dictionary to store the prompts and pictures for each round of each player
@@ -111,7 +113,7 @@ def handle_sync_session(data):
         # Reset the socket id for the player
         sid_to_player_id[request.sid] = player_id
         join_room(player_id)
-        emit('limited_prompts', {'limited': limited_prompts, 'prompts_set': player_id_to_promptes_set[player_id]}, room=player_id)
+        emit('limited_prompts', {'limited': LIMITED_PROMPTS, 'player_num': player_id_to_promptes_set[player_id]}, room=player_id)
     else:
         # New player
         if len(connected_players) == 2:
@@ -123,7 +125,7 @@ def handle_sync_session(data):
             sid_to_player_id[request.sid] = player_id
             join_room(player_id)
             player_id_to_promptes_set[player_id] = len(player_id_to_promptes_set) + 1
-            emit('limited_prompts', {'limited': limited_prompts, 'prompts_set': player_id_to_promptes_set[player_id]}, room=player_id)
+            emit('limited_prompts', {'limited': LIMITED_PROMPTS, 'player_num': player_id_to_promptes_set[player_id]}, room=player_id)
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -184,7 +186,7 @@ def handle_message(data):
 
     logger.debug('Player %s: Received guess %s for opponent %s: %s', player_id, str(round), oppontent_id, message)
     encoded_image = "placeholder"
-    if limited_prompts:
+    if LIMITED_PROMPTS:
         pass
     else:
         # Do moderation by generating the image from the guess
@@ -244,7 +246,7 @@ def handle_message(data):
     }
     model_response = requests.post(IMAGE_GENERATION_ENDPOINT, headers=headers, json=picture_generate_payload)
     # Send an empty image to indicate the picture generation failure
-    error_handling = not limited_prompts
+    error_handling = not LIMITED_PROMPTS
     if model_response.content == b'{}':
         emit('prompt_response', {'image': '', 'prompt': message, 'round': round, 'error_handling': error_handling}, room=player_id)
         return
