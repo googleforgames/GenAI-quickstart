@@ -723,7 +723,7 @@ socket.on('limited_prompts', (data) => {
     default:
       break;
   }
-  if (data.limited == "true") {
+  if (data.limited === "true") {
     const radioGrpSets = promptsPreCompiled.querySelectorAll(
       '.prompts__caption-radio-group'
     )
