@@ -98,24 +98,49 @@ player_guess = {}
 dropped_players = set()
 # The set to store the players who was assigned to the gameserver
 connected_players = set()
-# The set to store the assigned players who were disconnected
-disconnected_players = set()
+# The set to store the players who is/was connected
+player_history = set()
 sid_to_player_id = {}
 player_id_to_promptes_set = {}
+time_now = time.time()
+full_connection_time = time_now
+
+def check_connection():
+    while True:
+        global full_connection_time
+        try:
+            # Retrieve the current GameServer data
+            api_response = agones.get_game_server()
+            logger.debug("GameServer status: %s", api_response.status.state)
+            now = time.time()
+            if api_response.status.state == "Allocated":
+                logger.debug("Checking connection")
+                logger.debug("Connected players: %s", len(connected_players))
+                logger.debug("full_connection_time: %s", full_connection_time)
+                if len(connected_players) != 2:
+                    if now - full_connection_time > 15:
+                        logger.debug("Not enough players on this server, shutdown the server")
+                        agones.shutdown(body)
+                else:
+                    full_connection_time = now
+                time.sleep(2)
+            else:
+                time.sleep(5)
+        except ApiException as e:
+            logger.warning("Exception when calling SDKApi->get_game_server: %s\n" % e)
+            time.sleep(5)
+
+check_connection_thread = threading.Thread(target=check_connection)
+check_connection_thread.start()
 
 @socketio.on('syncSession')
 def handle_sync_session(data):
+    global connected_players
     player_id = data['playerId']
     logger.debug('Player %s: Received syncSession from sid %s', player_id, request.sid)
-    if player_id in connected_players:
+    if player_id in player_history:
         # A known player reconnected, i.e. refresh, for simiplicity, we just redirect to start page
         emit('redirect', room=request.sid)
-        # # A known player reconnected, remove it from disconnected_player set if it's in
-        # disconnected_players.discard(player_id)
-        # # Reset the socket id for the player
-        # sid_to_player_id[request.sid] = player_id
-        # join_room(player_id)
-        # emit('limited_prompts', {'limited': LIMITED_PROMPTS, 'player_num': player_id_to_promptes_set[player_id]}, room=player_id)
     else:
         # New player
         if len(connected_players) == 2:
@@ -124,6 +149,7 @@ def handle_sync_session(data):
         else:
             logger.debug('Player %s added into connected_players', player_id)
             connected_players.add(player_id)
+            player_history.add(player_id)
             sid_to_player_id[request.sid] = player_id
             join_room(player_id)
             player_id_to_promptes_set[player_id] = len(player_id_to_promptes_set) + 1
@@ -135,29 +161,7 @@ def handle_disconnect():
     if player_id == None:
         return
     logger.debug('Player %s disconnected', player_id)
-    if player_id in connected_players:
-        # We know this player, add it to disconnected_player set for future check
-        disconnected_players.add(player_id)
-        check_connection_thread = threading.Thread(target=check_connection, args=(player_id,))
-        logger.debug('Starting check_connection_thread for player %s', player_id)
-        check_connection_thread.start()
-
-def check_connection(player_id):
-    logger.debug('Checking connection for player %s', player_id)
-    start_time = time.time()  # Get the current time
-    end_time = start_time + 30  # Calculate 30 seconds into the future
-    while time.time() < end_time:
-        if player_id not in disconnected_players:
-            # player reconnected, return
-            logger.debug('Player %s reconnected', player_id)
-            return
-        time.sleep(1)
-    # player did not reconnect within 30s, add it into dropped_player set
-    dropped_players.add(player_id)
-    if len(dropped_players) == 2:
-        logger.debug('Both players have dropped, shutdown the gameserver')
-        # Both players have dropped, shutdown the gameserver
-        agones.shutdown(body)
+    connected_players.discard(player_id)
 
 @socketio.on('exitGame')
 def handle_message(data):
