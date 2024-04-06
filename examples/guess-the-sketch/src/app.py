@@ -108,12 +108,14 @@ def handle_sync_session(data):
     player_id = data['playerId']
     logger.debug('Player %s: Received syncSession from sid %s', player_id, request.sid)
     if player_id in connected_players:
-        # A known player reconnected, remove it from disconnected_player set if it's in
-        disconnected_players.discard(player_id)
-        # Reset the socket id for the player
-        sid_to_player_id[request.sid] = player_id
-        join_room(player_id)
-        emit('limited_prompts', {'limited': LIMITED_PROMPTS, 'player_num': player_id_to_promptes_set[player_id]}, room=player_id)
+        # A known player reconnected, i.e. refresh, for simiplicity, we just redirect to start page
+        emit('redirect', room=request.sid)
+        # # A known player reconnected, remove it from disconnected_player set if it's in
+        # disconnected_players.discard(player_id)
+        # # Reset the socket id for the player
+        # sid_to_player_id[request.sid] = player_id
+        # join_room(player_id)
+        # emit('limited_prompts', {'limited': LIMITED_PROMPTS, 'player_num': player_id_to_promptes_set[player_id]}, room=player_id)
     else:
         # New player
         if len(connected_players) == 2:
@@ -186,10 +188,12 @@ def handle_message(data):
 
     logger.debug('Player %s: Received guess %s for opponent %s: %s', player_id, str(round), oppontent_id, message)
     encoded_image = "placeholder"
-    if LIMITED_PROMPTS:
+    if LIMITED_PROMPTS == "true":
+        logger.info("I'm here instead")
         pass
     else:
         # Do moderation by generating the image from the guess
+        logger.debug("I'm here")
         guess_payload = {
             'prompt': f'''{message}''',
         }

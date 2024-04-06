@@ -17,7 +17,7 @@ FROM python:3.11.5
 
 WORKDIR /workspace/frontend
 
-ENV LIMITED_PROMPTS=true
+ENV LIMITED_PROMPTS=false
 
 COPY src/requirements.txt /workspace/frontend
 COPY src/agones /workspace/frontend/agones
