@@ -30,7 +30,6 @@ if(startGameBtn) {
     container.classList.add('loading')
     content.classList.add('hidden')
     loader.classList.remove('hidden')
-    playerTag.classList.remove('hidden')
     steps.classList.add('hidden')
 
     // Socket message
