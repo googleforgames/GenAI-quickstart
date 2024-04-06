@@ -34,6 +34,8 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8001
+          command: ["/app/frontend"]
+          args: ["-showConsentPage=false"]
 ---
 apiVersion: v1
 kind: Service

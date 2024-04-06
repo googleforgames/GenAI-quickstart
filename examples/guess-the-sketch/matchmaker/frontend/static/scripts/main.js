@@ -45,7 +45,7 @@ if(startGameBtn) {
         window.location.replace(gameServerURL.href)
       } catch (e) {
         // On error redirect to start page
-        window.location.href = '/static/index.html'
+        window.location.href = '/'
     }});
   })
 }

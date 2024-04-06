@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -37,6 +38,9 @@ const (
 var localAddr string
 
 func main() {
+	consentPage := flag.Bool("showConsentPage", false, "Set to true to show a consent page prior to the game start page")
+	flag.Parse()
+
 	server := socketio.NewServer(nil)
 	server.OnConnect("/", func(s socketio.Conn) error {
 		localAddr = s.LocalAddr().String()
@@ -63,13 +67,23 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("/app/static/"))))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/" {
-			log.Println("Serving index page.")
-			http.ServeFile(w, r, "/app/static/index.html")
-		} else {
-			log.Println("404 on", r.URL.Path)
-			http.NotFound(w, r)
+		if *consentPage {
+			if r.URL.Path == "/" {
+				log.Println("Serving index page.")
+				http.ServeFile(w, r, "/app/static/consent.html")
+				return
+			} else if r.URL.Path == "/play" {
+				log.Println("Serving game page.")
+				http.ServeFile(w, r, "/app/static/play.html")
+				return
+			}
+		} else if r.URL.Path == "/" {
+			log.Println("Serving game page.")
+			http.ServeFile(w, r, "/app/static/play.html")
+			return
 		}
+		log.Println("404 on", r.URL.Path)
+		http.NotFound(w, r)
 	})
 
 	log.Println("Starting server")
