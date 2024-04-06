@@ -102,8 +102,7 @@ connected_players = set()
 player_history = set()
 sid_to_player_id = {}
 player_id_to_promptes_set = {}
-time_now = time.time()
-full_connection_time = time_now
+full_connection_time = time.time()
 
 def check_connection():
     while True:
@@ -118,7 +117,7 @@ def check_connection():
                 logger.debug("Connected players: %s", len(connected_players))
                 logger.debug("full_connection_time: %s", full_connection_time)
                 if len(connected_players) != 2:
-                    if now - full_connection_time > 15:
+                    if now - full_connection_time > 60:
                         logger.debug("Not enough players on this server, shutdown the server")
                         agones.shutdown(body)
                 else:
@@ -126,6 +125,7 @@ def check_connection():
                 time.sleep(2)
             else:
                 time.sleep(5)
+                full_connection_time = now
         except ApiException as e:
             logger.warning("Exception when calling SDKApi->get_game_server: %s\n" % e)
             time.sleep(5)
@@ -135,7 +135,6 @@ check_connection_thread.start()
 
 @socketio.on('syncSession')
 def handle_sync_session(data):
-    global connected_players
     player_id = data['playerId']
     logger.debug('Player %s: Received syncSession from sid %s', player_id, request.sid)
     if player_id in player_history:
@@ -303,4 +302,4 @@ def dot(v1, v2):
    return sum(i[0] * i[1] for i in zip(v1, v2))
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0', port=7654)
+    socketio.run(app, debug=False, host='0.0.0.0', port=7654)
