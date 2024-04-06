@@ -189,11 +189,9 @@ def handle_message(data):
     logger.debug('Player %s: Received guess %s for opponent %s: %s', player_id, str(round), oppontent_id, message)
     encoded_image = "placeholder"
     if LIMITED_PROMPTS == "true":
-        logger.info("I'm here instead")
         pass
     else:
         # Do moderation by generating the image from the guess
-        logger.debug("I'm here")
         guess_payload = {
             'prompt': f'''{message}''',
         }
