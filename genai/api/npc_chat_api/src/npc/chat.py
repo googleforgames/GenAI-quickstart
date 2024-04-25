@@ -18,13 +18,18 @@ def npcs_from_world(world, genai, db):
     return [ NPC(entity, genai, db) for entity in world['base'] if entity['entity_type'] == 1 ]
 
 class NPC(object):
-    _FIRST_HAND = """
+    _KNOWN = """
 - You know the following:
 {first_hand}
 """
+    _FIRST_HAND = """
+
+- You've said the following to other people related to this topic:
+{second_hand}
+"""
     _SECOND_HAND = """
 
-- You trust the following things you've heard:
+- You've heard the following from other people related to this topic, but you're not sure if you trust it:
 {second_hand}
 """
 
@@ -43,14 +48,17 @@ class NPC(object):
         self._per_chat_cost = 10 # bytes to "charge" for each chat
 
     def _format_context(self, knowledge):
-        first_hand, second_hand = [], []
+        facts, first_hand, second_hand = [], [], []
         for known in knowledge:
             who, what = known['provenance'], known['knowledge']
-            if who:
+            if who == "I":
+                first_hand.append(f"* {who} said: {what}")
+            elif who:
                 second_hand.append(f"* {who} said: {what}")
             else:
-                first_hand.append(f"* {what}")
-        relevant = self._FIRST_HAND.format(first_hand='\n'.join(first_hand)) if first_hand else ""
+                facts.append(f"* {what}")
+        relevant = self._KNOWN.format(first_hand='\n'.join(facts)) if facts else ""
+        relevant += self._FIRST_HAND.format(second_hand='\n'.join(first_hand)) if first_hand else ""
         relevant += self._SECOND_HAND.format(second_hand='\n'.join(second_hand)) if second_hand else ""
         return self._context.format(relevant=relevant)
 
