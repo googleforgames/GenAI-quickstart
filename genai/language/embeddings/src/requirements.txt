@@ -15,5 +15,5 @@
 uvicorn==0.23.2
 fastapi==0.109.1
 pydantic==2.6.4
-requests==2.31.0
+requests==2.32.2
 sentence_transformers==2.3.1
