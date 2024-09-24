@@ -31,7 +31,7 @@ spec:
       serviceAccountName: fleet-allocator
       containers:
         - name: guess-the-sketch-director
-          image: guess-the-sketch-director
+          image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-director
           imagePullPolicy: Always
 ---
 apiVersion: v1

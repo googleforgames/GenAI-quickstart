@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: guess-the-sketch-mmf
-          image: guess-the-sketch-mmf
+          image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-mmf
           imagePullPolicy: Always
           ports:
             - containerPort: 50502
