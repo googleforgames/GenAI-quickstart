@@ -18,13 +18,17 @@ metadata:
   labels:
     name: guess-the-sketch-mmf
   name: guess-the-sketch-mmf
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.11.16.26
   selector:
     app: guess-the-sketch-mmf
   ports:
     - protocol: TCP
+      targetPort: 50502
       port: 50502
-  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment

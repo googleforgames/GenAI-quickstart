@@ -22,7 +22,9 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code into the image
-COPY *.go ./
+COPY director/*.go ./
+COPY omclient/ ./omclient
+COPY logging/ ./logging
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/director

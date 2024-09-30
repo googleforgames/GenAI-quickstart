@@ -15,17 +15,19 @@
 apiVersion: skaffold/v3
 kind: Config
 metadata:
-  name: guess-the-sketch-mmf-cfg
+  name: guess-the-sketch-director-cfg
 build:
   googleCloudBuild: {}
   tagPolicy:
     sha256: {}
   artifacts:
-  - image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-mmf
+  - image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-director
     context: .
+    docker:
+      dockerfile: Director.Dockerfile
 manifests:
   rawYaml:
-  - ./k8s.yaml
+  - director_k8s.yaml
 deploy:
   kubectl:
     flags:

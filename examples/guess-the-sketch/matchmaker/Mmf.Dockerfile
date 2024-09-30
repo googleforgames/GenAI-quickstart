@@ -23,7 +23,9 @@ RUN go mod download
 
 # Copy source code into the image
 RUN mkdir /app
-COPY *.go ./
+COPY mmf/*.go ./
+COPY omclient/ ./omclient
+COPY logging/ ./logging
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/mmf
