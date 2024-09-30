@@ -22,8 +22,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code into the image
-COPY *.go ./
-COPY static/ /app/static/
+COPY frontend/*.go ./
+COPY frontend/static/ /app/static/
+COPY omclient/ ./omclient
+COPY logging/ ./logging
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/frontend

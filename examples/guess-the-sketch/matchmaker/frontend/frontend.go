@@ -20,13 +20,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/google/uuid"
-	"github.com/googollee/go-socket.io"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"open-match.dev/open-match/pkg/pb"
+	pb2 "github.com/googleforgames/open-match2/v2/pkg/pb"
+	socketio "github.com/googollee/go-socket.io"
+
+	"matchmaker/omclient"
 )
 
 const (
@@ -96,7 +95,7 @@ func matchmake(s socketio.Conn) {
 	// value in argument to context.WithCancel: interface{} does not implement context.Context (missing method Deadline)"
 	// ctx, cancel := context.WithCancel(ws.Context())
 	// defer cancel()
-	assignments := make(chan *pb.Assignment)
+	assignments := make(chan *pb2.Assignment)
 	errs := make(chan error)
 
 	// Using context.Background() as s.Context() does not implement context.Contextk
@@ -115,62 +114,45 @@ func matchmake(s socketio.Conn) {
 	}
 }
 
-func streamAssignments(ctx context.Context, assignments chan *pb.Assignment, errs chan error) {
-	conn, err := connectFrontendServer()
-	if err != nil {
-		errs <- err
-	}
-	defer conn.Close()
-	fe := pb.NewFrontendServiceClient(conn)
+func streamAssignments(ctx context.Context, assignments chan *pb2.Assignment, errs chan error) {
+	log.Println("streaming assignments v1...")
 
-	var ticketId string
-	crReq := &pb.CreateTicketRequest{
-		Ticket: &pb.Ticket{},
-	}
+	omClient := omclient.CreateOMClient()
 
-	resp, err := fe.CreateTicket(ctx, crReq)
+	log.Println("creating a ticket...")
+	ticketId, err := omClient.CreateTicket(&pb2.Ticket{})
 	if err != nil {
 		errs <- fmt.Errorf("error creating open match ticket: %w", err)
 		return
 	}
-	ticketId = resp.Id
 
-	defer func() {
-		_, err = fe.DeleteTicket(context.Background(), &pb.DeleteTicketRequest{TicketId: ticketId})
-		if err != nil {
-			log.Println("Error deleting ticket", ticketId, ":", err)
-		}
+	log.Println("ticket created, ticket id is: ", ticketId)
+	log.Println("activating a ticket: ", ticketId)
+
+	ticketIdsToActivate := make(chan string)
+
+	go func() {
+		omClient.ActivateTickets(ctx, ticketIdsToActivate)
 	}()
 
-	waReq := &pb.WatchAssignmentsRequest{
-		TicketId: ticketId,
+	ticketIdsToActivate <- ticketId
+
+	log.Println("ticketid send to ticketIdsToActivate: ", ticketId)
+
+	waReq := &pb2.WatchAssignmentsRequest{
+		TicketIds: []string{ticketId},
 	}
 
-	stream, err := fe.WatchAssignments(ctx, waReq)
-	if err != nil {
-		errs <- fmt.Errorf("error getting assignment stream: %w", err)
-		return
-	}
-	for {
-		resp, err := stream.Recv()
-		if err != nil {
-			errs <- fmt.Errorf("error streaming assignment: %w", err)
-			return
-		}
-		assignments <- resp.Assignment
-	}
-}
+	log.Println("watching assignments: ", waReq)
+	assignmentsResultChan := make(chan *pb2.StreamedWatchAssignmentsResponse)
 
-func connectFrontendServer() (*grpc.ClientConn, error) {
-	frontendAddr := os.Getenv("FRONTEND_ADDR")
-	if frontendAddr == "" {
-		frontendAddr = defaultFrontendAddress
-	}
-	conn, err := grpc.Dial(frontendAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, fmt.Errorf("error dialing open match: %w", err)
-	}
-	return conn, nil
+	go omClient.WatchAssignments(context.Background(), waReq, assignmentsResultChan)
+
+	log.Println("waiting for assignmentsResultChan to give results ")
+	resp := <-assignmentsResultChan
+	fmt.Println("got something from the assignmentsResultChan: ", resp)
+	log.Printf("Got assignment: %v", resp.Assignment)
+	assignments <- resp.Assignment
 }
 
 type MatchMakeResponse struct {

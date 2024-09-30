@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  annotations:
+    iam.gke.io/gcp-service-account: om-caller@peteryizhong-gke-dev.iam.gserviceaccount.com
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,6 +36,7 @@ spec:
       labels:
         app: guess-the-sketch-frontend
     spec:
+      serviceAccountName: frontend-sa
       containers:
         - name: guess-the-sketch-frontend
           image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-frontend

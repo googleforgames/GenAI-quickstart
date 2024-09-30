@@ -23,14 +23,14 @@ import (
 	"io"
 	"math"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"matchmaker/logging"
+
 	"github.com/cenkalti/backoff/v4"
 	pb "github.com/googleforgames/open-match2/v2/pkg/pb"
-	"github.com/googleforgames/space-agon/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
@@ -48,7 +48,7 @@ type RestfulOMGrpcClient struct {
 func CreateOMClient() *RestfulOMGrpcClient {
 	// Connection config.
 	cfg := viper.New()
-	cfg.SetDefault("OM_CORE_ADDR", os.Getenv("OM_CORE_ADDRESS"))
+	cfg.SetDefault("OM_CORE_ADDR", "https://om-core-976869741551.us-central1.run.app")
 
 	// OM core config that the matchmaker needs to respect
 	cfg.SetDefault("OM_CORE_MAX_UPDATES_PER_ACTIVATION_CALL", 500)

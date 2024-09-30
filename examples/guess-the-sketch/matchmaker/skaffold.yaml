@@ -12,26 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Open Match Installation
-apiVersion: skaffold/v3
-kind: Config
-metadata:
-  name: open-match-cfg
-deploy:
-  helm:
-    releases:
-      - name: open-match
-        createNamespace: true
-        namespace: "open-match"
-        wait: true
-        remoteChart: open-match
-        repo: https://open-match.dev/chart/stable
-        setValues:
-          # Install the Default Evaluator
-          open-match-customize.enabled: true
-          open-match-customize.evaluator.enabled: true
-          # Install ConfigMap `om-configmap-override`, this ConfigMap configures Open Match to talk to the Default Evaluator
-          open-match-override.enabled: true
+# # Open Match Installation
+# apiVersion: skaffold/v3
+# kind: Config
+# metadata:
+#   name: open-match-cfg
+# deploy:
+#   helm:
+#     releases:
+#       - name: open-match
+#         createNamespace: true
+#         namespace: "open-match"
+#         wait: true
+#         remoteChart: open-match
+#         repo: https://open-match.dev/chart/stable
+#         setValues:
+#           # Install the Default Evaluator
+#           open-match-customize.enabled: true
+#           open-match-customize.evaluator.enabled: true
+#           # Install ConfigMap `om-configmap-override`, this ConfigMap configures Open Match to talk to the Default Evaluator
+#           open-match-override.enabled: true
 ---
 apiVersion: skaffold/v4beta1
 kind: Config
@@ -39,10 +39,10 @@ metadata:
   name: matchmaker-cfg
 requires:
 - configs: ["guess-the-sketch-frontend-cfg"]
-  path: ./frontend/skaffold.yaml
+  path: frontend_skaffold.yaml
 
-- configs: ["guess-the-sketch-mmf-cfg"]
-  path: ./mmf/skaffold.yaml
+# - configs: ["guess-the-sketch-mmf-cfg"]
+#   path: ./mmf/skaffold.yaml
 
-- configs: ["guess-the-sketch-director-cfg"]
-  path: ./director/skaffold.yaml
+# - configs: ["guess-the-sketch-director-cfg"]
+#   path: ./director/skaffold.yaml

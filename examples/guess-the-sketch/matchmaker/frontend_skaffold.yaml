@@ -23,9 +23,11 @@ build:
   artifacts:
   - image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-frontend
     context: .
+    docker:
+      dockerfile: Frontend.Dockerfile
 manifests:
   rawYaml:
-  - ./k8s.yaml
+  - frontend_k8s.yaml
 deploy:
   kubectl:
     flags:
