@@ -33,6 +33,11 @@ spec:
         - name: guess-the-sketch-director
           image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-director
           imagePullPolicy: Always
+          env:
+          - name: OM_CORE_ADDRESS
+            value: "https://om-core-976869741551.us-central1.run.app"
+          - name: MMF_ADDRESS
+            value: "http://10.11.16.26"
 ---
 apiVersion: v1
 kind: ServiceAccount

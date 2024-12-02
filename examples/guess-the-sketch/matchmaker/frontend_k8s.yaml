@@ -45,6 +45,9 @@ spec:
             - containerPort: 8001
           command: ["/app/frontend"]
           args: ["-showConsentPage=false"]
+          env:
+          - name: OM_CORE_ADDRESS
+            value: "https://om-core-976869741551.us-central1.run.app"
 ---
 apiVersion: v1
 kind: Service

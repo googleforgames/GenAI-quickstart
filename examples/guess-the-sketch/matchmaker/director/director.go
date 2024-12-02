@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -70,7 +71,7 @@ func createOMFetchMatchesRequest() *pb2.MmfRequest {
 		// om-function:50502 -> the internal hostname & port number of the MMF service in our Kubernetes cluster
 		Mmfs: []*pb2.MatchmakingFunctionSpec{
 			{
-				Host: "http://10.11.16.26",
+				Host: os.Getenv("MMF_ADDRESS"),
 				Port: 50502,
 				Type: pb2.MatchmakingFunctionSpec_GRPC,
 			},
