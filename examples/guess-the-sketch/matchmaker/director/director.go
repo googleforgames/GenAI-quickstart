@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"google.golang.org/protobuf/types/known/anypb"
@@ -27,6 +26,7 @@ import (
 	"agones.dev/agones/pkg/client/clientset/versioned"
 	pb2 "github.com/googleforgames/open-match2/v2/pkg/pb"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
 	"matchmaker/omclient"
@@ -67,11 +67,33 @@ func createAgonesClient() *versioned.Clientset {
 
 // Customize the backend.FetchMatches request, the default one will return all tickets in the statestore
 func createOMFetchMatchesRequest() *pb2.MmfRequest {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		fmt.Printf("failed to get K8s config: %v\n", err)
+		return &pb2.MmfRequest{}
+	}
+
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		fmt.Printf("failed to create K8s client: %v\n", err)
+		return &pb2.MmfRequest{}
+	}
+
+	service, err := client.CoreV1().Services("genai").Get(context.Background(), "guess-the-sketch-mmf", metav1.GetOptions{})
+	if err != nil {
+		fmt.Printf("Failed to get service: %v\n", err)
+		return &pb2.MmfRequest{}
+	}
+	if len(service.Status.LoadBalancer.Ingress) <= 0 {
+		fmt.Println("No external IP found (LoadBalancer might be still provisioning)")
+		return &pb2.MmfRequest{}
+	}
+	ingress := service.Status.LoadBalancer.Ingress[0]
 	return &pb2.MmfRequest{
 		// om-function:50502 -> the internal hostname & port number of the MMF service in our Kubernetes cluster
 		Mmfs: []*pb2.MatchmakingFunctionSpec{
 			{
-				Host: os.Getenv("MMF_ADDRESS"),
+				Host: "http://" + ingress.IP,
 				Port: 50502,
 				Type: pb2.MatchmakingFunctionSpec_GRPC,
 			},
@@ -123,7 +145,7 @@ func (r Client) run() error {
 
 		ctx := context.Background()
 
-		fmt.Println("Creating a game server")
+		fmt.Println("Allocating a game server")
 
 		gsa, err := agonesClient.AllocationV1().GameServerAllocations("default").Create(ctx, createAgonesGameServerAllocation(), metav1.CreateOptions{})
 		if err != nil {

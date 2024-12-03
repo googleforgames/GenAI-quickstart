@@ -83,7 +83,6 @@ func GetChunkedRequest(stream pb2.MatchMakingFunctionService_RunServer) (*pb2.Pr
 				Pools:      pools,
 				Extensions: in.GetProfile().GetExtensions(),
 			}
-			// fmt.Println("Finished receiving %v chunks of MMF profile %v", in.GetProfile().GetName(), i)
 			break
 		}
 	}

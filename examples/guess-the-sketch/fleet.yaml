@@ -31,7 +31,7 @@ spec:
         spec:
           containers:
             - name: guess-the-sketch-app
-              image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch
+              image: guess-the-sketch
               resources:
                 requests:
                   memory: 256Mi

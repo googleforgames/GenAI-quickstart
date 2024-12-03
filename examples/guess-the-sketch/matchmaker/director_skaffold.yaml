@@ -21,7 +21,7 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-  - image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-director
+  - image: guess-the-sketch-director
     context: .
     docker:
       dockerfile: Director.Dockerfile

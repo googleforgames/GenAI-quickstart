@@ -21,7 +21,7 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-  - image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-mmf
+  - image: guess-the-sketch-mmf
     context: .
     docker:
       dockerfile: Mmf.Dockerfile

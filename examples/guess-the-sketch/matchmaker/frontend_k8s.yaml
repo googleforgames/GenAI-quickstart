@@ -39,7 +39,7 @@ spec:
       serviceAccountName: frontend-sa
       containers:
         - name: guess-the-sketch-frontend
-          image: us-central1-docker.pkg.dev/peteryizhong-gke-dev/repo-genai-quickstart/guess-the-sketch-frontend
+          image: guess-the-sketch-frontend
           imagePullPolicy: Always
           ports:
             - containerPort: 8001
