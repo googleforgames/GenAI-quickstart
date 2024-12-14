@@ -13,7 +13,7 @@
 # limitations under the License.
 
 Flask==2.3.2
-gunicorn==21.2.0
+gunicorn==22.0.0
 Werkzeug==2.3.8
 flask-socketio==5.2.0
 requests
