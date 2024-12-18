@@ -18,7 +18,7 @@ kind: ServiceAccount
 metadata:
   name: frontend-sa
   annotations:
-    iam.gke.io/gcp-service-account: om-caller@peteryizhong-gke-dev.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: YOUR_GOOGLE_SERVICE_ACCOUNT
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,7 +47,7 @@ spec:
           args: ["-showConsentPage=false"]
           env:
           - name: OM_CORE_ADDRESS
-            value: "https://om-core-976869741551.us-central1.run.app"
+            value: YOUR_OM_CORE_URL
 ---
 apiVersion: v1
 kind: Service

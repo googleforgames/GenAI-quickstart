@@ -22,7 +22,6 @@ metadata:
     networking.gke.io/load-balancer-type: "Internal"
 spec:
   type: LoadBalancer
-  # loadBalancerIP: 10.11.16.26
   selector:
     app: guess-the-sketch-mmf
   ports:

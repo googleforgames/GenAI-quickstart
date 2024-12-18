@@ -35,16 +35,14 @@ spec:
           imagePullPolicy: Always
           env:
           - name: OM_CORE_ADDRESS
-            value: "https://om-core-976869741551.us-central1.run.app"
-          # - name: MMF_ADDRESS
-          #   value: "http://10.11.16.26"
+            value: YOUR_OM_CORE_URL
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fleet-allocator
   annotations:
-    iam.gke.io/gcp-service-account: om-caller@peteryizhong-gke-dev.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: YOUR_GOOGLE_SERVICE_ACCOUNT
   labels:
     app: fleet-allocator
     name: guess-the-sketch-director
