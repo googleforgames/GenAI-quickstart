@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  annotations:
+    iam.gke.io/gcp-service-account: YOUR_GOOGLE_SERVICE_ACCOUNT
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,6 +36,7 @@ spec:
       labels:
         app: guess-the-sketch-frontend
     spec:
+      serviceAccountName: frontend-sa
       containers:
         - name: guess-the-sketch-frontend
           image: guess-the-sketch-frontend
@@ -36,6 +45,9 @@ spec:
             - containerPort: 8001
           command: ["/app/frontend"]
           args: ["-showConsentPage=false"]
+          env:
+          - name: OM_CORE_ADDRESS
+            value: YOUR_OM_CORE_URL
 ---
 apiVersion: v1
 kind: Service

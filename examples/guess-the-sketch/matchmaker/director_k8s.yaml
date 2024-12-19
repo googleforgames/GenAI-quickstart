@@ -33,11 +33,16 @@ spec:
         - name: guess-the-sketch-director
           image: guess-the-sketch-director
           imagePullPolicy: Always
+          env:
+          - name: OM_CORE_ADDRESS
+            value: YOUR_OM_CORE_URL
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fleet-allocator
+  annotations:
+    iam.gke.io/gcp-service-account: YOUR_GOOGLE_SERVICE_ACCOUNT
   labels:
     app: fleet-allocator
     name: guess-the-sketch-director
@@ -59,6 +64,9 @@ rules:
   - apiGroups: ["agones.dev"]
     resources: ["fleets"]
     verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

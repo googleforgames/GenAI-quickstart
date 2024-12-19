@@ -31,7 +31,22 @@ presented with three predefined prompts and asked to select one of them._
    cd ${CUR_DIR:?}/examples/guess-the-sketch
    skaffold run --build-concurrency=0 --cache-artifacts=false
    ```
-1. Install the frontend, match maker, and open match into your cluster:
+1. Deploy Open Match 2 on Cloud Run by following [the documention](https://github.com/googleforgames/open-match2/blob/main/docs/DEVELOPMENT.md).
+   - NOTE: before running `gcloud run services replace service.yaml` to deploy Open Match 2, make sure to:
+      - Replace the IP address of the `OM_REDIS_WRITE_HOST` and `OM_REDIS_READ_HOST` in the [`service.yaml`](https://github.com/googleforgames/open-match2/blob/main/deploy/service.yaml) file to be the IP address of the Redis instance you created.
+      - Replace the `run.googleapis.com/network-interfaces` field to use the network and subnetwork configured by terraform. In this case, it's `vpc-genai-quickstart` and `sn-usc1`.
+      - Replace the `cloud.googleapis.com/location` field to be the location of your `sn-usc1` subnetwork (us-central1 if you followed the top level [README](https://github.com/googleforgames/GenAI-quickstart/blob/main/README.md)).
+1. Configure Open Match 2's permissions to your cluster.
+   - Create a Google Service Account in your project and give it the `Cloud Run Invoker` role.
+   - Replace the value of `iam.gke.io/gcp-service-account` of `frontend_k8s.yaml` and `director_k8s.yaml` to be the Google Service Account you created.
+   - Bind the Kubernetes Service Account in `frontend_k8s.yaml` and `director_k8s.yaml` to the Google Service Account(in the form of `SERVICE_ACCOUNT_NAME@PROJECT_ID.iam.gserviceaccount.com`) with 
+   ```
+   gcloud iam service-accounts add-iam-policy-binding   --role roles/iam.workloadIdentityUser   --member "serviceAccount:PROJECT_ID.svc.id.goog[genai/frontend-sa]"   YOUR_GOOGLE_SERVICE_ACCOUNT
+
+   gcloud iam service-accounts add-iam-policy-binding   --role roles/iam.workloadIdentityUser   --member "serviceAccount:PROJECT_ID.svc.id.goog[genai/fleet-allocator]"   YOUR_GOOGLE_SERVICE_ACCOUNT
+   ```
+   - Replace the value of `OM_CORE_ADDRESS` environment variable in `frontend_k8s.yaml` and `director_k8s.yaml` to be the url of the OM2 that's deployed on Cloud Run.
+1. Install the frontend and match maker into your cluster:
    - (optional) If you want to enable the consent screen, update `examples/guess-the-sketch/matchmaker/frontend/k8s.yaml` to set `showConsentPage` to `true` before running the `skaffold` command.
    ```
    cd ${CUR_DIR:?}/examples/guess-the-sketch/matchmaker

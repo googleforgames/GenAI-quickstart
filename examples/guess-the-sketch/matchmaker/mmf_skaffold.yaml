@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2024 Google LLC All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.22
-
-# Set destination for COPY
-WORKDIR /app
-
-# Download Go modules
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code into the image
-COPY *.go ./
-
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/director
-
-# Run
-CMD ["/app/director"]
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: guess-the-sketch-mmf-cfg
+build:
+  googleCloudBuild: {}
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - image: guess-the-sketch-mmf
+    context: .
+    docker:
+      dockerfile: Mmf.Dockerfile
+manifests:
+  rawYaml:
+  - mmf_k8s.yaml
+deploy:
+  kubectl:
+    flags:
+      global:
+      - --namespace=genai

@@ -26,3 +26,7 @@ admissionWebhooks:
   # Helm will create a self-signed cert and secret
   autoGenerateCert:
     enabled: true
+
+manager:
+  collectorImage:
+    repository: otel/opentelemetry-collector-contrib

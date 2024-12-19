@@ -1,8 +1,0 @@
-// As of March 2024 Docker only supports up to Golang 1.22 https://hub.docker.com/_/golang
-go 1.22
-
-use (
-  ./examples/guess-the-sketch/matchmaker/director
-  ./examples/guess-the-sketch/matchmaker/frontend
-  ./examples/guess-the-sketch/matchmaker/mmf
-)

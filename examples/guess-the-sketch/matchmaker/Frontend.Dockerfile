@@ -15,21 +15,23 @@
 FROM golang:1.22
 
 # Set destination for COPY
-WORKDIR /go/src
+WORKDIR /app
 
 # Download Go modules
 COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code into the image
-RUN mkdir /app
-COPY *.go ./
+COPY frontend/*.go ./
+COPY frontend/static/ /app/static/
+COPY omclient/ ./omclient
+COPY logging/ ./logging
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/mmf
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/frontend
 
 # Expose port
-EXPOSE 50502
+EXPOSE 8001
 
 # Run
-CMD ["/app/mmf"]
+CMD ["/app/frontend"]
