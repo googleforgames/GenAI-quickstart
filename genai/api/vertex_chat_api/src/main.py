@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+import uvicorn
+import logging
+import requests
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from utils.model_util import Google_Cloud_GenAI
-import sys
-import logging
-import requests
 from typing import List
-from vertexai.language_models import ChatMessage
+from vertexai.generative_models import Content
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -60,14 +62,16 @@ logging.debug(f'GCP_REGION:     {GCP_REGION}')
 logging.debug(f'GCP_ZONE:       {GCP_ZONE}')
 
 # Initialize Vertex LLM Model
-model_vertex_llm_chat = Google_Cloud_GenAI(GCP_PROJECT_ID, GCP_REGION=GCP_REGION, MODEL_TYPE='chat-bison')
+model_vertex_llm_chat = Google_Cloud_GenAI(GCP_PROJECT_ID,
+                                           GCP_REGION=GCP_REGION,
+                                           MODEL_TYPE= "gemini-2.0")
 
 headers = {"Content-Type": "application/json"}
 
 class Payload_Vertex_Chat(BaseModel):
     prompt: str
     context: str | None = ''
-    message_history: List[ChatMessage] | None = []
+    message_history: List[dict] | None = []
     max_output_tokens: int | None = 1024
     temperature: float | None = 0.2
     top_p: float | None = 0.8
@@ -88,7 +92,10 @@ def vertex_llm_chat(payload: Payload_Vertex_Chat):
         request_payload = {
             'prompt': payload.prompt,
             'context': payload.context,
-            'message_history': payload.message_history,
+            'message_history': [
+                    Content.from_dict(entry)
+                    for entry in payload.message_history
+                ] if payload.message_history is not None else None,
             'max_output_tokens': payload.max_output_tokens,
             'temperature': payload.temperature,
             'top_p': payload.top_p,
@@ -97,11 +104,10 @@ def vertex_llm_chat(payload: Payload_Vertex_Chat):
         response = model_vertex_llm_chat.call_llm(**request_payload)
         return response.text
     except Exception as e:
-        print(f'EXCEPTION: {e}')
-        return {}
+        logging.error(msg=e, stack_info=True)
+        return "{}"
 
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=7777)
 

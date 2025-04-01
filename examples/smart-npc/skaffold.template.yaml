@@ -12,9 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-uvicorn==0.23.2
-fastapi==0.109.1
-pydantic==2.6.4
-google-cloud-aiplatform==1.59.0
-requests==2.31.0
-google-genai==0.2.0
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: smart-npc-api-cfg
+build:
+  googleCloudBuild: {}
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - image: us-central1-docker.pkg.dev/your-unique-project-id/repo-genai-quickstart/smart-npc-api
+    context: .
+manifests:
+  rawYaml:
+  - ./config.yaml
+  - ./k8s.yaml
+deploy:
+  kubectl:
+    flags:
+      global:
+      - --namespace=genai
+requires:
+- configs: ["common"]
+  path: ../../genai/common/skaffold.yaml

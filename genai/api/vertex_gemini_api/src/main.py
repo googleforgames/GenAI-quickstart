@@ -15,6 +15,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
 from utils.model_util import GCP_GenAI_Gemini
 import io
 import os, sys
@@ -35,7 +36,15 @@ app = FastAPI(
     description="GenAI service that may contain business logic, data processing steps, and makes calls to the Google Cloud Gemini LLM",
     version="0.0.1",
 )
+# CORS
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 def get_gcp_metadata():
     metadata_server = "http://metadata.google.internal"
     headers = {"Metadata-Flavor": "Google"}

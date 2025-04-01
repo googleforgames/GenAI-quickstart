@@ -1,10 +1,10 @@
-# Copyright 2024 Google LLC All Rights Reserved.
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,9 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-uvicorn==0.23.2
-fastapi==0.109.1
-pydantic==2.6.4
-google-cloud-aiplatform==1.59.0
-requests==2.31.0
-google-genai==0.2.0
+USE_QUICK_START = True  # Use Google for Games quickstart dispatcher
