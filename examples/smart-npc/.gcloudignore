@@ -1,0 +1,10 @@
+# Python Environment
+.venv/
+__pycache__/
+run.log
+
+# NodeJS
+node_modules/
+
+# Dev
+test/
