@@ -65,3 +65,7 @@ output "smart-npc-https-name" {
 output "smart-npc-https-ip" {
   value = google_compute_global_address.https_static_ip_address.address
 }
+
+output "smart-npc-ws-url" {
+  value = "ws://${google_compute_global_address.https_static_ip_address.name}/game/streaming"
+}
