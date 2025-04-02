@@ -1,0 +1,46 @@
+# Create Database
+# sqlalchemy
+google-cloud-secret-manager==2.16.4
+google-cloud-core==2.3.3
+cloud-sql-python-connector[asyncpg]
+pgvector==0.2.3
+pg8000==1.30.3
+
+# Data ingestion
+pypdf==4.2.0
+cloud-sql-python-connector[pg8000]
+SQLAlchemy==2.0.7
+google-cloud-aiplatform==1.59.0
+argparse
+
+# psycopg2
+psycopg2-binary
+# pgvector
+unstructured
+# tensorflow-hub
+# tensorflow
+# tensorflow_text
+# google-cloud-secret-manager
+pandas
+asyncpg
+cloud-sql-python-connector[asyncpg]
+cloud-sql-python-connector[pymysql]
+google-cloud-logging
+gcloud==0.18.3
+# numpy
+# google-cloud-bigquery
+fastapi
+
+proto-plus
+protobuf
+# google-cloud-pubsub
+
+# Caching
+redis
+
+# Serving
+uvicorn
+
+# Experimental Websocket
+google-genai==1.2.0
+websockets==14.2
