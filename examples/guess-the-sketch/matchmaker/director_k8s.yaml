@@ -35,14 +35,12 @@ spec:
           imagePullPolicy: Always
           env:
           - name: OM_CORE_ADDRESS
-            value: YOUR_OM_CORE_URL
+            value: "http://open-match-service.default.svc.cluster.local:50504"
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: fleet-allocator
-  annotations:
-    iam.gke.io/gcp-service-account: YOUR_GOOGLE_SERVICE_ACCOUNT
   labels:
     app: fleet-allocator
     name: guess-the-sketch-director
