@@ -29,6 +29,9 @@ resource "google_service_account_iam_binding" "sa_gke_cluster_wi_binding" {
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[genai/k8s-sa-cluster]",
   ]
+  depends_on = [
+    google_iam_workload_identity_pool.sa_gke_cluster
+  ]
 }
 
 module "member_roles_gke_cluster" {
@@ -45,6 +48,7 @@ module "member_roles_gke_cluster" {
     "roles/monitoring.viewer",
     "roles/stackdriver.resourceMetadata.writer",
     "roles/cloudtrace.agent",
+    "roles/secretmanager.secretAccessor"
   ]
 }
 
@@ -61,6 +65,9 @@ resource "google_service_account_iam_binding" "sa_gke_aiplatform_wi_binding" {
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[genai/k8s-sa-aiplatform]",
   ]
+  depends_on = [
+    google_iam_workload_identity_pool.sa_gke_cluster
+  ]
 }
 
 module "member_roles_gke_aiplatform" {
@@ -72,6 +79,20 @@ module "member_roles_gke_aiplatform" {
     "roles/aiplatform.user",
     "roles/storage.objectUser",
     "roles/spanner.databaseUser",
+    "roles/secretmanager.secretAccessor",
+    # Cloud SQL Client
+    "roles/cloudsql.client",
+    # Log Writer
+    "roles/logging.logWriter",
+    # Able to upload and download conversation logs from GCS
+    "roles/storage.objectCreator",
+    "roles/storage.objectViewer",
+    # Need storage.objects.delete
+    "roles/storage.objectAdmin",
+    # For Gen2 cloud functions invoker
+    "roles/run.invoker",
+    # For deploying to Cloud Run using this service account
+    "roles/iam.serviceAccountUser",
   ]
 }
 
@@ -87,6 +108,9 @@ resource "google_service_account_iam_binding" "sa_gke_telemetry_wi_binding" {
   role               = "roles/iam.workloadIdentityUser"
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[genai/k8s-sa-telemetry]",
+  ]
+  depends_on = [
+    google_iam_workload_identity_pool.sa_gke_cluster
   ]
 }
 
@@ -112,5 +136,22 @@ module "member_roles_cloudbuild" {
     "roles/cloudbuild.builds.builder",
     "roles/container.developer",
     "roles/storage.objectAdmin",
+  ]
+}
+
+resource "google_iam_workload_identity_pool" "sa_gke_cluster" {
+  workload_identity_pool_id = var.project_id
+}
+
+module "member_roles_artifact_registry" {
+  source                  = "terraform-google-modules/iam/google//modules/member_iam"
+  service_account_address = "${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  prefix                  = "serviceAccount"
+  project_id              = var.project_id
+  project_roles = [
+    "roles/storage.admin",
+    "roles/storage.objectViewer",
+    "roles/artifactregistry.reader",
+    "roles/artifactregistry.writer"
   ]
 }
