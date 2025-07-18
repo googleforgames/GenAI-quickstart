@@ -1,6 +1,6 @@
 module matchmaker
 
-go 1.22.6
+go 1.23.0
 
 require (
 	agones.dev/agones v1.43.0
@@ -10,7 +10,7 @@ require (
 	github.com/googollee/go-socket.io v1.7.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
-	golang.org/x/oauth2 v0.23.0
+	golang.org/x/oauth2 v0.27.0
 	google.golang.org/api v0.199.0
 	google.golang.org/grpc v1.67.0
 	google.golang.org/protobuf v1.34.2
