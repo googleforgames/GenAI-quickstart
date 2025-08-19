@@ -1,0 +1,208 @@
+# ##################################################
+#   Example config.toml
+#   - `gcp` section should be fill in by Terraform
+# ##################################################
+
+["gcp"]
+database_private_ip_address=""
+database_public_ip_address=""
+postgres_instance_connection_name=""
+database_user_name="llmuser"
+database_password_key="pgvector-password"
+image_upload_gcs_bucket=""
+google-project-id=""
+cache-server-host = ""
+cache-server-port = 6379
+use-cache-server = "True" # "False" if running locally
+google-default-region = "us-central1"
+api-key = ""
+
+
+[game]
+game_id = "baseball"
+enable_validator = "False"
+
+[npc]
+RESPONSE_LANGUAGE = "en-US"
+
+[sql]
+QUERY_SCENE = """
+select scene_id, scene, status, goal, npcs, knowledge, game_id from smartnpc.scene
+where scene_id=:scene_id and game_id=:game_id
+"""
+
+QUERY_NPC_BY_ID = """
+select npc_id, game_id, background, name, class, class_level, status, lore_level from smartnpc.npc
+where npc_id=:npc_id and game_id=:game_id
+"""
+
+QUERY_NPC_KNOWLEDGE = """
+select background_id,
+    background_name,
+    content,
+    lore_level,
+    background,
+    (1 - (background_embeddings <=> :query_embeddings)) as score
+    from games.world_background
+    where lore_level <= :lore_level
+    order by score desc
+    limit 5
+"""
+
+QUERY_SEARCH_QUESTS_ALL = """
+select
+    game_id,
+    quest_id,
+    quest_story,
+    min_level,
+    metadata,
+    quest_name,
+    provider_id
+    from games.quests
+    where provider_id = :provider_id and game_id=:game_id
+    limit 5
+"""
+
+QUERY_SEARCH_QUESTS = """
+select
+    game_id,
+    quest_id,
+    quest_story,
+    min_level,
+    metadata,
+    quest_name,
+    provider_id,
+    (1 - (quest_embeddings <=> :query_embeddings)) as score
+    from games.quests
+    where provider_id = :provider_id and game_id=:game_id
+    order by (1 - (quest_embeddings <=> :query_embeddings)) desc
+    limit 5
+"""
+
+QUERY_PROMPT_TEMPLATE = """
+
+SELECT prompt_id,
+        scene_id,
+        game_id,
+        prompt_template,
+        is_activate
+FROM smartnpc.prompt_template
+WHERE
+    is_activate = True and
+    prompt_id=:prompt_id and
+    game_id=:game_id and
+  CASE
+    WHEN scene_id = :scene_id THEN scene_id
+    ELSE 'default'
+  END = scene_id;
+"""
+
+QUERY_CONV_EXAMPLE = """
+select
+    example_id,
+    game_id,
+    scene_id,
+    conversation_example,
+    is_activate
+from smartnpc.conversation_examples
+where
+    game_id=:game_id and
+    CASE
+        WHEN scene_id = :scene_id THEN scene_id
+        ELSE 'default'
+    END = scene_id
+    and
+    CASE
+        WHEN example_id = :example_id THEN example_id
+        ELSE 'default'
+    END = example_id;
+
+"""
+
+[baseball]
+QUERY_TEAM = """
+select team_id,
+    team_name,
+    team_year,
+    description,
+    roster,
+    default_lineup
+from smartnpc.teams
+where team_id=:team_id
+"""
+
+QUERY_TEAMS = """
+select team_id,
+    team_name,
+    team_year,
+    description,
+    roster,
+    default_lineup
+from smartnpc.teams
+"""
+
+QUERY_TEAM_ROSTER = """
+select team_id,
+    session_id,
+    player_id,
+    roster
+from smartnpc.rosters
+where
+    team_id=:team_id And
+    session_id=:session_id And
+    player_id=:player_id
+"""
+
+QUERY_TEAM_LINEUP = """
+select
+    team_id,
+    player_id,
+    session_id,
+    lineup
+from smartnpc.lineup
+where
+    team_id=:team_id And
+    session_id=:session_id And
+    player_id=:player_id
+"""
+
+UPSERT_TEAM_LINEUP = """
+INSERT INTO smartnpc.lineup(
+    team_id,
+    player_id,
+    session_id,
+    lineup
+)
+values(
+    :team_id,
+    :player_id,
+    :session_id,
+    :lineup
+)
+ON CONFLICT(team_id, player_id)
+DO UPDATE SET
+  session_id = :session_id,
+  lineup = :lineup;
+"""
+
+
+UPSERT_TEAM_ROSTER = """
+INSERT INTO smartnpc.rosters(
+    team_id,
+    session_id,
+    player_id,
+    roster
+)
+values(
+    :team_id,
+    :session_id,
+    :player_id,
+    :roster
+)
+ON CONFLICT(team_id, session_id)
+DO UPDATE SET
+  player_id = :player_id,
+  team_id=:team_id,
+  session_id=:session_id,
+  roster = :roster;
+"""
