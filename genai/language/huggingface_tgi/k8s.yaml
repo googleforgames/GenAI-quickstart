@@ -1,6 +1,6 @@
 # Huggingface TGI Deployments
 #
-# We create two different deployments that each match the TGI service at the bottom. If you want to play with a different
+# We create four different deployments that each match the TGI service at the bottom. If you want to play with a different
 # configuration (CPU vs 2xL4 x 4xL4), scale the replicas up and down.
 #
 apiVersion: apps/v1
@@ -30,7 +30,7 @@ spec:
         - name: huggingface-tgi-api
           ports:
             - containerPort: 80
-          image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          image: ghcr.io/huggingface/text-generation-inference:1.4.4
           startupProbe:
             httpGet:
               path: /health
@@ -43,8 +43,6 @@ spec:
               port: 80
             failureThreshold: 12
             periodSeconds: 5
-          # Use this image for Gemma support:
-          # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
             # Choose models with multiturn chat support
             # Look for `chat_template`, e.g.: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta/blob/main/tokenizer_config.json#L34
@@ -54,7 +52,6 @@ spec:
             #
             # To run Gemma:
             # - --model-id=google/gemma-7b-it
-            # (but you'll need the updated image above)
             #
             # Another alternative, but you'll need a bunch of ephemeral storage:
             - --model-id=mistralai/Mixtral-8x7B-Instruct-v0.1
@@ -124,7 +121,7 @@ spec:
         - name: huggingface-tgi-api
           ports:
             - containerPort: 80
-          image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          image: ghcr.io/huggingface/text-generation-inference:1.4.4
           startupProbe:
             httpGet:
               path: /health
@@ -137,8 +134,6 @@ spec:
               port: 80
             failureThreshold: 12
             periodSeconds: 5
-          # Use this image for Gemma support:
-          # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
             # Choose models with multiturn chat support
             # Look for `chat_template`, e.g.: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta/blob/main/tokenizer_config.json#L34
@@ -148,7 +143,6 @@ spec:
             #
             # To run Gemma:
             # - --model-id=google/gemma-7b-it
-            # (but you'll need the updated image above)
             #
             # Another alternative, but you'll need a bunch of ephemeral storage:
             - --model-id=mistralai/Mixtral-8x7B-Instruct-v0.1
@@ -166,6 +160,98 @@ spec:
           # env:
           # - name: HUGGING_FACE_HUB_TOKEN
           #   value: <your API key>
+          resources:
+            requests:
+              cpu: "10"
+              memory: "80Gi"
+              ephemeral-storage: "100Gi"
+              nvidia.com/gpu: 2
+            limits:
+              cpu: "20"
+              memory: "160Gi"
+              ephemeral-storage: "200Gi"
+              nvidia.com/gpu: 2
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: shm
+            - mountPath: /data
+              name: data
+      volumes:
+        # # c.f. https://github.com/huggingface/text-generation-inference#a-note-on-shared-memory-shm
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: data
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: huggingface-tgi-gemma-small
+  labels:
+    name: huggingface-tgi-gemma-small
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      name: huggingface-tgi-api
+      tgi-config: gemma-7B-2xL4
+  template:
+    metadata:
+      labels:
+        name: huggingface-tgi-api
+        tgi-config: gemma-7B-2xL4
+    spec:
+      serviceAccountName: k8s-sa-aiplatform
+      nodeSelector:
+        cloud.google.com/gke-accelerator: "nvidia-l4"
+        cloud.google.com/gke-ephemeral-storage-local-ssd: "true"
+        cloud.google.com/compute-class: "Accelerator"
+      containers:
+        - name: huggingface-tgi-api
+          ports:
+            - containerPort: 80
+          image: ghcr.io/huggingface/text-generation-inference:1.4.4
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 240
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            failureThreshold: 12
+            periodSeconds: 5
+          args:
+            # Choose models with multiturn chat support
+            # Look for `chat_template`, e.g.: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta/blob/main/tokenizer_config.json#L34
+            # Alternatives if you don't have an API Key:
+            # - --model-id=mistralai/Mistral-7B-Instruct-v0.2
+            # - --model-id=HuggingFaceH4/zephyr-7b-beta
+            #
+            # To run Gemma:
+            - --model-id=google/gemma-7b-it
+            #
+            # Another alternative, but you'll need a bunch of ephemeral storage:
+            # - --model-id=mistralai/Mixtral-8x7B-Instruct-v0.1
+            # To run on 2xL4s we have to quantize even smaller
+            # - --quantize=bitsandbytes-nf4
+            # - --quantize=eetq
+            #
+            # --num-shard should match nvidia.com/gpu: limits
+            - --num-shard=2
+            #
+            # raise the default input/total tokens to allow for more chat context
+            - --max-input-length=3072
+            - --max-total-tokens=4096
+
+          # To use Gemma, you need to fill this in. (Preferably, use a secret or a secret manager instead.)
+          env:
+          - name: HUGGING_FACE_HUB_TOKEN
+            value: invalid-api-key
           resources:
             requests:
               cpu: "10"
@@ -218,7 +304,7 @@ spec:
         - name: huggingface-tgi-api
           ports:
             - containerPort: 80
-          image: ghcr.io/huggingface/text-generation-inference:1.4.2
+          image: ghcr.io/huggingface/text-generation-inference:1.4.4
           startupProbe:
             httpGet:
               path: /health
@@ -231,8 +317,6 @@ spec:
               port: 80
             failureThreshold: 12
             periodSeconds: 5
-          # Use this image for Gemma support:
-          # image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-hf-tgi-serve:20240220_0936_RC01
           args:
             # Choose models with multiturn chat support
             # Look for `chat_template`, e.g.: https://huggingface.co/HuggingFaceH4/zephyr-7b-beta/blob/main/tokenizer_config.json#L34
@@ -242,7 +326,6 @@ spec:
             #
             # To run Gemma:
             # - --model-id=google/gemma-7b-it
-            # (but you'll need the updated image above)
             #
             # Another alternative, but you'll need a bunch of ephemeral storage:
             # - --model-id=mistralai/Mixtral-8x7B-Instruct-v0.1
