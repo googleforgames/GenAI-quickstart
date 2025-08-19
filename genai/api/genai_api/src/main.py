@@ -15,6 +15,7 @@
 import os, sys
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse, JSONResponse
 import io
@@ -121,7 +122,7 @@ class Payload_Vertex_Gemini(BaseModel):
 class Payload_Chat(BaseModel):
     prompt: str
     context: str | None = ''
-    message_history: List[ChatMessage] | None = []
+    message_history: List[dict] | None = []
     max_output_tokens: int | None = 1024
     temperature: float | None = 0.2
     top_p: float | None = 0.8
@@ -224,6 +225,15 @@ class Payload_NPC_Chat(BaseModel):
         }
     }
 
+# CORS
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 # Routes
 
 
