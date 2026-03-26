@@ -17,6 +17,6 @@ fastapi==0.109.1
 pydantic==2.6.4
 google-cloud-aiplatform==1.40.0
 google-cloud-spanner==3.42.0
-requests==2.31.0
+requests==2.33.0
 openai==1.12.0
 jinja2==3.1.3
